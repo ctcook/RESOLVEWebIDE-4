@@ -18,7 +18,7 @@ dist/
 .classpath
 
 # netbeans
-nbproject/
+nbproject/private/
 
 # Ignore the ace sources for now
 ace/
