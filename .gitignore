@@ -1,0 +1,24 @@
+#################
+# Derived files #
+#################
+
+# Anything in the derived directories
+build/
+dist/
+
+# Derived Java classes
+*.class
+
+####################
+# IDE project info #
+####################
+
+# eclipse
+.project
+.classpath
+
+# netbeans
+nbproject/
+
+# Ignore the ace sources for now
+ace/
