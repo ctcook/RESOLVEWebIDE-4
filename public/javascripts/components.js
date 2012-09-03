@@ -546,8 +546,12 @@ function clearVcInfo(){
 }
 
 function initializeComponentMenu(){
+    var pathname = window.location.pathname;
+    if(pathname.length > 1){
+        pathname += "/";
+    }
     $.ajax({
-        url: "public/data.json",
+        url: pathname+"public/data.json",
         dataType: "json",
         async: false,
         success: function(json){
@@ -688,10 +692,14 @@ function decode(content){
 }
 
 function setMenuHandlers(menu){
+    var timeOut = null;
     menu.mouseenter(function(event){
+        if(timeOut != null){
+            clearTimeout(timeOut);
+        }
         showMenu(menu.children("ul"));
     }).mouseleave(function(event){
-        setTimeout(function(){
+        timeOut = setTimeout(function(){
             hideMenu(menu.children("ul"));
         }, 500);
     });
