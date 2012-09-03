@@ -27,38 +27,20 @@ var Component = Backbone.RelationalModel.extend({
         editorSession: null // we store the editor session here if the file is opened*/
     },
     initialize: function(){
-      //this.bind("relational:change:parent",this.change);
-      //this.bind("update:key",this.change);
-      //this.bind("change",this.change);
-      //this.bind("parent",this.change);
+      
     },
     relations: [{
         type: Backbone.HasMany,
         key: "realizations",
         relatedModel: "Component",
-        collectionType: 'ComponentList'/*,
-        reverseRelation: {
-            key: 'parent',
-            includeInJSON: false
-        }*/
+        collectionType: 'ComponentList'
     },
     {
         type: Backbone.HasMany,
         key: "enhancements",
         relatedModel: "Component",
-        collectionType: 'ComponentList'/*,
-        reverseRelation: {
-            key: 'parent',
-            includeInJSON: false
-        }*/
-    }]/*,
-    toJSON: function(){
-        var tempSession = this.get("editorSession");
-        this.unset("editorSession");
-        var json = Backbone.Model.prototype.toJSON.call(this);
-        this.set("editorSession", tempSession);
-        return json;
-    }*/
+        collectionType: 'ComponentList'
+    }]
 });
 
 var OpenComponent = Backbone.RelationalModel.extend({
@@ -142,6 +124,15 @@ var ComponentMenuView = Backbone.View.extend({
     },
     // we render each ComponentView separately and add it to the appropriate list
     render: function(){
+        var componentmenu = $("#component_menu li");
+        setMenuHandlers(componentmenu);
+        /*componentmenu.mouseenter(function(event){
+            showMenu($("#component_list"));
+        }).mouseleave(function(event){
+            setTimeout(function(){
+                hideMenu($("#component_list"));
+            }, 500);
+        });*/
         var that = this;
         this._componentViews = [];
         this.collection.each(function(component){
@@ -155,8 +146,11 @@ var ComponentMenuView = Backbone.View.extend({
         });
         $(this.el).empty();
         var concepts = $("<li>").html("<a class=\"component\">Concepts</a>");
+        setMenuHandlers(concepts);
         var facilities = $("<li>").html("<a class=\"component\">Facilities</a>");
+        setMenuHandlers(facilities);
         var theories = $("<li>").html("<a class=\"component\">Theories</a>");
+        setMenuHandlers(theories);
         var conceptList = $("<ul>").appendTo(concepts);
         var facilityList = $("<ul>").appendTo(facilities);
         var theoryList = $("<ul>").appendTo(theories);
@@ -178,6 +172,8 @@ var ComponentMenuView = Backbone.View.extend({
         var loader = $("<li>").html("<a class=\"loader\">Load</a>");
         $(this.el).append(creater);
         $(this.el).append(loader);
+        $("#component_list").addClass("hidden");
+        $("#component_list").find("li").addClass("hidden");
     },
     events: {
         "click .creater" : "createComponent",
@@ -235,6 +231,7 @@ var ComponentView = Backbone.View.extend({
                 });
                 ul.appendTo(item);
                 item.appendTo(list);
+                setMenuHandlers(item);
             }
             if(this._realizationViews.length > 0){
                 _(this._realizationViews).each(function(cv){
@@ -243,6 +240,7 @@ var ComponentView = Backbone.View.extend({
             }
         }
         $(this.el).html(html).append(list);
+        setMenuHandlers($(this.el));
         return this;
     },
     events: {
@@ -689,3 +687,24 @@ function decode(content){
     return cont;
 }
 
+function setMenuHandlers(menu){
+    menu.mouseenter(function(event){
+        showMenu(menu.children("ul"));
+    }).mouseleave(function(event){
+        setTimeout(function(){
+            hideMenu(menu.children("ul"));
+        }, 500);
+    });
+}
+
+function showMenu(parent){
+    var list = parent.removeClass("hidden").addClass("visable");
+    var children = list.children("li");
+    children.removeClass("hidden").addClass("visable");
+}
+
+function hideMenu(parent){
+    var list = parent.removeClass("visable").addClass("hidden");
+    var children = list.children("li");
+    children.removeClass("visable").addClass("hidden");
+}
