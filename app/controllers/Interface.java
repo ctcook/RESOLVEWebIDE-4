@@ -11,7 +11,7 @@ import play.cache.Cache;
 public class Interface extends Controller {
 
     public static void index() {
-        
+        System.out.println(session.getId());
         String name = Cache.get(session.getId(), String.class);
         if(name == null){
             name = "Chuck";
