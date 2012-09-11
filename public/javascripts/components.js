@@ -545,8 +545,14 @@ function clearVcInfo(){
     $("#vcs").html("");
 }
 
-function initializeComponentMenu(){
-    var pathname = window.location.pathname;
+function initializeComponentMenu(json){
+    myComponentList = new ComponentList(json["components"]);
+    myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
+    //$("#component_list").parent().trigger('mouseenter');
+    $("#component_list").bind("hover", function(){
+        $("#component_list").css({display:""});
+    });
+    /*var pathname = window.location.pathname;
     if(pathname.length > 1){
         pathname += "/";
     }
@@ -567,15 +573,16 @@ function initializeComponentMenu(){
             alert(err.status + " - " + err.statusText);
             log(err.status + " - " + err.statusText);
         }
-    }); 
+    }); */
 }
 
-function initializeOpenComponentList(){
+function initializeOpenComponentList(json){
     myOpenComponentList = new OpenComponentList();
-    if(localStorage.localOpenComponentList){
-        myOpenComponentList.reset(JSON.parse(localStorage.localOpenComponentList));
+    myOpenComponentList.reset(json["components"]);
+    //if(localStorage.localOpenComponentList){
+        //myOpenComponentList.reset(JSON.parse(localStorage.localOpenComponentList));
     
-    }
+    //}
     myOpenComponent_view = new OpenComponentListView({el: $("#open_menu"), collection: myOpenComponentList});
     if(myOpenComponentList.length != 0){
         var selectedComponentId = localStorage.selectedComponentId;
