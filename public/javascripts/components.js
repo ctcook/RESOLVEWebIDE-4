@@ -456,7 +456,7 @@ var OpenComponentView = Backbone.View.extend({
  * This function creates the code for the X div to close something
  */
 function getCloseDiv(){
-    var closeImg = $("<img src=\"public/images/close.png\">").addClass("close_img");
+    var closeImg = $("<img src=\"../images/close.png\">").addClass("close_img");
     return closeImg;
 }
 
