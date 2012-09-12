@@ -576,13 +576,12 @@ function initializeComponentMenu(json){
     }); */
 }
 
-function initializeOpenComponentList(json){
+function initializeOpenComponentList(){
     myOpenComponentList = new OpenComponentList();
-    myOpenComponentList.reset(json["components"]);
-    //if(localStorage.localOpenComponentList){
-        //myOpenComponentList.reset(JSON.parse(localStorage.localOpenComponentList));
+    if(localStorage.localOpenComponentList){
+        myOpenComponentList.reset(JSON.parse(localStorage.localOpenComponentList));
     
-    //}
+    }
     myOpenComponent_view = new OpenComponentListView({el: $("#open_menu"), collection: myOpenComponentList});
     if(myOpenComponentList.length != 0){
         var selectedComponentId = localStorage.selectedComponentId;

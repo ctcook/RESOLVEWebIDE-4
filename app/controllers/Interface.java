@@ -9,6 +9,7 @@ import play.cache.Cache;
 
 //import models.*;
 
+//@With(Secure.class)
 public class Interface extends Controller {
 
     public static void index() {
