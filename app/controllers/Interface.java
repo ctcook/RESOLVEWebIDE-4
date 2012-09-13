@@ -17,6 +17,7 @@ public class Interface extends Controller {
         String userSession = session.getId();
         Boolean loggedIn = Cache.get(userSession + "_status", Boolean.class);
         User user = null;
+        
         if(loggedIn != null){
             user = Cache.get(userSession + "_user", User.class);
             /*if(loggedIn){
