@@ -223,7 +223,7 @@ var ComponentView = Backbone.View.extend({
             var list = $("<ul>");
             var item = null;
             var ul = null;
-            if(this._enhancementViews.length > 0){
+            /*if(this._enhancementViews.length > 0){
                 item = $("<li>").html("<a>enhancements</a>").addClass("sub_menu");
                 ul = $("<ul>");
                 _(this._enhancementViews).each(function(cv){
@@ -232,11 +232,20 @@ var ComponentView = Backbone.View.extend({
                 ul.appendTo(item);
                 item.appendTo(list);
                 setMenuHandlers(item);
-            }
+            }*/
             if(this._realizationViews.length > 0){
+                item = $("<li>").html("<a>realizations</a>").addClass("component_title");
+                item.appendTo(list);
                 _(this._realizationViews).each(function(cv){
                     list.append(cv.render().el);
                 });    
+            }
+            if(this._enhancementViews.length > 0){
+                item = $("<li>").html("<a>enhancements</a>").addClass("component_title");
+                item.appendTo(list);
+                _(this._enhancementViews).each(function(cv){
+                    list.append(cv.render().el);
+                });
             }
         }
         $(this.el).html(html).append(list);
@@ -524,6 +533,7 @@ function displayComponent(component){
     session.on("change", function() {
       syntaxCheck(openComponent);
    });
+   $("#component_list").removeClass("visible").addClass("hidden");
    clearVcInfo();
 }
 
