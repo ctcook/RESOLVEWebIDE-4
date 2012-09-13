@@ -87,11 +87,11 @@
 }
 
 #control_bar .plus{
-    background-image: url("/public/images/plus.png")
+    background-image: url("../images/plus.png")
 }
 
 #control_bar .minus{
-    background-image: url("/public/images/minus.png")
+    background-image: url("../images/minus.png")
 }
 
 .shadow {

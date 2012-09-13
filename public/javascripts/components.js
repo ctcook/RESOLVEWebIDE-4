@@ -545,9 +545,19 @@ function clearVcInfo(){
     $("#vcs").html("");
 }
 
-function initializeComponentMenu(){
+function initializeComponentMenu(json){
+    myComponentList = new ComponentList(json["components"]);
+    myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
+    //$("#component_list").parent().trigger('mouseenter');
+    $("#component_list").bind("hover", function(){
+        $("#component_list").css({display:""});
+    });
+    /*var pathname = window.location.pathname;
+    if(pathname.length > 1){
+        pathname += "/";
+    }
     $.ajax({
-        url: "public/data.json",
+        url: pathname+"public/data.json",
         dataType: "json",
         async: false,
         success: function(json){
@@ -563,7 +573,7 @@ function initializeComponentMenu(){
             alert(err.status + " - " + err.statusText);
             log(err.status + " - " + err.statusText);
         }
-    }); 
+    }); */
 }
 
 function initializeOpenComponentList(){
@@ -688,10 +698,14 @@ function decode(content){
 }
 
 function setMenuHandlers(menu){
+    var timeOut = null;
     menu.mouseenter(function(event){
+        if(timeOut != null){
+            clearTimeout(timeOut);
+        }
         showMenu(menu.children("ul"));
     }).mouseleave(function(event){
-        setTimeout(function(){
+        timeOut = setTimeout(function(){
             hideMenu(menu.children("ul"));
         }, 500);
     });
