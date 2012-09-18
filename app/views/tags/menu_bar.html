@@ -1,10 +1,10 @@
 <div id="menu_bar">
     <div id="project_menu" class="menu pane_left">
         <ul>
-            <li><h2>Projects</h2>
+            <li><h2>Projects (${_selectedProject.name})</h2>
                 <ul id="project_list">
                     #{list items:_currentProjects, as:'project' }
-                        <li data-id="${project.name}.${project.ownerEmail}" class="project hidden">
+                        <li data-id="${project.id}" class="project hidden">
                             ${project.name}
                         </li>
                     #{/list}
@@ -24,6 +24,12 @@
 </div>
 
 <script type="text/javascript">
+    var projects = $("#project_list li");
     setMenuHandlers($("#project_menu li"));
+    projects.click(function(event){
+        event.preventDefault();
+        var id = $(event.currentTarget).attr("data-id");
+        document.location.href = "/?proj="+id;
+    });
     $("#menu_list").css({display:""});
 </script>

@@ -4,6 +4,7 @@ import play.*;
 import play.mvc.*;
 
 import java.util.*;
+import java.util.logging.Level;
 import models.Project;
 import models.User;
 import play.cache.Cache;
@@ -40,12 +41,30 @@ public class Interface extends Controller {
             Cache.set(userSession + "_user", user);
         }*/
         List<Project> projects = Project.getOpenProjects();
+        String email = null;
         if(Security.isConnected()) {
-            String email = Security.connected();
+            email = Security.connected();
             projects.addAll(Project.getUserProjects(email));
         }
         renderArgs.put("projects", projects);
-        renderArgs.put("defaultProject", Project.getDefault());
+        Long selectedProject = params.get("proj", Long.class);
+        //Long selectedProject = new Long(0);
+        if(selectedProject != null){
+            Project proj = Project.getProject(selectedProject, email);
+            if(proj != null){
+                renderArgs.put("selectedProject", proj);
+            }
+            else{
+                try {
+                    Secure.login();
+                } catch (Throwable ex) {
+                    java.util.logging.Logger.getLogger(Interface.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        else{
+            renderArgs.put("selectedProject", Project.getDefault());
+        }
         render();
     }
 

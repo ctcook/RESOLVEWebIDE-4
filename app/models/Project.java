@@ -42,4 +42,12 @@ public class Project extends Model {
     public static Project getDefault(){
         return find("byDefaultProject", true).first();
     }
+    
+    public static Project getProject(Long name, String email){
+        Project proj = find("byIdAndOpenProject", name, true).first();
+        if(proj == null){ // project is not open
+            proj = find("byIdAndOwnerEmail", name, email).first();
+        }
+        return proj;
+    }
 }
