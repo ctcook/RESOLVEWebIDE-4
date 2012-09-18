@@ -1,4 +1,17 @@
-<div id="upper_menus">${_currentUser.firstName}
+<div id="menu_bar">
+    <div id="project_menu" class="menu pane_left">
+        <ul>
+            <li><h2>Projects</h2>
+                <ul id="project_list">
+                    #{list items:_currentProjects, as:'project' }
+                        <li data-id="${project.name}.${project.ownerEmail}" class="project hidden">
+                            ${project.name}
+                        </li>
+                    #{/list}
+                </ul>
+            </li>
+        </ul>
+    </div>
     <div id="component_menu" class="menu pane_left">
         <ul>
             <li><h2>Components</h2>
@@ -6,7 +19,11 @@
             </li>
         </ul>
     </div>
-    <div id="projects_container" class="menu pane_left"></div>
-    <div id="help_container" class="menu pane_right"></div>
-    <div id="env_menu" class="menu pane_right"></div>
+    <!--<div id="help_container" class="menu pane_right"></div>
+    <div id="env_menu" class="menu pane_right"></div>-->
 </div>
+
+<script type="text/javascript">
+    setMenuHandlers($("#project_menu li"));
+    $("#menu_list").css({display:""});
+</script>
