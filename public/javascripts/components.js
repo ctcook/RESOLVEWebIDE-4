@@ -6,7 +6,7 @@ var myComponentList = null;
 // myOpenComponentList is where we stor the Collection of components currently
 // open in the editor
 var myOpenComponentList = null;
-
+var selectedProject;
 /*
  * The Component is the model where we will store all the data necessary to process
  * the RESOLVE components (regardless of the ModuleKind)
@@ -28,6 +28,7 @@ var Component = Backbone.RelationalModel.extend({
     },
     initialize: function(){
       
+        this.ws = selectedProject;
     },
     relations: [{
         type: Backbone.HasMany,
@@ -49,7 +50,6 @@ var OpenComponent = Backbone.RelationalModel.extend({
         id: null,
         name: null,
         pkg: null, // the concept folder, must be the same name as the associated concept
-        ws: null,
         java: null,
         vcs: null
     },
@@ -57,7 +57,8 @@ var OpenComponent = Backbone.RelationalModel.extend({
         var model = this.get("componentModel");
         this.set("name", model.get("name"));
         this.set("id", model.get("pkg")+"."+model.get("name"));
-        localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
+        updateOpenComponents(model);
+        //localStorage.set(localOpenComponentList, JSON.stringify(myOpenComponentList.toJSON()));
     },
     toJSON: function(){
         var tempModel = this.get("componentModel");
@@ -234,14 +235,14 @@ var ComponentView = Backbone.View.extend({
                 setMenuHandlers(item);
             }*/
             if(this._realizationViews.length > 0){
-                item = $("<li>").html("<a>realizations</a>").addClass("component_title");
+                item = $("<li>").html("<h2>realizations</h2>").addClass("component_title");
                 item.appendTo(list);
                 _(this._realizationViews).each(function(cv){
                     list.append(cv.render().el);
                 });    
             }
             if(this._enhancementViews.length > 0){
-                item = $("<li>").html("<a>enhancements</a>").addClass("component_title");
+                item = $("<li>").html("<h2>enhancements</h2>").addClass("component_title");
                 item.appendTo(list);
                 _(this._enhancementViews).each(function(cv){
                     list.append(cv.render().el);
@@ -362,7 +363,8 @@ var OpenComponentListView = Backbone.View.extend({
         var item = $(link).parent();
         $("#open_menu>ul>li.selected").removeClass("selected");
         item.addClass("selected");
-        localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
+        updateOpenComponents(component);
+        //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
     },
     removed: function(component){
         var that = this;
@@ -391,8 +393,9 @@ var OpenComponentListView = Backbone.View.extend({
             var EditSession = require("ace/edit_session").EditSession;
             var ResolveMode = require("ace/mode/resolve").Mode;
             editor.setSession(new EditSession("", new ResolveMode));
-        } 
-        localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
+        }
+        updateOpenComponents(component);
+        //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
     },
     scanLeft: function(event){
         if(this._openComponentStartIndex > 0){
@@ -527,7 +530,8 @@ function displayComponent(component){
     myOpenComponent_view._selectedComponent = componentPkg + "." + componentName;
     myUserControlView.model = openComponent;
     myUserControlView.render();
-    localStorage.selectedComponentId = componentPkg + "." + componentName;
+    updateSelectedComponent(component);
+    //localStorage.set(component.get("project") + "_selected_id", componentPkg + "." + componentName);
     displayComponentInfo(component);
     syntaxCheck(openComponent);
     session.on("change", function() {
@@ -555,7 +559,8 @@ function clearVcInfo(){
     $("#vcs").html("");
 }
 
-function initializeComponentMenu(json){
+function initializeComponentMenu(json, selectedProjectName){
+    selectedProject = selectedProjectName;
     myComponentList = new ComponentList(json["components"]);
     myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
     //$("#component_list").parent().trigger('mouseenter');
@@ -586,15 +591,15 @@ function initializeComponentMenu(json){
     }); */
 }
 
-function initializeOpenComponentList(){
+function initializeOpenComponentList(selectedProjectName){
     myOpenComponentList = new OpenComponentList();
-    if(localStorage.localOpenComponentList){
-        myOpenComponentList.reset(JSON.parse(localStorage.localOpenComponentList));
-    
+    var localOpenComponentList = localStorage.getItem(selectedProjectName + "_open_components");
+    if(localOpenComponentList != null){
+        myOpenComponentList.reset(JSON.parse(localOpenComponentList));
     }
     myOpenComponent_view = new OpenComponentListView({el: $("#open_menu"), collection: myOpenComponentList});
     if(myOpenComponentList.length != 0){
-        var selectedComponentId = localStorage.selectedComponentId;
+        var selectedComponentId = localStorage.getItem(selectedProjectName + "_selected_id");
         var openComponentIndex = 0;
         var openComponent = null;
         if(selectedComponentId != null){
@@ -611,6 +616,42 @@ function initializeOpenComponentList(){
         }
         displayComponent(openComponent);
     }
+}
+
+function updateOpenComponents(component){
+    localStorage.setItem(component.get("componentModel").ws + "_open_components", JSON.stringify(myOpenComponentList.toJSON()));
+}
+
+function updateSelectedComponent(component){
+    localStorage.setItem(component.ws + "_selected_id", component.get("pkg") + "." + component.get("name"));
+}
+
+function openComponent(targetComponent){
+    var component;
+    if(targetComponent.type == "f"){
+        component = myComponentList.where({name:targetComponent.name})[0];
+    }
+    else if(targetComponent.type == "er"){
+        var concept = myComponentList.where({name:targetComponent.concept})[0];
+        component = concept.get("realizations").where({name:targetComponent.name})[0];
+        if(component == null){
+            var enhancements = concept.get('enhancements');
+            component = enhancements.where({name:targetComponent.name})[0];
+            if(component == null){
+                var foundComponent = null;
+                $.each(enhancements.models, function(index, enhancement){
+                    foundComponent = enhancement.get("realizations").where({name:targetComponent.name})[0];
+                    if(foundComponent != null){
+                        component = foundComponent;
+                    }
+                });
+            }
+        }
+    }
+    else if(targetComponent.type == "c"){
+        component = myComponentList.where({name:targetComponent.name})[0];
+    }
+    displayComponent(component);
 }
 
 /*
@@ -717,7 +758,7 @@ function setMenuHandlers(menu){
     }).mouseleave(function(event){
         timeOut = setTimeout(function(){
             hideMenu(menu.children("ul"));
-        }, 500);
+        }, 300);
     });
 }
 

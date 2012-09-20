@@ -29,6 +29,8 @@
     margin: 0;
     padding: 3px 3px;
     width: 180px;
+    text-decoration: none;
+    color: black;
 }
 
 .menu h2, .menu, .sub_menu, .component_title{

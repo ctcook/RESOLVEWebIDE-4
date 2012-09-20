@@ -47,11 +47,25 @@ public class Interface extends Controller {
             projects.addAll(Project.getUserProjects(email));
         }
         renderArgs.put("projects", projects);
-        Long selectedProject = params.get("proj", Long.class);
+        Long selectedProject = params.get("p", Long.class);
         //Long selectedProject = new Long(0);
         if(selectedProject != null){
             Project proj = Project.getProject(selectedProject, email);
             if(proj != null){
+                String concept = params.get("c", String.class);
+                String er = params.get("er", String.class);
+                if(concept != null){
+                    renderArgs.put("c", concept);
+                    if(er != null){
+                        renderArgs.put("er", er);
+                    }
+                }
+                else{
+                    String facility = params.get("f", String.class);
+                    if(facility != null){
+                        renderArgs.put("f", facility);
+                    }
+                }
                 renderArgs.put("selectedProject", proj);
             }
             else{

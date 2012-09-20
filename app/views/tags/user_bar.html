@@ -17,6 +17,9 @@
         #{else}
             <a href="@{Secure.login()}">Sign in</a>
         #{/else}
+        #{if request.controller == 'Projects'}
+        <a href="/">Home</a>
+        #{/if}
         <button id="control_settings">Settings</button>
     </div>
     <!--<div id="help_container" class="menu pane_right"></div>

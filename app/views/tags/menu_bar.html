@@ -4,10 +4,13 @@
             <li><h2>Projects (${_selectedProject.name})</h2>
                 <ul id="project_list">
                     #{list items:_currentProjects, as:'project' }
-                        <li data-id="${project.id}" class="project hidden">
-                            ${project.name}
+                        <li class="project hidden">
+                            <a href="/?p=${project.id}">${project.name}</a>
                         </li>
                     #{/list}
+                    #{secure.check 'admin'}
+                        <li class="hidden"><a href="projects">Project Admin</a></li>
+                    #{/secure.check}
                 </ul>
             </li>
         </ul>
@@ -26,10 +29,10 @@
 <script type="text/javascript">
     var projects = $("#project_list li");
     setMenuHandlers($("#project_menu li"));
-    projects.click(function(event){
-        event.preventDefault();
-        var id = $(event.currentTarget).attr("data-id");
-        document.location.href = "/?proj="+id;
-    });
+    //projects.click(function(event){
+        //event.preventDefault();
+        //var id = $(event.currentTarget).attr("data-id");
+        //document.location.href = "/?proj="+id;
+    //});
     $("#menu_list").css({display:""});
 </script>
