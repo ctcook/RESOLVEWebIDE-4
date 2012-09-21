@@ -46,13 +46,15 @@ public class WorkspaceJsonGenerator {
                         "TextIO.java"
                         };
     
-    public WorkspaceJsonGenerator(){
+    public WorkspaceJsonGenerator(String workspacesPath){
+        myWorkspacesPath = workspacesPath;
+        //System.out.println(workspacesPath);
         //myConfigFile = cf;
-        myWorkspacesPath = "C:\\home\\webapps\\interface\\workspaces\\";
+        //myWorkspacesPath = "C:\\Users\\Chuck\\Documents\\Clemson-RESOLVE-work\\interface-working-dir\\interface\\workspaces\\";
     }
     
-    public String generateJSON(String workspaceName) throws IOException{
-        Boolean hideStandard = false;
+    public String generateJSON(String workspaceName, boolean standardHidden) throws IOException{
+        boolean hideStandard = standardHidden;
         StringBuilder sb = new StringBuilder();
     	String slash = System.getProperty("file.separator");
         //String userType = (String) session.getAttribute("userType");

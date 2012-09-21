@@ -16,9 +16,9 @@ public class Project extends Model {
     public String ownerEmail;
     public String jsonRep;
     public String jsonRepDate;
-    public Boolean openProject;
-    public Boolean standardHidden;
-    public Boolean defaultProject;
+    public boolean openProject;
+    public boolean standardHidden;
+    public boolean defaultProject;
     
     public Project(String name, String ownerEmail, Boolean openProject,
                     Boolean standardHidden){
@@ -36,7 +36,7 @@ public class Project extends Model {
     }
     
     public static List<Project> getUserProjects(String email){
-        return find("byOwnerEmail", email).fetch();
+        return find("byOwnerEmailAndOpenProject", email, false).fetch();
     }
     
     public static Project getDefault(){
