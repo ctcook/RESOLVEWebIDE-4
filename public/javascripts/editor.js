@@ -463,7 +463,7 @@ UserControlView = Backbone.View.extend({
 
 function initializeEditor(){
     var editorDiv = "code_editor";
-    var lowerHeight = $("#content").outerHeight(true) - $("#upper_menus").outerHeight(true) - $("#open_menu").outerHeight(true);
+    var lowerHeight = $("#content").outerHeight(true) - $("#menu_bar").outerHeight(true) - $("#open_menu").outerHeight(true);
     $("#editor_container").resizable({
         handles: {e:$("#editor_handle")},
         maxHeight: 500,
