@@ -5,7 +5,7 @@
                 <ul id="project_list">
                     #{list items:_currentProjects, as:'project' }
                         <li class="project hidden">
-                            <a href="${'/?p='}${project.id}">${project.name}</a>
+                            <a href="?p=${project.id}">${project.name}</a>
                         </li>
                     #{/list}
                     #{secure.check 'admin'}
