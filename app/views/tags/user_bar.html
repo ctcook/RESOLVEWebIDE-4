@@ -18,7 +18,7 @@
             <a href="@{Secure.login()}">Sign in</a>
         #{/else}
         #{if request.controller == 'Projects'}
-        <a href="/">Home</a>
+        <a href="@{Interface.index()}">Home</a>
         #{/if}
         <button id="control_settings">Settings</button>
     </div>
