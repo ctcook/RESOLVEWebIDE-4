@@ -12,6 +12,7 @@ import play.cache.Cache;
 //import models.*;
 
 //@With(Secure.class)
+@With(Compress.class)
 public class Interface extends Controller {
     @Before
     static void setConnectedUser() {
