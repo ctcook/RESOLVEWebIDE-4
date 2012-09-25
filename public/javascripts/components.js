@@ -261,6 +261,7 @@ var ComponentView = Backbone.View.extend({
         var model = this.model
         log(model.get("name")+"<br/>test");
         displayComponent(model);
+        $(event.currentTarget).trigger("mouseout");
         $("#component_list").css({display:"none"});
     }
 });
@@ -459,6 +460,11 @@ var OpenComponentView = Backbone.View.extend({
         event.stopPropagation();
         var openModel = this.model;
         //var model = getModelByCid(myComponentList, openModel.get("cid"));
+        var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
+        if(prevIndex >= 0){
+            var prevComponent = myOpenComponentList.at(prevIndex);;
+            myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
+        }
         openModel.unset("editorSession");
         myOpenComponentList.remove(openModel);
     }
@@ -531,6 +537,7 @@ function displayComponent(component){
     myUserControlView.model = openComponent;
     myUserControlView.render();
     updateSelectedComponent(component);
+    updateOpenComponents(component);
     //localStorage.set(component.get("project") + "_selected_id", componentPkg + "." + componentName);
     displayComponentInfo(component);
     syntaxCheck(openComponent);
@@ -592,6 +599,7 @@ function initializeComponentMenu(json, selectedProjectName){
 }
 
 function initializeOpenComponentList(selectedProjectName){
+    selectedProject = selectedProjectName;
     myOpenComponentList = new OpenComponentList();
     var localOpenComponentList = localStorage.getItem(selectedProjectName + "_open_components");
     if(localOpenComponentList != null){
@@ -619,11 +627,13 @@ function initializeOpenComponentList(selectedProjectName){
 }
 
 function updateOpenComponents(component){
-    localStorage.setItem(component.get("componentModel").ws + "_open_components", JSON.stringify(myOpenComponentList.toJSON()));
+    localStorage.setItem(selectedProject + "_open_components", JSON.stringify(myOpenComponentList.toJSON()));
+    //localStorage.setItem(component.get("componentModel").ws + "_open_components", JSON.stringify(myOpenComponentList.toJSON()));
 }
 
 function updateSelectedComponent(component){
-    localStorage.setItem(component.ws + "_selected_id", component.get("pkg") + "." + component.get("name"));
+    localStorage.setItem(selectedProject + "_selected_id", component.get("pkg") + "." + component.get("name"));
+    //localStorage.setItem(component.ws + "_selected_id", component.get("pkg") + "." + component.get("name"));
 }
 
 function openComponent(targetComponent){
