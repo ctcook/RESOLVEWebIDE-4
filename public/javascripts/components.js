@@ -438,9 +438,18 @@ var OpenComponentView = Backbone.View.extend({
         var component = this.model;
         var index = myOpenComponentList.indexOf(component);
         var id = component.get("componentModel").get("pkg") + "." + component.get("componentModel").get("name");
-        var html = "<a data-index= \"" + index + "\" data-cid=\"" + component.cid + "\" data-id=\"" + id + "\" class=\"component\">";
-        html += component.get("componentModel").get("name") + "</a>";
-        $(this.el).html(html).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
+        var name = component.get("componentModel").get("name");
+        var link = $("<a>").attr({
+            "data-index": index,
+            "data-cid": component.cid,
+            "data-id": id,
+            "title": component.get("name")
+        }).html(name).addClass("component");
+        //var html = "<a data-index= \"" + index + "\" data-cid=\"" + component.cid + "\" data-id=\"" + id + "\" class=\"component\" ";
+        //html += "title=\"" + component.get("name") + "\">";
+        //html += component.get("componentModel").get("name") + "</a>";
+        //$(this.el).html(html).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
+        $(this.el).append(link).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
         return this;
     },
     events: {
