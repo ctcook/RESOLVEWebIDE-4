@@ -445,7 +445,7 @@ var OpenComponentView = Backbone.View.extend({
     },
     events: {
         "click #open_menu a.component" : "selectComponent",
-        "click #open_menu img.close_img" : "closeComponent"
+        "click #open_menu button.close_img" : "closeComponent"
     },
     selectComponent: function(event){
         event.stopPropagation();
