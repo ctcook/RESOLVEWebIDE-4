@@ -292,12 +292,36 @@ var OpenComponentListView = Backbone.View.extend({
         this.collection.bind( 'remove', this.removed, this );
         this.render();
     },
-    render: function(shift_type){
+    render: function(selectedComponent){
         var that = this;
         $(this.el).empty();
-        this._openComponentCount = 0;
+        //this._openComponentCount = 0;
+        //$(this.el).append(item);
+        var components = $("<div>").addClass("editor_tab");
+        //var item = $("<li>").addClass("editor_tab");
+        var button = $("<button>").html("|");
+        button.click(function(event){
+            event.preventDefault();
+            var open_components = $("#open_menu");
+            showOpenComponents(open_components, $(this));
+            
+        });
+        components.append(button);
+        var name = (selectedComponent != null)?selectedComponent.get("name"):"Open Component";
+        components.append($("<span>").attr({id:"open-component"}).html(name));
+        //components.append(item);
         var list = $("<ul>");
-        var listWidth = list.width();
+        _(this._openComponents).each(function(component, index){
+            //that._openComponentCount++;
+            if(selectedComponent != component){
+                var ocv = new OpenComponentView({model:component});
+                var el = ocv.render().el;
+                list.append(el);
+            }
+        });
+        components.append(list);
+        $(this.el).append(components);
+        /*var listWidth = list.width();
         var scanLeft = $("<button>").html("&#x25C0;").addClass("scanButton");
         var scanRight = $("<button>").html("&#x25B6;").addClass("scanButton");
         var scanLeftDiv = $("<div>").append(scanLeft).attr({"id":"scan_left"});
@@ -350,20 +374,20 @@ var OpenComponentListView = Backbone.View.extend({
         var count = this._openComponentStartIndex + this._openComponentCount;
         if(count < this.collection.length){
             scanRight.addClass("active shadow");
-        }
+        }*/
     },
     added: function(component){
-        if(this._openComponentEndIndex < this._openComponents.length){
-            this._openComponentStartIndex = this._openComponents.length - this._openComponentCount;
-            this._openComponentEndIndex = this._openComponents.length;
-        }
+        //if(this._openComponentEndIndex < this._openComponents.length){
+            //this._openComponentStartIndex = this._openComponents.length - this._openComponentCount;
+            //this._openComponentEndIndex = this._openComponents.length;
+        //}
         this._openComponents.push(component);
-        this.render("shift_right");
-        var search = "a[data-id=\"" + component.get("pkg") + "." + component.get("name") + "\"]";
-        var link = $("#open_menu").find(search);
-        var item = $(link).parent();
-        $("#open_menu>ul>li.selected").removeClass("selected");
-        item.addClass("selected");
+        this.render(component);
+        //var search = "a[data-id=\"" + component.get("pkg") + "." + component.get("name") + "\"]";
+        //var link = $("#open_menu").find(search);
+        //var item = $(link).parent();
+        //$("#open_menu>ul>li.selected").removeClass("selected");
+        //item.addClass("selected");
         updateOpenComponents(component);
         //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
     },
@@ -398,7 +422,7 @@ var OpenComponentListView = Backbone.View.extend({
         updateOpenComponents(component);
         //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
     },
-    scanLeft: function(event){
+    /*scanLeft: function(event){
         if(this._openComponentStartIndex > 0){
             var currSelected = $("#open_menu>ul>li.selected");
             var index = $(currSelected[0]).children(':first-child').attr("data-index");
@@ -419,10 +443,10 @@ var OpenComponentListView = Backbone.View.extend({
             this.render("shift_right");
             displayComponent(model);
         } 
-    },
+    },*/
     events: {
-        "click #scan_left" : "scanLeft",
-        "click #scan_right" : "scanRight"
+        //"click #scan_left" : "scanLeft",
+        //"click #scan_right" : "scanRight"
     }
 });
 
@@ -440,7 +464,7 @@ var OpenComponentView = Backbone.View.extend({
         var id = component.get("componentModel").get("pkg") + "." + component.get("componentModel").get("name");
         var html = "<a data-index= \"" + index + "\" data-cid=\"" + component.cid + "\" data-id=\"" + id + "\" class=\"component\">";
         html += component.get("componentModel").get("name") + "</a>";
-        $(this.el).html(html).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
+        $(this.el).html(html).append(getCloseDiv()).append(getInfoBlock()).addClass("open_component hidden");
         return this;
     },
     events: {
@@ -534,6 +558,7 @@ function displayComponent(component){
     }
     editor.setSession(session);
     myOpenComponent_view._selectedComponent = componentPkg + "." + componentName;
+    myOpenComponent_view.render(openComponent);
     myUserControlView.model = openComponent;
     myUserControlView.render();
     updateSelectedComponent(component);
@@ -782,4 +807,20 @@ function hideMenu(parent){
     var list = parent.removeClass("visable").addClass("hidden");
     var children = list.children("li");
     children.removeClass("visable").addClass("hidden");
+}
+
+function showOpenComponents(menu, button){
+    var items = menu.find('.hidden');
+    items.removeClass("hidden").addClass("visable");
+    button.unbind("click").click(function(event){
+        hideOpenComponents(menu, button);
+    });
+}
+
+function hideOpenComponents(menu, button){
+    var items = menu.find('.visable');
+    items.removeClass("visable").addClass("hidden");
+    button.unbind("click").click(function(event){
+        showOpenComponents(menu, button);
+    });
 }

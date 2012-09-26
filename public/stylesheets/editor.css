@@ -8,6 +8,8 @@
     /*height:510px;*/
     height:100%;
     /*padding-top: 10px;*/
+    position: relative;
+    z-index: -5;
 }
 
 #control_bar {

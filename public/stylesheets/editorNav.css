@@ -6,10 +6,79 @@
 #open_menu {
     width:1000px;
     height: 30px;
-    float:left;;
+    float:left;
     border-top: 1px solid #AAA;
     border-bottom: 1px solid #AAA;
     background-color: #E8E8E8;
+    position: relative;
+}
+
+#open_menu h2, #open_menu a {
+    font: bold 12px/16px arial, helvetica, sans-serif;
+    margin: 0;
+    padding: 3px 3px;
+    width: 200px;
+    text-decoration: none;
+    color: black;
+}
+
+#open_menu ul {
+    padding: 0;
+    margin: 0 30px 0 30px;
+    list-style-type: none;
+    position: absolute;
+    line-height: 1.6;
+    background-color: white;
+    /*-moz-border-radius: 4px 4px 0px 0px;
+    -webkit-border-radius: 4px 4px 0px 0px;
+    border-radius: 4px 4px 0px 0px;*/
+}
+
+#open_menu li {
+    width: 250px;
+    background-color: white;
+    border: solid 1px gray;
+}
+
+#open_menu li:hover {
+    color: #01004c;
+    background: #fff1e1;
+    cursor: pointer;
+    border-color: #01004c;
+   /* position: absolute; */
+    /*display: inline-block;*/
+}
+
+#open_menu li:last-child {
+    border: solid 1px gray;
+    -moz-border-radius: 0px 0px 4px 4px;
+    -webkit-border-radius: 0px 0px 4px 4px;
+    border-radius: 0px 0px 4px 4px;
+}
+
+#open_menu .editor_tab {
+    margin-top: 5px;
+    height: 25px;
+    width: 250px;
+    top: 1px;
+    border: solid 1px gray;
+    border-bottom: none;
+    -moz-border-radius: 4px 4px 0px 0px;
+    -webkit-border-radius: 4px 4px 0px 0px;
+    border-radius: 4px 4px 0px 0px;
+    filter: none;
+    background-color: white;
+    cursor: default;
+    /*top: .05em;*/
+}
+
+#open_menu button {
+    cursor: pointer;
+}
+
+.open_component {
+    z-index: 10;
+    cursor: pointer;
 }
 
 .notSelectable{
@@ -21,7 +90,7 @@
     cursor: default;
 }
 
-#scan_left {
+/*#scan_left {
     float: left;
     margin: 6px .2em 1px 4px;
 }
@@ -41,23 +110,16 @@
     -webkit-border-radius: 4px 4px 4px 4px;
     border-radius: 4px 4px 4px 4px;
     cursor: default;
-}
+}*/
 
 .active {
     cursor: pointer;
     background-color: white;
 }
 
-#open_menu ul {
-    padding: 0;
-    margin: 0 30px 0 30px;
-    list-style-type: none;
-    position: absolute;
-    line-height: 1.6;
-}
-
-#open_menu li {
+/*#open_menu li {
     float: left;
+    width: 250px;
     padding: 0 10px 0 10px;
     margin: 4px .2em 1px 0;
     top: -1px;
@@ -72,7 +134,7 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc');
     background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
     background: -moz-linear-gradient(top,  #ffffff,  #cccccc);
-}
+}*/
 
 #open_menu .component_tab {
     border-bottom: none;
@@ -105,11 +167,12 @@
     width:15px;
     height:15px;
     margin: 2px 0 0 5px;
+    float: right;
 }
 
 .componentInfo{
-    display: inline-block;
     width:15px;
     height:15px;
     margin-left: 2px;
+    float: right;
 }
