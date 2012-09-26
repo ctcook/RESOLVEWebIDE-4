@@ -306,6 +306,10 @@ var OpenComponentListView = Backbone.View.extend({
             showOpenComponents(open_components, $(this));
             
         });
+        if(this._openComponents.length < 2){
+            button.attr({disabled: "disabled"});
+            button.css({cursor: "default"});
+        }
         components.append(button);
         var name = (selectedComponent != null)?selectedComponent.get("name"):"Open Component";
         components.append($("<span>").attr({id:"open-component"}).html(name));
