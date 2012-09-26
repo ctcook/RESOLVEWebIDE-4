@@ -164,10 +164,11 @@
 }
 
 .close_img{
-    width:15px;
-    height:15px;
-    margin: 2px 0 0 5px;
+    width:18px;
+    height:18px;
+    margin: 2px 2px 2px 5px;
     float: right;
+    background-image: url("../images/close.png");
 }
 
 .componentInfo{

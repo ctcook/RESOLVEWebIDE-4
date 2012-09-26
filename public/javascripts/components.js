@@ -469,7 +469,7 @@ var OpenComponentView = Backbone.View.extend({
     },
     events: {
         "click #open_menu a.component" : "selectComponent",
-        "click #open_menu img.close_img" : "closeComponent"
+        "click #open_menu button.close_img" : "closeComponent"
     },
     selectComponent: function(event){
         event.stopPropagation();
@@ -486,7 +486,7 @@ var OpenComponentView = Backbone.View.extend({
         //var model = getModelByCid(myComponentList, openModel.get("cid"));
         var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
         if(prevIndex >= 0){
-            var prevComponent = myOpenComponentList.at(prevIndex);;
+            var prevComponent = myOpenComponentList.at(prevIndex);
             myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
         }
         openModel.unset("editorSession");
@@ -498,7 +498,7 @@ var OpenComponentView = Backbone.View.extend({
  * This function creates the code for the X div to close something
  */
 function getCloseDiv(){
-    var closeImg = $("<img src=\"public/images/close.png\">").addClass("close_img");
+    var closeImg = $("<button>").addClass("close_img");
     return closeImg;
 }
 
