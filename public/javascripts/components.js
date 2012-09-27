@@ -125,7 +125,7 @@ var ComponentMenuView = Backbone.View.extend({
     },
     // we render each ComponentView separately and add it to the appropriate list
     render: function(){
-        var componentmenu = $("#component_menu li");
+        var componentmenu = $("#component_menu li:first");
         setMenuHandlers(componentmenu);
         /*componentmenu.mouseenter(function(event){
             showMenu($("#component_list"));
@@ -145,16 +145,24 @@ var ComponentMenuView = Backbone.View.extend({
                 that._componentViews.push(new ComponentView({model:component}));
             }
         });
-        $(this.el).empty();
-        var concepts = $("<li>").html("<a class=\"component\">Concepts</a>");
+        //$(this.el).empty();
+        //var concepts = $("<li>").html("<a class=\"component\">Concepts</a>");
+        var concepts = $("#concepts");
+        var conceptList = concepts.children("ul");//.empty();
         setMenuHandlers(concepts);
-        var facilities = $("<li>").html("<a class=\"component\">Facilities</a>");
+        //var facilities = $("<li>").html("<a class=\"component\">Facilities</a>");
+        var facilities = $("#facilities");
+        var facilityList = facilities.children("ul");//.empty();
         setMenuHandlers(facilities);
-        var theories = $("<li>").html("<a class=\"component\">Theories</a>");
-        setMenuHandlers(theories);
-        var conceptList = $("<ul>").appendTo(concepts);
-        var facilityList = $("<ul>").appendTo(facilities);
-        var theoryList = $("<ul>").appendTo(theories);
+        //var theories = $("<li>").html("<a class=\"component\">Theories</a>");
+        var theories = $("#theories");
+        if(theories != null){
+            var theoryList = theories.children("ul");//.empty();
+            setMenuHandlers(theories);
+        }
+        //var conceptList = $("<ul>").appendTo(concepts);
+        //var facilityList = $("<ul>").appendTo(facilities);
+        //var theoryList = $("<ul>").appendTo(theories);
         _(this._componentViews).each(function(cv){
             if(cv.model.get("type") == "c"){
                 conceptList.append(cv.render().el);
@@ -163,16 +171,18 @@ var ComponentMenuView = Backbone.View.extend({
                 facilityList.append(cv.render().el);
             }
             else if(cv.model.get("type") == "t"){
-                theoryList.append(cv.render().el);
+                if(theories != null){
+                    theoryList.append(cv.render().el);
+                }
             }
         });
-        $(this.el).append(facilities);
-        $(this.el).append(concepts);
-        $(this.el).append(theories);
+        //$(this.el).append(facilities);
+        //$(this.el).append(concepts);
+        //$(this.el).append(theories);
         var creater = $("<li>").html("<a class=\"creater\">Create</a>");
         var loader = $("<li>").html("<a class=\"loader\">Load</a>");
-        $(this.el).append(creater);
-        $(this.el).append(loader);
+        //$(this.el).append(creater);
+        //$(this.el).append(loader);
         $("#component_list").addClass("hidden");
         $("#component_list").find("li").addClass("hidden");
     },
