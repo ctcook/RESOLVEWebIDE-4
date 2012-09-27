@@ -285,27 +285,29 @@ var OpenComponentListView = Backbone.View.extend({
         var that = this;
         $(this.el).empty();
         this._openComponentCount = 0;
-        var list = $("<ul>");
+        var list = $("<ul>").attr({id:"open_component_list"});
         var listWidth = list.width();
-        var scanLeft = $("<button>").html("&#x25C0;").addClass("scanButton");
-        var scanRight = $("<button>").html("&#x25B6;").addClass("scanButton");
-        var scanLeftDiv = $("<div>").append(scanLeft).attr({"id":"scan_left"});
-        var scanRightDiv = $("<div>").append(scanRight).attr({"id":"scan_right"});
-        $(this.el).html(scanLeftDiv);
-        var openMenuWidth = $("#open_menu").width() - (2 * scanLeftDiv.width());
-        $(this.el).append(list);
+        var scanLeft = $("<button>").attr({id:"scan_left"}).html("&#x25C0;").addClass("scanButton");
+        var scanRight = $("<button>").attr({id:"scan_right"}).html("&#x25B6;").addClass("scanButton");
+        //var scanLeftDiv = $("<div>").append(scanLeft).attr({"id":"scan_left"});
+        //var scanRightDiv = $("<div>").append(scanRight).attr({"id":"scan_right"});
+        $(this.el).html(scanLeft);
+        var openMenuDiv = $("<div>").attr({id:"open_components"}).html(list);
+        //var openMenuWidth = $("#open_menu").width() - (2 * scanLeft.width());
+        $(this.el).append(openMenuDiv);
+        //$(this.el).append(list);
         var done = false;
         _(this._openComponents).each(function(component, index){
-            that._openComponentCount++;
+            //that._openComponentCount++;
             var ocv = new OpenComponentView({model:component});
             var el = ocv.render().el;
             if(index < that._openComponentStartIndex){
-                $(el).addClass("hidden");
-                that._openComponentCount--;
+                //$(el).addClass("hidden");
+                //that._openComponentCount--;
             }
             list.append(el);
             var itemWidth = $(el).width();
-            if(!done && (listWidth + itemWidth) > openMenuWidth){
+            /*if(!done && (listWidth + itemWidth) > openMenuWidth){
                 if(shift_type == "shift_left"){
                     $(el).addClass("hidden");
                     that._openComponentCount--;
@@ -329,30 +331,51 @@ var OpenComponentListView = Backbone.View.extend({
                 $(el).addClass("hidden");
                 that._openComponentCount--;
             }
-            listWidth = list.width();
+            listWidth = list.width();*/
         });
-        $(this.el).append(scanRightDiv);
-        this._openComponentEndIndex = this._openComponentStartIndex + this._openComponentCount;
-        if(this._openComponentStartIndex > 0){
+        $(this.el).append(scanRight);
+        if(true){
             scanLeft.addClass("active shadow");
         }
-        var count = this._openComponentStartIndex + this._openComponentCount;
-        if(count < this.collection.length){
+        if(true){
             scanRight.addClass("active shadow");
         }
+        /*var item = $("#open_component_list>li.selected");
+        var menuLeft = openMenuDiv.position().left;
+        var menuRightSide = menuLeft + openMenuDiv.width();
+        var itemPos = item.position();
+        var itemRightSide = menuLeft + itemPos.left + item.width();
+        var listLeft = list.position().left;
+        if(itemRightSide > menuRightSide){
+            list.css("left", listLeft - (itemRightSide - menuRightSide + 10));
+        }*/
+        //this._openComponentEndIndex = this._openComponentStartIndex + this._openComponentCount;
+        //if(this._openComponentStartIndex > 0){
+            //scanLeft.addClass("active shadow");
+        //}
+        //var count = this._openComponentStartIndex + this._openComponentCount;
+        //if(count < this.collection.length){
+            //scanRight.addClass("active shadow");
+        //}
     },
     added: function(component){
-        if(this._openComponentEndIndex < this._openComponents.length){
-            this._openComponentStartIndex = this._openComponents.length - this._openComponentCount;
-            this._openComponentEndIndex = this._openComponents.length;
-        }
         this._openComponents.push(component);
-        this.render("shift_right");
+        this.render();
         var search = "a[data-id=\"" + component.get("pkg") + "." + component.get("name") + "\"]";
         var link = $("#open_menu").find(search);
         var item = $(link).parent();
-        $("#open_menu>ul>li.selected").removeClass("selected");
+        $("#open_component_list>li.selected").removeClass("selected");
         item.addClass("selected");
+        var openMenuDiv = $("#open_components")
+        var list = $("#open_component_list");
+        var menuLeft = openMenuDiv.position().left;
+        var menuRightSide = menuLeft + openMenuDiv.width();
+        var itemPos = item.position();
+        var itemRightSide = menuLeft + itemPos.left + item.width();
+        var listLeft = list.position().left;
+        if(itemRightSide > menuRightSide){
+            list.css("left", listLeft - (itemRightSide - menuRightSide + 10));
+        }
         updateOpenComponents(component);
         //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
     },
@@ -374,7 +397,7 @@ var OpenComponentListView = Backbone.View.extend({
             }
             else{
                 this._selectedComponent = myOpenComponentList.at(newSelected).get("id");
-                model = myComponentList.at(newSelected);
+                model = myOpenComponentList.at(newSelected);
             }
             displayComponent(model);
         }
@@ -383,35 +406,37 @@ var OpenComponentListView = Backbone.View.extend({
             var EditSession = require("ace/edit_session").EditSession;
             var ResolveMode = require("ace/mode/resolve").Mode;
             editor.setSession(new EditSession("", new ResolveMode));
+            myUserControlView.model = new OpenComponent();
+            myUserControlView.render();
         }
         updateOpenComponents(component);
         //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
     },
     scanLeft: function(event){
-        if(this._openComponentStartIndex > 0){
-            var currSelected = $("#open_menu>ul>li.selected");
-            var index = $(currSelected[0]).children(':first-child').attr("data-index");
-            var cid = myOpenComponentList.at(index).get("cid");
-            var model = getModelByCid(myComponentList, cid);
-            this._openComponentStartIndex--;
-            this.render("shift_left");
-            displayComponent(model);
-        }  
+        var openMenuDiv = $("#open_components")
+        var list = $("#open_component_list");
+        var menuLeft = openMenuDiv.position().left;
+        var menuRightSide = menuLeft + openMenuDiv.width();
+        var listLeft = list.position().left;
+        var listRightSide = listLeft + list.width();
+        if(menuLeft > listLeft + menuLeft){
+            list.css("left", listLeft + 5);
+        }
     },
     scanRight: function(){
-        var count = this._openComponentStartIndex + this._openComponentCount;
-        if(count < this.collection.length){
-            var currSelected = $("#open_menu>ul>li.selected");
-            var index = $(currSelected[0]).children(':first-child').attr("data-index");
-            var cid = myOpenComponentList.at(index).get("cid");
-            var model = getModelByCid(myComponentList, cid);
-            this.render("shift_right");
-            displayComponent(model);
-        } 
+        var openMenuDiv = $("#open_components")
+        var list = $("#open_component_list");
+        var menuLeft = openMenuDiv.position().left;
+        var menuRightSide = menuLeft + openMenuDiv.width();
+        var listLeft = list.position().left;
+        var listRightSide = menuLeft + listLeft + list.width();
+        if(menuRightSide < listRightSide){
+            list.css("left", listLeft - 5);
+        }
     },
     events: {
-        "click #scan_left" : "scanLeft",
-        "click #scan_right" : "scanRight"
+        "click #scan_left.active" : "scanLeft",
+        "click #scan_right.active" : "scanRight"
     }
 });
 
@@ -451,7 +476,7 @@ var OpenComponentView = Backbone.View.extend({
         //var model = getModelByCid(myComponentList, cid);
         displayComponent(this.model.get("componentModel"));
         var item = $(event.currentTarget).parent();
-        $("#open_menu>ul>li.selected").removeClass("selected");
+        $("#open_component_list>li.selected").removeClass("selected");
         item.addClass("selected");
     },
     closeComponent: function(event){
@@ -459,10 +484,10 @@ var OpenComponentView = Backbone.View.extend({
         var openModel = this.model;
         //var model = getModelByCid(myComponentList, openModel.get("cid"));
         var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
-        if(prevIndex >= 0){
-            var prevComponent = myOpenComponentList.at(prevIndex);;
-            myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
-        }
+        //if(prevIndex >= 0){
+            //var prevComponent = myOpenComponentList.at(prevIndex);;
+            //myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
+        //}
         openModel.unset("editorSession");
         myOpenComponentList.remove(openModel);
     }
@@ -521,7 +546,7 @@ function displayComponent(component){
     var search = "a[data-id=\"" + componentId + "\"]";
     var link = $("#open_menu").find(search);
     var item = $(link).parent();
-    $("#open_menu>ul>li.selected").removeClass("selected");
+    $("#open_component_list>li.selected").removeClass("selected");
     item.addClass("selected");
     if(component.get("type") == 't'){
         // readonly for theory files

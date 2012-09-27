@@ -82,29 +82,3 @@
     cursor: default;
 }
 
-/*div.menu ul ul {
-    display: none;
-}
-
-div.menu ul ul ul {
-    display: none;
-}*/
-
-/*div.menu ul ul,
-div.menu ul li:hover ul ul,
-div.menu ul ul li:hover ul ul,
-div.menu ul ul ul li:hover ul ul,
-div.menu ul ul ul ul li:hover ul ul {
-    display: none;
-}
-
-div.menu ul li:hover ul,
-div.menu ul ul li:hover ul,
-div.menu ul ul ul li:hover ul,
-div.menu ul ul ul ul li:hover ul,
-div.menu ul ul ul ul ul li:hover ul {
-    display: block;
-}*/
-
-/* http://ago.tanfa.co.uk/css/examples/menu/tutorial-h.html */
-
