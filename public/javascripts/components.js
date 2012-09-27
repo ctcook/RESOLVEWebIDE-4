@@ -127,13 +127,6 @@ var ComponentMenuView = Backbone.View.extend({
     render: function(){
         var componentmenu = $("#component_menu li:first");
         setMenuHandlers(componentmenu);
-        /*componentmenu.mouseenter(function(event){
-            showMenu($("#component_list"));
-        }).mouseleave(function(event){
-            setTimeout(function(){
-                hideMenu($("#component_list"));
-            }, 500);
-        });*/
         var that = this;
         this._componentViews = [];
         this.collection.each(function(component){
@@ -145,24 +138,17 @@ var ComponentMenuView = Backbone.View.extend({
                 that._componentViews.push(new ComponentView({model:component}));
             }
         });
-        //$(this.el).empty();
-        //var concepts = $("<li>").html("<a class=\"component\">Concepts</a>");
         var concepts = $("#concepts");
-        var conceptList = concepts.children("ul");//.empty();
+        var conceptList = concepts.children("ul");
         setMenuHandlers(concepts);
-        //var facilities = $("<li>").html("<a class=\"component\">Facilities</a>");
         var facilities = $("#facilities");
-        var facilityList = facilities.children("ul");//.empty();
+        var facilityList = facilities.children("ul");
         setMenuHandlers(facilities);
-        //var theories = $("<li>").html("<a class=\"component\">Theories</a>");
         var theories = $("#theories");
         if(theories != null){
             var theoryList = theories.children("ul");//.empty();
             setMenuHandlers(theories);
         }
-        //var conceptList = $("<ul>").appendTo(concepts);
-        //var facilityList = $("<ul>").appendTo(facilities);
-        //var theoryList = $("<ul>").appendTo(theories);
         _(this._componentViews).each(function(cv){
             if(cv.model.get("type") == "c"){
                 conceptList.append(cv.render().el);
@@ -176,13 +162,6 @@ var ComponentMenuView = Backbone.View.extend({
                 }
             }
         });
-        //$(this.el).append(facilities);
-        //$(this.el).append(concepts);
-        //$(this.el).append(theories);
-        var creater = $("<li>").html("<a class=\"creater\">Create</a>");
-        var loader = $("<li>").html("<a class=\"loader\">Load</a>");
-        //$(this.el).append(creater);
-        //$(this.el).append(loader);
         $("#component_list").addClass("hidden");
         $("#component_list").find("li").addClass("hidden");
     },
