@@ -289,74 +289,41 @@ var OpenComponentListView = Backbone.View.extend({
         var listWidth = list.width();
         var scanLeft = $("<button>").attr({id:"scan_left"}).html("&#x25C0;").addClass("scanButton");
         var scanRight = $("<button>").attr({id:"scan_right"}).html("&#x25B6;").addClass("scanButton");
-        //var scanLeftDiv = $("<div>").append(scanLeft).attr({"id":"scan_left"});
-        //var scanRightDiv = $("<div>").append(scanRight).attr({"id":"scan_right"});
+        var dropDown = $("<button>").attr({id:"ocv_dropdown"}).html("|").addClass("scanButton active shadow");
+        dropDown.click(function(event){
+            event.preventDefault();
+            var open_components = $("#open_menu");
+            showOpenComponents(open_components, $(this));
+        });
         $(this.el).html(scanLeft);
         var openMenuDiv = $("<div>").attr({id:"open_components"}).html(list);
-        //var openMenuWidth = $("#open_menu").width() - (2 * scanLeft.width());
         $(this.el).append(openMenuDiv);
-        //$(this.el).append(list);
         var done = false;
+        var dropDownComponentViews =  new Array();
         _(this._openComponents).each(function(component, index){
-            //that._openComponentCount++;
             var ocv = new OpenComponentView({model:component});
+            var ocv2 = new OpenComponentView({model:component});
             var el = ocv.render().el;
-            if(index < that._openComponentStartIndex){
-                //$(el).addClass("hidden");
-                //that._openComponentCount--;
-            }
             list.append(el);
-            var itemWidth = $(el).width();
-            /*if(!done && (listWidth + itemWidth) > openMenuWidth){
-                if(shift_type == "shift_left"){
-                    $(el).addClass("hidden");
-                    that._openComponentCount--;
-                    log("editorNav -> shift_left -> hiding ->"+component.get("name"));
-                }
-                else if(shift_type == "shift_right"){
-                    that._openComponentStartIndex++;
-                    var firstVisible = $(el).parent().children(':not(.hidden)')[0];
-                    $(firstVisible).addClass("hidden");
-                    that._openComponentCount--;
-                    done = true;
-                    log("editorNav -> shift_right -> hiding ->"+component.get("name"));
-                }
-                else{
-                    $(el).addClass("hidden");
-                    that._openComponentCount--;
-                    log("editorNav -> hiding ->"+component.get("name"));
-                }
-            }
-            else if(done){
-                $(el).addClass("hidden");
-                that._openComponentCount--;
-            }
-            listWidth = list.width();*/
+            dropDownComponentViews.push(ocv2);
+        });
+        var dropDownList = $("<ul>").attr({id:"open_component_dropdown"});
+        dropDownList.addClass("hidden");
+        dropDownList.sort(sortOpenByName);
+        _(dropDownComponentViews).each(function(view, index){
+            var item = view.render().el;
+            dropDownList.append(item);
+           console.log(view.model.get("name")) ;
         });
         $(this.el).append(scanRight);
+        $(this.el).append(dropDown);
+        $(this.el).append(dropDownList);
         if(true){
             scanLeft.addClass("active shadow");
         }
         if(true){
             scanRight.addClass("active shadow");
         }
-        /*var item = $("#open_component_list>li.selected");
-        var menuLeft = openMenuDiv.position().left;
-        var menuRightSide = menuLeft + openMenuDiv.width();
-        var itemPos = item.position();
-        var itemRightSide = menuLeft + itemPos.left + item.width();
-        var listLeft = list.position().left;
-        if(itemRightSide > menuRightSide){
-            list.css("left", listLeft - (itemRightSide - menuRightSide + 10));
-        }*/
-        //this._openComponentEndIndex = this._openComponentStartIndex + this._openComponentCount;
-        //if(this._openComponentStartIndex > 0){
-            //scanLeft.addClass("active shadow");
-        //}
-        //var count = this._openComponentStartIndex + this._openComponentCount;
-        //if(count < this.collection.length){
-            //scanRight.addClass("active shadow");
-        //}
     },
     added: function(component){
         this._openComponents.push(component);
@@ -458,18 +425,30 @@ function openComponentScan(direction, view){
     var listRightSide = menuLeft + listLeft + list.width();
         
     if(direction == "left"){
-        if(menuLeft > listLeft + menuLeft){
+        if(menuLeft > listLeft + menuLeft + 10){
             list.animate({"left": listLeft + 15}, "fast");
             //myOpenComponent_view.scanLeft();
         }
     }
     else if(direction == "right"){
-        if(menuRightSide < listRightSide){
+        if(menuRightSide + 10 < listRightSide){
             list.animate({"left": listLeft - 15}, "fast");
             //myOpenComponent_view.scanRight();
         }
     }
     //view._scanTImer = setTimeout(openComponentScan(direction, view), 5);
+}
+
+function sortOpenByName(a, b){
+    var lhs = a.model.get("name").toLowerCase();
+    var rhs = b.model.get("name").toLowerCase();
+    if(lhs.charAt(0) > rhs.charAt(0)){
+        return 1;
+    }
+    if(lhs.charAt(0) < rhs.charAt(0)){
+        return -1;
+    }
+    return (lhs > rhs);
 }
 
 var OpenComponentView = Backbone.View.extend({
@@ -499,7 +478,8 @@ var OpenComponentView = Backbone.View.extend({
         return this;
     },
     events: {
-        "click #open_menu a.component" : "selectComponent",
+        "click #open_component_list a.component" : "selectComponent",
+        "click #open_component_dropdown a.component" : "selectDropdownComponent",
         "click #open_menu button.close_img" : "closeComponent"
     },
     selectComponent: function(event){
@@ -510,6 +490,15 @@ var OpenComponentView = Backbone.View.extend({
         var item = $(event.currentTarget).parent();
         $("#open_component_list>li.selected").removeClass("selected");
         item.addClass("selected");
+    },
+    selectDropdownComponent: function(event){
+        event.stopPropagation();
+        var cid = this.model.cid;
+        //var model = getModelByCid(myComponentList, cid);
+        displayComponent(this.model.get("componentModel"));
+        //var item = $("#open_component_list[data-cid=\""+cid+"\"]")
+        //$("#open_component_list>li.selected").removeClass("selected");
+        //$(item[0]).addClass("selected");
     },
     closeComponent: function(event){
         event.stopPropagation();
@@ -577,7 +566,7 @@ function displayComponent(component){
     }
     var dataIndex = component.get("index");
     var search = "a[data-id=\"" + componentId + "\"]";
-    var link = $("#open_menu").find(search);
+    var link = $("#open_component_list").find(search);
     var item = $(link).parent();
     $("#open_component_list>li.selected").removeClass("selected");
     item.addClass("selected");
@@ -601,6 +590,9 @@ function displayComponent(component){
       syntaxCheck(openComponent);
    });
    $("#component_list").removeClass("visible").addClass("hidden");
+   hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
+   //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
+   scanToSelected(item);
    clearVcInfo();
 }
 
@@ -680,7 +672,7 @@ function initializeOpenComponentList(selectedProjectName){
         }
         displayComponent(openComponent);
         var item = $("#open_component_list>li.selected");
-        scanToSelected(item);
+        //scanToSelected(item);
     }
 }
 
@@ -688,12 +680,15 @@ function scanToSelected(item){
     var openMenuDiv = $("#open_components")
     var list = $("#open_component_list");
     var menuLeft = openMenuDiv.position().left;
-    var menuRightSide = menuLeft + openMenuDiv.width();
+    var menuRightSide = openMenuDiv.width();
     var itemPos = item.position();
-    var itemRightSide = menuLeft + itemPos.left + item.width();
     var listLeft = list.position().left;
+    var itemRightSide = itemPos.left + item.outerWidth(true);
     if(itemRightSide > menuRightSide){
-        list.css("left", listLeft - (itemRightSide - menuRightSide + 10));
+        list.css("left", listLeft - (itemRightSide - menuRightSide));
+    }
+    else if(itemPos.left + listLeft < menuLeft){
+        list.css("left", 0);
     }
 }
 
@@ -853,4 +848,20 @@ function hideMenu(parent){
     var list = parent.removeClass("visable").addClass("hidden");
     var children = list.children("li");
     children.removeClass("visable").addClass("hidden");
+}
+
+function showOpenComponents(menu, button){
+    var items = menu.find('.hidden');
+    items.removeClass("hidden").addClass("visable");
+    button.unbind("click").click(function(event){
+        hideOpenComponents(menu, button);
+    });
+}
+
+function hideOpenComponents(menu, button){
+    var items = menu.find('.visable');
+    items.removeClass("visable").addClass("hidden");
+    button.unbind("click").click(function(event){
+        showOpenComponents(menu, button);
+    });
 }
