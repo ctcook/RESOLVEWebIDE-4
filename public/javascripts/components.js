@@ -307,9 +307,9 @@ var OpenComponentListView = Backbone.View.extend({
             list.append(el);
             dropDownComponentViews.push(ocv2);
         });
+        dropDownComponentViews.sort(sortOpenByName);
         var dropDownList = $("<ul>").attr({id:"open_component_dropdown"});
         dropDownList.addClass("hidden");
-        dropDownList.sort(sortOpenByName);
         _(dropDownComponentViews).each(function(view, index){
             var item = view.render().el;
             dropDownList.append(item);
