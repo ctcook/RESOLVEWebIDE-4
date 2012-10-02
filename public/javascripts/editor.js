@@ -463,8 +463,10 @@ UserControlView = Backbone.View.extend({
 
 function initializeEditor(){
     var editorDiv = "code_editor";
-    var lowerHeight = $("#content").outerHeight(true) - $("#menu_bar").outerHeight(true) - $("#open_menu").outerHeight(true);
-    $("#editor_container").resizable({
+    //var lowerHeight = $("#content").outerHeight(true) - $("#user_bar").outerHeight(true) - 
+        //$("#menu_bar").outerHeight(true) - $("#control_bar").outerHeight(true) -
+        //$("#open_menu").outerHeight(true) - $("#footer").outerHeight(true);;
+    /*$("#editor_container").resizable({
         handles: {e:$("#editor_handle")},
         maxHeight: 500,
         maxWidth: 875,
@@ -476,14 +478,15 @@ function initializeEditor(){
         },
         minHeight: 500,
         minWidth: 275
-    });
-    var editorHeight =  lowerHeight - $("#editor_container").outerHeight(true);
-    $("#editor_container").outerHeight(lowerHeight-1);
-    $("#code_editor").outerHeight(editorHeight);
-    var outputHeight = editorHeight + $("#control_bar").outerHeight(true);
-    $("#output_container").outerHeight(outputHeight-10);
-    $("#tabs_output").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
-    $("#tabs_vcs").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
+    });*/
+    //var editorHeight =  lowerHeight;// - $("#editor_container").outerHeight(true);
+    //$("#editor_container").outerHeight(lowerHeight + $("#control_bar").outerHeight(true));
+    //$("#code_editor").outerHeight(editorHeight);
+    setEditorHeight();
+    //var outputHeight = editorHeight + $("#control_bar").outerHeight(true);
+    //$("#output_container").outerHeight(outputHeight-10);
+    //$("#tabs_output").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
+    //$("#tabs_vcs").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
     editor = ace.edit(editorDiv);
     editor.setTheme("ace/theme/textmate");
     var ResolveMode = require("ace/mode/resolve").Mode;
@@ -494,6 +497,16 @@ function initializeEditor(){
     
     myUserControlView = new UserControlView({el: $("#control_bar"), model: new OpenComponent()});
 }
+
+function setEditorHeight(){
+    var lowerHeight = $("#content").outerHeight(true) - $("#user_bar").outerHeight(true) - 
+        $("#menu_bar").outerHeight(true) - $("#control_bar").outerHeight(true) -
+        $("#open_menu").outerHeight(true) - $("#footer").outerHeight(true);
+    var editorHeight =  lowerHeight;// - $("#editor_container").outerHeight(true);
+    $("#editor_container").outerHeight(lowerHeight + $("#control_bar").outerHeight(true));
+    $("#code_editor").outerHeight(editorHeight);
+}
+
 function connect(ws, socketPing, component, targetJSON, waitGif) {
     var target = "ws://localhost:8084/interface/WebProver";
     var loc = window.location;
