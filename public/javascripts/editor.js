@@ -348,8 +348,9 @@ UserControlView = Backbone.View.extend({
         var model = this.model;
         var component = model.get("componentModel").clone();
         component.set("content", encode(editor.getSession().getValue()));
-        var tc = new UserComponent({component: component, ws: "default"});
-        var targetJSON = tc.toJSON();
+        //var tc = new UserComponent({component: component, ws: "default"});
+        //var targetJSON = tc.toJSON();
+        var targetJSON = component.toJSON();
         var userJSON = "[";
         var numOpenComponents = myOpenComponentList.size();
         var index = 0;
@@ -368,7 +369,9 @@ UserControlView = Backbone.View.extend({
         //var elementClass = $(event.currentTarget).attr("class");
         $.ajax({
             url: "WebCompiler",
-            data: {"job": targetJob, "target":targetJSON, "userComponents": userJSON},
+            type: "POST",
+            //data: {"job": targetJob, "target":targetJSON, "userComponents": userJSON},
+            data: {"job": targetJob, "target":targetJSON},
             success: function(result){
                 waitGif.remove();
                 if(targetJob == "translateJava"){

@@ -41,7 +41,19 @@ var Component = Backbone.RelationalModel.extend({
         key: "enhancements",
         relatedModel: "Component",
         collectionType: 'ComponentList'
-    }]
+    }],
+    toJSON: function(){
+        var json = "{name:\"" + this.get("name") + "\"," +
+            "pkg:\"" + this.get("pkg") + "\"," +
+            "project:\"" + selectedProject + "\"," +
+            "content:\"" + this.get("content") + "\"}";
+            //JSON.stringify(this.get("component")) +
+            //Backbone.Model.prototype.toJSON.call(this.get("component")) +
+            //", ws: \"" +
+            //this.get("ws") +
+            //"\"}";
+        return json;
+    }
 });
 
 var OpenComponent = Backbone.RelationalModel.extend({

@@ -5,6 +5,7 @@
 # Home page
 GET     /                                       Interface.index
 GET     /projects                               Projects.projects
+POST    /WebCompiler                            WebCompiler.compile
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

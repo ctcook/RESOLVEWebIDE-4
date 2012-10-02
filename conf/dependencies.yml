@@ -2,3 +2,11 @@
 
 require:
     - play
+    - resolve -> resolve
+    
+repositories:
+    - resolve:
+        type:       local
+        artifact:   ${application.path}/lib/[module].jar
+        contains:
+            - resolve
