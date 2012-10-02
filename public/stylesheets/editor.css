@@ -4,7 +4,7 @@
 
 
 #editor_container {
-    width:875px;
+    width:1000px;
     /*height:510px;*/
     height:100%;
     /*padding-top: 10px;*/
@@ -12,13 +12,13 @@
 
 #control_bar {
     height:22px;
-    width:845px;
+    width:1000px;
     padding: 6px 0px 4px 0px;
 }
 
 #code_editor {
     clear:left;
-    width:845px;
+    width:1000px;
     /*height:474px;*/
     border-top: solid 1px #AAA;
     border-right: solid 1px #AAA;
