@@ -486,6 +486,7 @@ function initializeEditor(){
     //$("#editor_container").outerHeight(lowerHeight + $("#control_bar").outerHeight(true));
     //$("#code_editor").outerHeight(editorHeight);
     setEditorHeight();
+    setConsolePosition();
     //var outputHeight = editorHeight + $("#control_bar").outerHeight(true);
     //$("#output_container").outerHeight(outputHeight-10);
     //$("#tabs_output").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
@@ -499,6 +500,11 @@ function initializeEditor(){
     document.getElementById(editorDiv).style.fontSize=FONTSIZE+"px";
     
     myUserControlView = new UserControlView({el: $("#control_bar"), model: new OpenComponent()});
+    
+    var consoleExpander = $("#console-expander");
+    consoleExpander.click(function(event){
+        showConsole(this);
+    });
 }
 
 function setEditorHeight(){
@@ -508,6 +514,29 @@ function setEditorHeight(){
     var editorHeight =  lowerHeight;// - $("#editor_container").outerHeight(true);
     $("#editor_container").outerHeight(lowerHeight + $("#control_bar").outerHeight(true));
     $("#code_editor").outerHeight(editorHeight);
+}
+
+function setConsolePosition(){
+    var console = $("#console-container");
+    var editorHeight = $("#editor_container").outerHeight(true);
+    var consoleHeight = console.outerHeight(true);
+    console.css({top:editorHeight-consoleHeight});
+}
+
+function showConsole(button){
+    var console = $(button).parent();
+    console.removeClass("console-hidden").addClass("console-visible");
+    $(button).unbind("click").click(function(){
+        hideConsole(this);
+    });
+}
+
+function hideConsole(button){
+    var console = $(button).parent();
+    console.removeClass("console-visible").addClass("console-hidden");
+    $(button).unbind("click").click(function(){
+        showConsole(this);
+    });
 }
 
 function connect(ws, socketPing, component, targetJSON, waitGif) {

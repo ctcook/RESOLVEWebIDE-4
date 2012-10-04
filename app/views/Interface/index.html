@@ -76,6 +76,7 @@
                 $("#content").outerHeight($(window).outerHeight(true)-1);
                 $("#content").css({margin:"auto"});
                 setEditorHeight();
+                setConsolePosition();
             });
             function init(){
                 //initializeEditor();
@@ -95,16 +96,23 @@
     </div>
 
     <!--</div>-->
-    <div id="component_views">
-        <div id="editor_container" class="pane_left">
-            <div id="control_bar" class="notSelectable"></div>
-            <div id="code_editor">
-                test
-            </div>
-            <!--<div class="pane_left">-->
-            <!--<div id="editor_handle" class="ui-resizable-handle ui-resizable-e">&#8596;</div>-->
-            <!--</div>-->
+    <!--<div id="component_views">-->
+    <div id="editor_container" class="pane_left">
+        <div id="control_bar" class="notSelectable"></div>
+        <div id="code_editor">
+            test
         </div>
+        <div id="console-container">
+            
+            <div id="editor-console" class="console-hidden">
+                <button id="console-expander"></button>
+                output
+            </div>
+        </div>
+        <!--<div class="pane_left">-->
+        <!--<div id="editor_handle" class="ui-resizable-handle ui-resizable-e">&#8596;</div>-->
+        <!--</div>-->
+    </div>
         <!--<div id="output_container" class="pane_left">
             <div id="output_tabs">
                 <ul id="output_list">
@@ -121,7 +129,7 @@
                 </div>
             </div>
         </div>-->
-    </div>
+    <!--</div>-->
 <div id="dialog_new" class="hidden">create new component dialog</div>
 <div id="dialog_load" class="hidden">load new component dialog</div>
 
