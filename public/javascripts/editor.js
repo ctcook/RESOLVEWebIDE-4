@@ -478,7 +478,7 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     var loc = window.location;
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/")+1);
-    var new_uri = "ws://" + loc.host + pathname + "CompilerSocket?target="+targetJSON;
+    var new_uri = "ws://" + loc.host + loc.pathname + "CompilerSocket?target="+targetJSON;
     if ('WebSocket' in window) {
         ws = new WebSocket(new_uri);
     } else if ('MozWebSocket' in window) {
