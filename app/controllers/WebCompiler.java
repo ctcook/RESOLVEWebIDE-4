@@ -18,6 +18,7 @@ public class WebCompiler  extends Controller {
         UserComponent uc = new Gson().fromJson(params.get("target"), UserComponent.class);
         System.out.println(decode(uc.content));
         String workingDir = (String)Play.configuration.get("workingdir");
+        renderText(uc.name);
     }
     
     private static String decode(String raw){

@@ -367,39 +367,9 @@ UserControlView = Backbone.View.extend({
         var infoBlock = openComponentTab.find(".componentInfo");
         var waitGif = addWaitGif(infoBlock);
         //var elementClass = $(event.currentTarget).attr("class");
-        $.ajax({
-            url: "WebCompiler",
-            type: "POST",
-            //data: {"job": targetJob, "target":targetJSON, "userComponents": userJSON},
-            data: {"job": targetJob, "target":targetJSON},
-            success: function(result){
-                waitGif.remove();
-                if(targetJob == "translateJava"){
-                    analyzeJavaResults(model, result);
-                }
-                else if(targetJob == "build"){
-                    
-                }
-                else if(targetJob == "genVCs"){
-                    analyzeVcResults(model, result);
-                }
-                else if(targetJob == "verify"){
-                    analyzeVerifyResults(model, result);
-                }
-                
-                //$(msg).find("genCodeResults").each(function(){
-                    //var java = unescape($(this).find("code").text());
-                    //log("result: "+java);
-                    //java = String(java).replace(lsRegExp, " ");
-                    //java = replaceRemoteFileNames(serverFileNames, java);
-                    //name = $(this).find("userName").text();
-                    //compilerOutput = $(this).find("compilerOutput").text();
-                    //compilerOutput = String(compilerOutput).replace(lsRegExp, " ");
-                    //success = $(this).find("translateSuccess").text();
-                //});
-                
-            }
-        });
+        //ajaxCompile(targetJob, targetJSON, waitGif, model);
+        wsCompile(targetJob, targetJSON, waitGif, model);
+        
         //log(json);
     },
     verify: function(event){
@@ -464,6 +434,71 @@ UserControlView = Backbone.View.extend({
     }
 });
 
+function ajaxCompile(targetJob, targetJSON, waitGif, model){
+    $.ajax({
+        url: "WebCompiler",
+        type: "POST",
+        //data: {"job": targetJob, "target":targetJSON, "userComponents": userJSON},
+        data: {"job": targetJob, "target":targetJSON},
+        success: function(result){
+
+            waitGif.remove();
+            if(targetJob == "translateJava"){
+                $("#console-expander").trigger("click");
+                $("#console-info").html(result);
+                //analyzeJavaResults(model, result);
+            }
+            else if(targetJob == "build"){
+
+            }
+            else if(targetJob == "genVCs"){
+                analyzeVcResults(model, result);
+            }
+            else if(targetJob == "verify"){
+                analyzeVerifyResults(model, result);
+            }
+
+            //$(msg).find("genCodeResults").each(function(){
+                //var java = unescape($(this).find("code").text());
+                //log("result: "+java);
+                //java = String(java).replace(lsRegExp, " ");
+                //java = replaceRemoteFileNames(serverFileNames, java);
+                //name = $(this).find("userName").text();
+                //compilerOutput = $(this).find("compilerOutput").text();
+                //compilerOutput = String(compilerOutput).replace(lsRegExp, " ");
+                //success = $(this).find("translateSuccess").text();
+            //});
+
+        }
+    });
+}
+
+function wsCompile(targetJob, targetJSON, waitGif, model){
+    var ws;
+    var loc = window.location;
+    var pathname = loc.pathname;
+    pathname = pathname.substring(0,pathname.lastIndexOf("/")+1);
+    var new_uri = "ws://" + loc.host + pathname + "CompilerSocket?target="+targetJSON;
+    if ('WebSocket' in window) {
+        ws = new WebSocket(new_uri);
+    } else if ('MozWebSocket' in window) {
+        ws = new MozWebSocket(new_uri);
+    } else {
+        alert('WebSocket is not supported by this browser.');
+        return;
+    }
+    ws.onmessage = function (event) {
+        waitGif.remove();
+        if(targetJob == "translateJava"){
+            $("#console-expander").trigger("click");
+            $("#console-info").html(event.data);
+            //analyzeJavaResults(model, result);
+        }
+    };
+        
+    //new Socket(new_uri+"?target="+targetJSON);
+}
+
 function initializeEditor(){
     var editorDiv = "code_editor";
     //var lowerHeight = $("#content").outerHeight(true) - $("#user_bar").outerHeight(true) - 
@@ -519,13 +554,19 @@ function setEditorHeight(){
 function setConsolePosition(){
     var console = $("#console-container");
     var editorHeight = $("#editor_container").outerHeight(true);
+    $("#console-expander").height($("#code_editor").outerHeight(true));
+    $("#editor-console").outerHeight($("#code_editor").outerHeight(true));
+    console.outerHeight($("#code_editor").outerHeight(true));
     var consoleHeight = console.outerHeight(true);
     console.css({top:editorHeight-consoleHeight});
 }
 
 function showConsole(button){
     var console = $(button).parent();
-    console.removeClass("console-hidden").addClass("console-visible");
+    //console.removeClass("console-hidden").addClass("console-visible");
+    console.animate({
+        right: 0
+    }, 250);
     $(button).unbind("click").click(function(){
         hideConsole(this);
     });
@@ -533,7 +574,10 @@ function showConsole(button){
 
 function hideConsole(button){
     var console = $(button).parent();
-    console.removeClass("console-visible").addClass("console-hidden");
+    //console.removeClass("console-visible").addClass("console-hidden");
+    console.animate({
+        right: -385
+    }, 250);
     $(button).unbind("click").click(function(){
         showConsole(this);
     });
