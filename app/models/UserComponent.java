@@ -11,10 +11,12 @@ public class UserComponent extends Model {
     public String pkg;
     public String project;
     public String content;
-    public UserComponent(String name, String pkg, String project, String content){
+    public String type;
+    public UserComponent(String name, String pkg, String project, String content, String type){
         this.name = name;
         this.pkg = pkg;
         this.project = project;
         this.content = content;
+        this.type = type;
     }
 }

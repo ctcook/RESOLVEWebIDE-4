@@ -478,7 +478,9 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     var loc = window.location;
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
-    var new_uri = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "CompilerSocket?target="+targetJSON;
+    var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
+    var params = "?job=" + targetJob + "&target="+targetJSON;
+    var new_uri = url + params;
     if ('WebSocket' in window) {
         ws = new WebSocket(new_uri);
     } else if ('MozWebSocket' in window) {
@@ -487,13 +489,47 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         alert('WebSocket is not supported by this browser.');
         return;
     }
+    var infoShowing = ($("#editor-console").css("right")=="0px")?true:false;
+    if(!infoShowing){
+        $("#console-expander").trigger("click");
+    }
     ws.onmessage = function (event) {
-        waitGif.remove();
-        if(targetJob == "translateJava"){
-            $("#console-expander").trigger("click");
-            $("#console-info").html(event.data);
-            //analyzeJavaResults(model, result);
+        //waitGif.remove();
+        var resultJSON = JSON.parse(event.data);
+        var status = resultJSON.status;
+        if(status == "info"){
+            $("#console-info").append(resultJSON.msg+"<br/>");
         }
+        else if(status == "complete"){
+            $("#console-info").append("complete<br/>");
+            var code = decode(resultJSON.code);
+            $("#console-info").append(code+"<br/>");
+            // @todo add Java code view to editor
+        }
+        else if(status == "error"){
+            $("#console-info").append("error<br/>");
+            // @todo add error handling
+        }
+    };
+    ws.onclose = function (event) {
+        waitGif.remove();
+        /*var css = $("#editor-console").css("right");
+        
+        if(targetJob == "translateJava"){
+            var resultJSON = JSON.parse(event.data);
+            var results = resultJSON.results;
+            var output = "";
+            if(results.translateSuccess){
+                output = decode(resultJSON.results.code);
+            }
+            else{
+                output = "error!";
+            }
+            //var javaCode = decode(resultJSON.results.code);
+            //console.log(javaCode);
+            $("#console-info").append(output+"<br/>");
+            //analyzeJavaResults(model, result);
+        }*/
     };
         
     //new Socket(new_uri+"?target="+targetJSON);
@@ -656,6 +692,23 @@ function ping(ws, socketPing){
     socketPing = setTimeout(function(){
         ping(ws, socketPing);
     }, 15000)
+}
+
+/*
+ * This function decodes the UrlEncoded content from the server. It also
+ * replaces the %20's with spaces (" "). We have to replace the spaces with
+ * the HTML code before transmission because the Java UrlEncode replaces spaces
+ * with pluss signs ("+"). If we don't do this replacement we will lose all
+ * plus signs that are have spaces next to them.
+ */
+function decode(content){
+    var lsRegExp = /\%20/g;
+    var lsRegExp2 = /\%2B/g;
+    var lsRegExpLT = /\&lt;/g;
+    var lsRegExpGT = /\&gt;/g;
+    var cont = String(unescape(content)).replace(lsRegExp, " ");
+    cont = cont.replace(lsRegExp2, "+")
+    return cont;
 }
 
 function htmlEncodeGTLT(content){

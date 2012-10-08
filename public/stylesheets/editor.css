@@ -24,6 +24,7 @@
     border-top: solid 1px #AAA;
     border-right: solid 1px #AAA;
     border-bottom: solid 1px #AAA;
+    z-index: 25;
 }
 
 /*#editor_handle {

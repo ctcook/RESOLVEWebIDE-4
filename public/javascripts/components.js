@@ -46,7 +46,8 @@ var Component = Backbone.RelationalModel.extend({
         var json = "{name:\"" + this.get("name") + "\"," +
             "pkg:\"" + this.get("pkg") + "\"," +
             "project:\"" + selectedProject + "\"," +
-            "content:\"" + this.get("content") + "\"}";
+            "content:\"" + this.get("content") + "\"," +
+            "type:\"" + this.get("type") + "\"}";
             //JSON.stringify(this.get("component")) +
             //Backbone.Model.prototype.toJSON.call(this.get("component")) +
             //", ws: \"" +

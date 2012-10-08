@@ -6,7 +6,7 @@
 GET     /                                       Interface.index
 GET     /projects                               Projects.projects
 POST    /WebCompiler                            WebCompiler.compile
-WS      /CompilerSocket                         CompilerSocket.hello
+WS      /Compiler                               CompilerSocket.compile
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

@@ -3,10 +3,12 @@
 require:
     - play
     - resolve -> resolve
+    - antlr-3.3-complete -> antlr
     
 repositories:
-    - resolve:
+    - My modules:
         type:       local
-        artifact:   ${application.path}/lib/[module].jar
+        artifact:   ${application.path}/jars/[module].jar
         contains:
             - resolve
+            - antlr-3.3-complete
