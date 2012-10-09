@@ -309,7 +309,7 @@ function addVcs(component, vcArray) {
 }
 
 function addWaitGif(div){
-    var smallWaitGif = "public/images/wait20trans.gif";
+    var smallWaitGif = window.location+"public/images/wait20trans.gif";
     var waitGif = $("<img>").attr({src:smallWaitGif, alt:"WaitGif"});
     waitGif.addClass("waitGif");
     div.append(waitGif);
