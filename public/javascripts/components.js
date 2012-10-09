@@ -326,7 +326,7 @@ var OpenComponentListView = Backbone.View.extend({
         _(dropDownComponentViews).each(function(view, index){
             var item = view.render().el;
             dropDownList.append(item);
-           console.log(view.model.get("name")) ;
+           //console.log(view.model.get("name")) ;
         });
         $(this.el).append(scanRight);
         $(this.el).append(dropDown);
