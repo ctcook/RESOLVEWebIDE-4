@@ -602,7 +602,7 @@ function handleErrors(resultJSON, component){
         var code = getBugMsgs(bugs);
         code = "<pre class=\"bugTrace\">" + code + "</pre>";
         triggerConsole();
-        $("#console-info").append(code+"<br/>");
+        $("#console-info").html("").append(code+"<br/>");
     }
     // @todo add error handling
 }
@@ -727,11 +727,23 @@ function hideConsole(button){
     });
 }
 
+function dismissConsole(){
+    var infoShowing = ($("#editor-console").css("right")=="0px")?true:false;
+    if(infoShowing){
+        $("#console-expander").trigger("click");
+    }
+}
+
 function triggerConsole(){
     var infoShowing = ($("#editor-console").css("right")=="0px")?true:false;
     if(!infoShowing){
         $("#console-expander").trigger("click");
     }
+}
+
+function clearConsole(){
+    dismissConsole();
+    $("#console-info").html("");
 }
 
 /*function connect(ws, socketPing, component, targetJSON, waitGif) {

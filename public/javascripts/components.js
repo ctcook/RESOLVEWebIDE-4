@@ -606,7 +606,8 @@ function displayComponent(component){
    hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
    //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
    scanToSelected(item);
-   clearVcInfo();
+   clearConsole();
+   //clearVcInfo();
 }
 
 function displayComponentInfo(component){
