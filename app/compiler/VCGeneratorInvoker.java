@@ -6,6 +6,7 @@ package compiler;
 
 import edu.clemson.cs.r2jt.ResolveCompiler;
 import edu.clemson.cs.r2jt.compilereport.CompileReport;
+import play.mvc.Http;
 
 /**
  *
@@ -15,18 +16,42 @@ public class VCGeneratorInvoker {
 
     private ResolveCompiler r;
     private String[] args;
+    private Http.Outbound myOutbound;
     
-    public VCGeneratorInvoker(ResolveCompiler rc, String[] a)
+    public VCGeneratorInvoker(ResolveCompiler rc, String[] a, Http.Outbound outbound)
     {
         r = rc;
         args = a;
+        myOutbound = outbound;
     }
     
     
-    public StringBuffer generateVcs()
+    public void generateVcs(String job)
     {
+        OutboundMessageSender outbound = new OutboundMessageSender(myOutbound);
+        //Run the compiler
+        try{
+            r.compile(args);
+            
+        }
+        catch(Exception ex){
+            //obviously not too concerned about this situation ever happening
+        }
+        CompileReport cr = r.getReport();
+        boolean errors = false;
+        if(cr.hasErrors()){
+            errors = true;
+            outbound.sendErrors(job, cr.getErrors());
+        }
+        if(cr.hasBugReports()){
+            errors = true;
+            outbound.sendBugs(job, cr.getBugReports());
+        }
+        if(!errors){
+            outbound.sendComplete(job, cr.getOutput());
+        }
         
-        StringBuffer opBuffer = new StringBuffer();
+        /*StringBuffer opBuffer = new StringBuffer();
         String syntaxError = "false";
 
         opBuffer.append("<compile>");
@@ -65,7 +90,7 @@ public class VCGeneratorInvoker {
         opBuffer.append("<vcSuccess>" + success + "</vcSuccess>");
         opBuffer.append("</genVcResults>");
         opBuffer.append("</compile>");
-        return opBuffer;
+        return opBuffer;*/
     }
     
 }

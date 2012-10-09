@@ -2,6 +2,7 @@ package controllers;
 
 import com.google.gson.Gson;
 import compiler.JavaTranslatorInvoker;
+import compiler.VCGeneratorInvoker;
 import edu.clemson.cs.r2jt.ResolveCompiler;
 import edu.clemson.cs.r2jt.data.MetaFile;
 import edu.clemson.cs.r2jt.data.ModuleKind;
@@ -31,17 +32,34 @@ public class CompilerSocket extends WebSocketController {
         ResolveCompiler r = null;
         String msg = "{\"status\":\"info\",\"msg\":\"received " + job + ", launching\"}";
         outbound.send(msg);
+        HashMap<String, MetaFile> userFileMap = new HashMap<String, MetaFile>();
+        MetaFile umf = getTargetMetaFile(uc);
+        String key = "";
+        if(!umf.getMyPkg().equals("")){
+            key += umf.getMyPkg() + ".";
+        }
+        key += umf.getMyFileName();
+        userFileMap.put(key, umf);
         if(job.compareTo("translateJava") == 0){
             //Constructing compiler
             String[] args = {"-maindir", compilerMainDir, "-translate", 
                 "-webinterface"};
-            r = new ResolveCompiler(args, getTargetMetaFile(uc), new HashMap<String, MetaFile>());
+            r = new ResolveCompiler(args, umf, userFileMap);
 
             //invoking the translator with the compiler specially created for
             //translating
             JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
             //outbound.send(gji.generateJava().toString());
-            gji.generateJava();//event);
+            gji.generateJava(job);//event);
+        }
+        else if(job.compareTo("genVCs") == 0){
+            //Constructing compiler
+            String[] args = {"-maindir", compilerMainDir, "-vcs", 
+                        "-listVCs", "-webinterface"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            VCGeneratorInvoker vcgi = new VCGeneratorInvoker(r, args, outbound);
+            vcgi.generateVcs(job);
         }
         //System.out.println(decode(uc.content));
         //outbound.send(uc.name);
@@ -78,7 +96,7 @@ public class CompilerSocket extends WebSocketController {
         }
         return kind;
     }
-            
+                
     private static String decode(String raw){
         String encoded = null;
         try {
@@ -102,7 +120,7 @@ public class CompilerSocket extends WebSocketController {
         try {
             encoded = URLEncoder.encode(raw.replaceAll(" ", "%20"), "UTF-8");
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(WebCompiler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CompilerSocket.class.getName()).log(Level.SEVERE, null, ex);
         }
         return encoded;
     }

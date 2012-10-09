@@ -30,15 +30,9 @@ public class JavaTranslatorInvoker {
         myOutbound = outbound;
     }
     
-    public StringBuffer generateJava()
+    public void generateJava(String job)
     {
-        StringBuffer opBuffer = new StringBuffer();
-        String syntaxError = "false";
-        
-        //opBuffer.append("{\"compile\":{");
-        opBuffer.append("{\"results\":{");
-        opBuffer.append("\"compilerOutput\":");
-        String msg = "";
+        OutboundMessageSender outbound = new OutboundMessageSender(myOutbound);
         //Run the compiler
         try{
             r.compile(args);
@@ -51,25 +45,15 @@ public class JavaTranslatorInvoker {
         boolean errors = false;
         if(cr.hasErrors()){
             errors = true;
-            msg = "{\"status\":\"error\",\"type\":\"error\",\"errors\":[{";
-            msg += cr.getErrors();
-            msg += "}]}";
-            myOutbound.send(msg);
+            outbound.sendErrors(job, cr.getErrors());
         }
         if(cr.hasBugReports()){
             errors = true;
-            msg = "{\"status\":\"error\",\"type\":\"bug\",\"bugs\":[{";
-            msg += cr.getBugReports();
-            msg += "}]}";
-            myOutbound.send(msg);
+            outbound.sendBugs(job, cr.getBugReports());
         }
         if(!errors){
-            msg = "{\"status\":\"complete\",\"code\":\"";
-            msg += CompilerSocket.encode(cr.getOutput());
-            msg += "\"}";
-            myOutbound.send(msg);
+            outbound.sendComplete(job, cr.getOutput());
         }
-        return opBuffer;
     }
     
 }

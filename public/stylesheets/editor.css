@@ -118,6 +118,9 @@
 }
 
 #console-info {
+    height: 100%;
+    background-color: #E8E8E8;
+    overflow-y: scroll;
     position: absolute;
     top: 0px;
     right: 0px;
@@ -142,3 +145,35 @@
 .console-hidden {
     right: -385px;
 }
+
+/* VCs tooltip style (for Qtip plugin)*/
+.ui-tooltip-VC{
+    position: absolute;
+    background-color:#ADD8E6;
+    border-color:#000066;
+    color:#000066;
+    cursor: default;
+    font-family:'Lucida Grande',sans-serif;
+    font-size: 12px;
+    margin: 0em;
+    max-width: 600px;
+    }
+.ui-tooltip-VC .ui-tooltip-titlebar{
+    background-color:#F5A07A;
+    font-size:12px;
+    font-family:'Lucida Grande',sans-serif;
+    font-weight: normal;
+    cursor: default;
+    text-transform: capitalize;
+    }
+.ui-tooltip-VC .ui-state-default .ui-tooltip-icon{
+    background-position:-2px 0;
+    }
+.ui-tooltip-VC .ui-tooltip-icon{
+    border-color:#8B5742;
+    }
+.ui-tooltip-VC .ui-tooltip-titlebar .ui-state-hover{
+    border-color:#8B5742;
+    cursor: default;
+    }
+    

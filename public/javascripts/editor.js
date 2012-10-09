@@ -1,3 +1,7 @@
+var TRANSLATE = "translateJava";
+var VCS = "genVCs";
+var BUILD = "build";
+var VERIFY = "verify";
 /* 
  * This file contains code for creating and using the ACE editor
  */
@@ -334,16 +338,16 @@ UserControlView = Backbone.View.extend({
         // for the sevlet backend to understand what to do. That means the servlet
         // must also match when it checks for the job parameter
         if(targetButton.hasClass("translateJava")){
-            targetJob = "translateJava";
+            targetJob = TRANSLATE;
         }
         else if(targetButton.hasClass("build")){
-            targetJob = "build";
+            targetJob = BUILD;
         }
         else if(targetButton.hasClass("vcs")){
-            targetJob = "genVCs";
+            targetJob = VCS;
         }
         else if(targetButton.hasClass("verify")){
-            targetJob = "verify";
+            targetJob = VERIFY;
         }
         var model = this.model;
         var component = model.get("componentModel").clone();
@@ -489,10 +493,6 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         alert('WebSocket is not supported by this browser.');
         return;
     }
-    var infoShowing = ($("#editor-console").css("right")=="0px")?true:false;
-    if(!infoShowing){
-        $("#console-expander").trigger("click");
-    }
     ws.onmessage = function (event) {
         //waitGif.remove();
         var resultJSON = JSON.parse(event.data);
@@ -501,38 +501,146 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
             $("#console-info").append(resultJSON.msg+"<br/>");
         }
         else if(status == "complete"){
-            $("#console-info").append("complete<br/>");
-            var code = decode(resultJSON.code);
-            $("#console-info").append(code+"<br/>");
-            // @todo add Java code view to editor
+            analyzeResults(resultJSON, model);
         }
         else if(status == "error"){
-            $("#console-info").append("error<br/>");
-            // @todo add error handling
+            handleErrors(resultJSON, model);
         }
     };
     ws.onclose = function (event) {
         waitGif.remove();
-        /*var css = $("#editor-console").css("right");
-        
-        if(targetJob == "translateJava"){
-            var resultJSON = JSON.parse(event.data);
-            var results = resultJSON.results;
-            var output = "";
-            if(results.translateSuccess){
-                output = decode(resultJSON.results.code);
-            }
-            else{
-                output = "error!";
-            }
-            //var javaCode = decode(resultJSON.results.code);
-            //console.log(javaCode);
-            $("#console-info").append(output+"<br/>");
-            //analyzeJavaResults(model, result);
-        }*/
     };
         
     //new Socket(new_uri+"?target="+targetJSON);
+}
+
+function analyzeResults(resultJSON, component){
+    if(resultJSON.job == TRANSLATE){
+        var EditSession = require("ace/edit_session").EditSession;
+        var javaCode = resultJSON.result;
+        var javaSession = new EditSession(decode(javaCode));
+        var JavaMode = require("ace/mode/java").Mode;
+        component.set("java", javaSession);
+        editor.setReadOnly(true);
+        editor.setSession(javaSession);
+        editor.getSession().setMode(new JavaMode());
+        myUserControlView.render();
+        myUserControlView._javaCheckbox.attr({checked: "checked"});
+        var commandButtons = $(".controls_commands").find("button");
+        commandButtons.attr({disable: "diabled"});
+        commandButtons.removeClass("active");
+        
+        $("#console-info").append("complete<br/>");
+    }
+    else if(resultJSON.job == VCS){
+        var vcArray = new Array();
+        //var result = decode(resultJSON.result);
+        var result = decode(resultJSON.result);
+        var savedVCs = $(result).text();
+        var vcJSON = jQuery.parseJSON(savedVCs);
+        var jsonVCs = vcJSON.vcs;
+        $.each(jsonVCs, function(index, obj){
+            var newVC = null;
+            var vcID = obj.vc;
+            if(typeof vcID !== "undefined"){
+                var sf = obj.sourceFile;
+                var vcLine = obj.lineNum;
+                var vcCase = obj.vcInfo;
+                var vcGoal = htmlEncodeGTLT(decode(obj.vcGoal));
+                var vcGiven = htmlEncodeGTLT(decode(obj.vcGivens));
+                var vcReasons;
+                if(typeof obj.vcReasons === "undefined"){
+                    vcReasons = "";
+                }
+                else{
+                    vcReasons = htmlEncodeGTLT(decode(obj.vcReasons));
+                }
+                var content = vcGoal + vcGiven + vcReasons;
+                //vcCase = replaceRemoteFileNames(serverFileNames, vcCase);
+                //sf = replaceRemoteFileNames(serverFileNames, sf);
+                var temp = vcCase.split(":");
+                var i, vcStep = "";
+                for(i = 2; i < temp.length; i++){
+                    vcStep += temp[i] + ":";
+                }
+                newVC = new VC(vcID, content, vcCase, vcGoal, vcGiven, vcLine, sf);
+                var thisName = newVC.sourceFile;
+                thisName = thisName.substring(0, thisName.indexOf("."));
+                if(thisName != component.get("name")){
+                    var editorLength = component.get("editorSession").doc.getValue().split(/\n/).length;
+                    newVC.line = editorLength;
+                }
+            }
+            else{
+                newVC = obj;
+            }
+            vcArray.push(newVC);
+        });
+        //$("#output_tabs").tabs("select", 2);
+        //$("#tabs-vc").html(mainDiv.html());
+        //log("VCs complete");
+        //selectedFile.vcArray = vcArray;
+        addVcs(component, vcArray);
+        triggerConsole();
+    }
+    else if(resultJSON.job == BUILD){
+        
+    }
+    else if(resultJSON.job == VERIFY){
+        
+    }
+}
+
+function handleErrors(resultJSON, component){
+    var errorType = resultJSON.type;
+    if(errorType == "error"){
+        var errors = getErrorArray(resultJSON.errors);
+        addErrors(errors, component.get("componentModel"), "compiler");
+    }
+    else if(errorType == "bug"){
+        var bugs = getBugArray(resultJSON.bugs);
+        var code = getBugMsgs(bugs);
+        code = "<pre class=\"bugTrace\">" + code + "</pre>";
+        triggerConsole();
+        $("#console-info").append(code+"<br/>");
+    }
+    // @todo add error handling
+}
+
+function getErrorArray(jsonResults){
+    return jsonResults[0].errors;
+    /*var errors = null;
+    if(jsonResults.length == 2){
+        errors = jsonResults[0].errors;
+    }
+    else{
+        if(typeof jsonResults[0].errors !== "undefined"){
+            errors = jsonResults[0].errors;
+        }
+    }
+    return errors*/
+}
+
+function getBugArray(jsonResults){
+    return jsonResults[0].bugs;
+    /*var bugs = null;
+    if(jsonResults.length == 2){
+        bugs = jsonResults[1].bugs;
+    }
+    else{
+        if(typeof jsonResults[0].bugs !== "undefined"){
+            bugs = jsonResults[0].bugs;
+        }
+    }
+    return bugs;*/
+}
+
+function getBugMsgs(bugs){
+    var msg = "";
+    $.each(bugs, function(index, data){
+       msg += decode(data.bug) + "\n"; 
+    });
+    return msg;
 }
 
 function initializeEditor(){
@@ -619,7 +727,14 @@ function hideConsole(button){
     });
 }
 
-function connect(ws, socketPing, component, targetJSON, waitGif) {
+function triggerConsole(){
+    var infoShowing = ($("#editor-console").css("right")=="0px")?true:false;
+    if(!infoShowing){
+        $("#console-expander").trigger("click");
+    }
+}
+
+/*function connect(ws, socketPing, component, targetJSON, waitGif) {
     var target = "ws://localhost:8084/interface/WebProver";
     var loc = window.location;
     var pathname = loc.pathname;
@@ -692,7 +807,7 @@ function ping(ws, socketPing){
     socketPing = setTimeout(function(){
         ping(ws, socketPing);
     }, 15000)
-}
+}*/
 
 /*
  * This function decodes the UrlEncoded content from the server. It also
@@ -719,7 +834,163 @@ function htmlEncodeGTLT(content){
     return cont;
 }
 
-$.ui.plugin.add("resizable", "alsoResizeReverse", {
+function logVCs(vcs){
+    vcs.sort(sortByIdAndLine);
+    //$( "#output_tabs" ).tabs("select", 2);
+    var vcDiv = $("#console-info");
+    vcDiv.html("");
+    var vcInfo = $("<div>");
+    var firstVC;
+    for(var i = 0; i < vcs.length; i++){
+        if(typeof vcs[i].vcID !== "undefined"){
+            firstVC = vcs[i];
+            break;
+        }
+    }
+    
+    var vcLine = $("<div>").attr({id: "vc_line_"+(firstVC.line)}).addClass("vcContainer selectedVC");
+    var currLine = firstVC.line;
+    jQuery.each(vcs, function(){
+        var vc = this;
+        if(typeof vc.vcID !== "undefined"){
+            if(vc.line > currLine){
+                vcDiv.append(vcLine);
+                vcLine = $("<div>").attr({id: "vc_line_"+(vc.line)}).addClass("vcContainer selectedVC");
+            }
+            //vcLine.append(reformatVCs(encodeVcContent(this.text)).html());
+            vcLine.append(reformatVCs(vc).html());
+            currLine = vc.line;
+        }
+        else{
+            vcLine.append(reformatVCs(vc).html());
+        }
+            
+    });
+    //var openVCs = vcDiv.find(".vcContainer.selectedVC");
+    //openVCs.removeClass("selectedVC");
+    vcDiv.append(vcLine);
+    //vcDiv.animate({scrollTop: vcDiv.prop("scrollHeight")}, 1000);
+    //vcDiv[0].scrollTop = vcDiv[0].scrollHeight;
+    //var consoleDiv = document.getElementById("console");
+    //consoleDiv.innerHTML += msg+"<br/>";
+    //consoleDiv.scrollTop = consoleDiv.scrollHeight;
+}
+
+function selectVC(lineNum){
+    //$( "#output_tabs" ).tabs("select", 2);
+    var vcsDiv = $("#console-info");
+    var vcDiv = $("#vc_line_"+lineNum);
+    var openVCs = vcsDiv.find(".vcContainer.selectedVC");
+    openVCs.removeClass("selectedVC");
+    vcDiv.addClass("selectedVC");
+    //vcDiv.append(vc);
+    var firstVcPosition = vcsDiv.find(":first").position();
+    var selectedVcPosition = vcDiv.position();
+    vcsDiv.animate({scrollTop: selectedVcPosition.top - firstVcPosition.top}, 'fast');
+    //vcsDiv.attr({scrollTop: vcDiv.position().top});
+    //vcDiv[0].scrollTop = vcDiv[0].scrollHeight;
+    //var consoleDiv = document.getElementById("console");
+    //consoleDiv.innerHTML += msg+"<br/>";
+    //consoleDiv.scrollTop = consoleDiv.scrollHeight;
+}
+
+function reformatVCs(vc){
+    var vcsDiv = $("<div>").addClass("vcContainer selectedVC").html("");
+    var vcDiv = $("<div>");
+    var vcID = vc.vcID;
+    if(typeof vcID !== "undefined"){
+        vcDiv.addClass("vc");
+        var step = decode(vc.step);
+        //var step = decode(vcJSON.step);
+        var goal = vc.goal;
+        var given = vc.given;
+        vcDiv.html("VC "+vcID+"<br/><br/>");
+        vcDiv.append(step+"<br/><br/>");
+        vcDiv.append("Goal:");
+        goal = goal.substr(goal.indexOf(":")+1);
+        var goalDiv = $("<div>").addClass("vcIndent").html("<p>"+goal.replace(/&nbsp;/g, " ")+"</p>");
+        vcDiv.append(goalDiv);
+        vcDiv.append("Given:");
+        //given = given.substr(given.indexOf(":")+1);
+        //var givensDiv = $("<div>").addClass("vcIndent").html("");
+        var givensList = $("<ol>");
+        var givenRegExp = /[\d]+:/g;
+        //var givenRegExp = /\<br\/\>[\d]+:/g;
+        var givens = given.split(givenRegExp);
+        $.each(givens, function(index, given){
+            if(index != 0){
+                //var givenID = $("<div>").addClass("vcGivenID").html(index + ":");
+                //var givenDiv = $("<div>").addClass("vcGiven").html(given);
+                //var givenItem = $("<li>").html("<p>"+given.replace(/&nbsp;/g, " ")+"</p>");
+                var givenItem = $("<li>").html(given.replace(/&nbsp;/g, " "));
+                //givensDiv.append(givenID);
+                givensList.append(givenItem);
+            }
+        });
+        vcDiv.append(givensList);
+        vcsDiv.append(vcDiv);
+    }
+    else{
+        vcDiv.addClass("freeVars");
+        vcDiv.append(decode(vc.freeVars));
+    }
+    //$.each(vcArray, function(){
+        
+    //});
+    return vcsDiv;
+}
+
+function encodeVcContent(content){
+    var regExp = /\<[^\>]\>/g;
+    var lsRegExpLT = /\</g;
+    var lsRegExpGT = /\>/g;
+    var lsRegExpSpace = new RegExp(" ","gim");
+    var cont = content.replace(lsRegExpLT,"&lt;");
+    cont = cont.replace(lsRegExpGT,"&gt;");
+    //cont = cont.replace(lsRegExpSpace,"&nbsp;");
+    cont = cont.replace(/\n/g, "<br/>") + "<br/><br/>";
+    return cont;
+}
+
+function getVcSteps(rawVCs){
+    var vcs = "";
+    rawVCs = rawVCs.substr(0, rawVCs.lastIndexOf("@"));
+    var vcArray = rawVCs.split("@");
+    $.each(vcArray, function(){
+        //var vcDiv = $("<div>").addClass("vc");
+        var jsonStr = this.toString();
+        jsonStr = jsonStr.substr(jsonStr.indexOf("{"));
+        var vcJSON = jQuery.parseJSON(jsonStr);
+        if(vcJSON != null){
+            var vcID = vcJSON.vc;
+            var step = decode(vcJSON.step);
+            //var goal = vcJSON.goal;
+            //var given = vcJSON.given;
+            vcs += vcID+": "+step+"\n";
+        }
+    });
+    return vcs;
+}
+
+function sortByIdAndLine(a, b){
+    var line1 = a.line;
+    var line2 = b.line;
+    
+    var id1 = a.vcID;
+    var id2 = b.vcID;
+    
+    return (((typeof line1 === "undefined") || (typeof line2 === "undefined"))? 1 : (
+        (line1 != line2) ? (
+            (line1 < line2) ? -1 : ((line1 > line2) ? 1 : 0)
+        ) : (
+            (id1 < id2) ? -1 : ((id1 > id2) ? 1 : 0)
+        )
+        
+    ));
+    //return ((typeof line1 === "undefined") ? 1 : ((line1 < line2) ? -1 : ((line1 > line2) ? 1 : 0)));
+}
+
+/*$.ui.plugin.add("resizable", "alsoResizeReverse", {
 
     start: function(event, ui) {
 
@@ -788,7 +1059,7 @@ $.ui.plugin.add("resizable", "alsoResizeReverse", {
 
         $(this).removeData("resizable-alsoresize-reverse");
     }
-});
+});*/
 
 function checkResolveKeywords(value){
     if(keywordsTable.hasKeyword(value) > 0)
