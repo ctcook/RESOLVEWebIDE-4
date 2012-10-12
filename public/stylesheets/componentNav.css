@@ -1,9 +1,66 @@
 /*
  * These styles control the dropdown menu for browsing components.
 */
+#component-finder {
+    display: none;
+}
+
+#finder {
+    /*width: 700px;*/
+    overflow: hidden;
+    /*width: 100%;*/
+    height: 100%;
+    position: absolute;
+    left: 0px;
+    background-color: white;
+}
+
+#finder-container {
+    position: relative;
+    overflow-x: scroll;
+    width: 680px;
+    height: 310px;
+    left: 0px;
+}
+
+#finder ul {
+    height: 100%;
+}
+
+#finder-panes {
+    width: 1000px;
+    height: 100%;
+}
+
+#finder-main {
+    height: 100%;
+}
+
+.finder-cell {
+    float: left;
+    height: 100%;
+    min-width: 125px;
+    border: solid lightgray 1px;
+    overflow-y: scroll;
+}
+
+.selected-component {
+    color: #01004c;
+    background: #fff1e1;
+    cursor: pointer;
+    border-color: #01004c;
+}
+
+/*.clear {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}*/
 
 .menu{
-    width: max-content;
     background: #afaeff;
     
 }
@@ -12,7 +69,6 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    width: max-content;
     float: left;
     
 }
@@ -21,6 +77,7 @@
 }*/
 
 .menu a, .menu h2 {
+    min-width: 125px;
     font: bold 12px/16px arial, helvetica, sans-serif;
     display: block;
     border-width: 1px;
@@ -28,12 +85,11 @@
     border-color: #ccc #888 #555 #bbb;
     margin: 0;
     padding: 3px 3px;
-    width: 180px;
     text-decoration: none;
     color: black;
 }
 
-.menu h2, .menu, .sub_menu, .component_title{
+.menu h2, .menu, .sub_menu{
     color: #fff;
     background-color: #02008d;
     width: max-content;
@@ -45,7 +101,6 @@
     background: #c8c8ff;
     text-decoration: none;
     position: relative;
-    width: max-content;
     /*display: inline-block;*/
 }
 
@@ -58,17 +113,16 @@
     /*display: inline-block;*/
 }
 
-.menu ul ul {
+/*.menu ul ul {
     position: absolute;
     z-index: 500;
-    width: max-content;
 }
 
 .menu ul ul ul {
     position: absolute;
     top: 0;
     left: 100%;
-}
+}*/
 
 .hidden{
     display: none;
@@ -79,6 +133,6 @@
 }
 
 .component_title {
-    cursor: default;
+    cursor: pointer;
 }
 

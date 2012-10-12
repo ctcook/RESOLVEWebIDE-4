@@ -2,6 +2,12 @@
 // myOpenComponentList id the Collection we store all of the RESOLVE components
 // currently visible in the menu
 var myComponentList = null;
+var myConceptList = null;
+var myFacilityList = null;
+var myTheoryList = null;
+var myConceptListView = null;
+var myFacilityListView = null;
+var myTheoryListView = null;
 
 // myOpenComponentList is where we stor the Collection of components currently
 // open in the editor
@@ -131,56 +137,40 @@ var OpenComponentList = Backbone.Collection.extend({
  */
 var ComponentMenuView = Backbone.View.extend({
     initialize: function(){
-        myComponentList = this.collection;
+        //myComponentList = this.collection;
         this.render();
         this.collection.bind('add', this.render, this);
         this.collection.bind('remove', this.render, this);
     },
     // we render each ComponentView separately and add it to the appropriate list
     render: function(){
-        var componentmenu = $("#component_menu li:first");
-        setMenuHandlers(componentmenu);
+        var element = $(this.el);
+        var list = $("<ul>");
+        element.html(list);
+        //setMenuHandlers(componentmenu);
         var that = this;
         this._componentViews = [];
         this.collection.each(function(component){
-            // if the component is a concept, facility, or theory
-            // we add it to the View list to render
-            if(component.get("type") == "c" ||
-                component.get("type") == "f" ||
-                component.get("type") == "t"){
-                that._componentViews.push(new ComponentView({model:component}));
-            }
+            that._componentViews.push(new ComponentNameView({model:component}));
         });
-        var concepts = $("#concepts");
-        var conceptList = concepts.children("ul");
-        setMenuHandlers(concepts);
-        var facilities = $("#facilities");
-        var facilityList = facilities.children("ul");
-        setMenuHandlers(facilities);
-        var theories = $("#theories");
-        if(theories != null){
-            var theoryList = theories.children("ul");//.empty();
-            setMenuHandlers(theories);
-        }
         _(this._componentViews).each(function(cv){
-            if(cv.model.get("type") == "c"){
-                conceptList.append(cv.render().el);
-            }
-            else if(cv.model.get("type") == "f"){
-                facilityList.append(cv.render().el);
-            }
-            else if(cv.model.get("type") == "t"){
-                if(theories != null){
-                    theoryList.append(cv.render().el);
-                }
-            }
+            list.append(cv.render().el);
         });
-        $("#component_list").addClass("hidden");
-        $("#component_list").find("li").addClass("hidden");
+        
+        //var listParent = element.parent();
+        //element.append($("<div>").addClass("finder-cell").html(""));
+        //var newElement = listParent.children().last()
+        //newElement.html("");
+        //$("#component_list").addClass("hidden");
+        //$("#component_list").find("li").addClass("hidden");
     },
     events: {
+        "click a" : "renderComponents",
         "click .creater" : "createComponent",
         "click .loader" : "loadComponent"
+    },
+    renderComponents: function(){
+        //alert(this);
     },
     createComponent: function(){
         $("#dialog_new").dialog();
@@ -190,12 +180,58 @@ var ComponentMenuView = Backbone.View.extend({
     }
 });
 
+var ComponentNameView = Backbone.View.extend({
+    tagName: "li",
+    initialize: function(){
+        this.render = _.bind(this.render, this);
+        this.model.bind('change:name', this.render);
+        this.model.bind('change:index', this.render);
+    },
+    render: function(){
+        var component = this.model;
+        var id = component.get("pkg") + "." + component.get("name");
+        var link = $("<a>").attr({"data-cid":this.model.cid,"data-id":id}).html(component.get("name"));
+        if(component.get("type") === "er" || component.get("type") === "r"){
+            link.addClass("component_title");
+        }
+        else{
+            link.addClass("component");
+        }
+        //var html = "<a data-cid=\"" + this.model.cid + "\" data-id=\"" + id + "\" class=\"component\">";
+        //html += component.get("name") + "</a>";
+        $(this.el).html(link);
+        return this;
+    },
+    events: {
+        //"dblclick a.component" : "openComponent",
+        "click a.component_title" : "openComponent",
+        "click a.component" : "selectComponent"
+    },
+    selectComponent: function(event){
+        event.stopPropagation();
+        var component = this.model
+        var componentView = new ComponentView(({model:component}));
+        var newElement = prepMenu($(event.currentTarget));
+        newElement.html(componentView.render().el);
+        setFinderWidth(newElement);
+        //$(event.currentTarget).trigger("mouseout");
+        //$("#component_list").css({display:"none"});
+    },
+    openComponent: function(event){
+        event.stopPropagation();
+        var model = this.model
+        displayComponent(model);
+        //$(event.currentTarget).trigger("mouseout");
+        //$("#component_list").css({display:"none"});
+    }
+});
+
 
 /*
  * This View is for individually rendering each Component in the collection
  */
 var ComponentView = Backbone.View.extend({
-    tagName: "li",
+    tagName: "ul",
     initialize: function(){
         this.render = _.bind(this.render, this);
         // if the name or index changes, we re-render the View
@@ -212,59 +248,60 @@ var ComponentView = Backbone.View.extend({
         this._enhancementViews = [];
         var realizations = this.model.get("realizations").models;
         _(realizations).each(function(component){
-           that._realizationViews.push(new ComponentView({model:component}));
+           //that._realizationViews.push(new ComponentView({model:component}));
         });
         var enhancements = this.model.get("enhancements").models;
         _(enhancements).each(function(component){
-           that._enhancementViews.push(new ComponentView({model:component}));
+           //that._enhancementViews.push(new ComponentView({model:component}));
         });
         var component = this.model;
-        var id = component.get("pkg") + "." + component.get("name");
-        var html = "<a data-cid=\"" + this.model.cid + "\" data-id=\"" + id + "\" class=\"component\">";
-        html += component.get("name") + "</a>";
-        if(this._realizationViews.length > 0 || this._enhancementViews.length > 0){
-            var list = $("<ul>");
-            var item = null;
-            var ul = null;
-            /*if(this._enhancementViews.length > 0){
-                item = $("<li>").html("<a>enhancements</a>").addClass("sub_menu");
-                ul = $("<ul>");
-                _(this._enhancementViews).each(function(cv){
-                    ul.append(cv.render().el);
-                });
-                ul.appendTo(item);
-                item.appendTo(list);
-                setMenuHandlers(item);
-            }*/
-            if(this._realizationViews.length > 0){
-                item = $("<li>").html("<h2>realizations</h2>").addClass("component_title");
-                item.appendTo(list);
-                _(this._realizationViews).each(function(cv){
-                    list.append(cv.render().el);
-                });    
-            }
-            if(this._enhancementViews.length > 0){
-                item = $("<li>").html("<h2>enhancements</h2>").addClass("component_title");
-                item.appendTo(list);
-                _(this._enhancementViews).each(function(cv){
-                    list.append(cv.render().el);
-                });
-            }
+        var componentNameView = new ComponentNameView({model:component});
+        //var html = componentView.render().el;
+        //var id = component.get("pkg") + "." + component.get("name");
+        //var html = "<li><a data-cid=\"" + this.model.cid + "\" data-id=\"" + id + "\" class=\"component\">";
+        //html += component.get("name") + "</a><li>";
+        $(this.el).html(componentNameView.render().el)
+        $(componentNameView.el).children("a").addClass("component_title").removeClass("component");
+        var item;
+        if(this.model.get("realizations").models.length > 0){
+            item = $("<li>").html($("<h2>").html("Realizations"));
+            item.appendTo($(this.el));
         }
-        $(this.el).html(html).append(list);
-        setMenuHandlers($(this.el));
+        if(this.model.get("enhancements").models.length > 0){
+            item = $("<li>").html($("<h2>").html("Enhancements"));
+            item.appendTo($(this.el));
+        }
+        //$(this.el).html(html).append(list);
         return this;
     },
     events: {
-        "click a.component" : "selectComponent"
+        //"dblclick a.component" : "openComponent",
+        "click a.component" : "openComponent",
+        "click h2" : "selectComponents"
     },
-    selectComponent: function(event){
+    openComponent: function(event){
         event.stopPropagation();
         var model = this.model
-        log(model.get("name")+"<br/>test");
         displayComponent(model);
-        $(event.currentTarget).trigger("mouseout");
-        $("#component_list").css({display:"none"});
+        //$(event.currentTarget).trigger("mouseout");
+        //$("#component_list").css({display:"none"});
+    },
+    selectComponents: function(event){
+        var listType = $(event.currentTarget).html();
+        var list, view;
+        if(listType === "Realizations"){
+            list = this.model.get("realizations");
+        }
+        else if(listType === "Enhancements"){
+            list = this.model.get("enhancements");
+        }
+        if(list !== undefined){
+            view = new ComponentMenuView({collection: list});
+            //var listParent = $(event.currentTarget).parent().parent().parent();
+            var newElement = prepMenu($(event.currentTarget));
+            view.setElement(newElement).render();
+            setFinderWidth(newElement);
+        }
     }
 });
 
@@ -602,7 +639,7 @@ function displayComponent(component){
     session.on("change", function() {
       syntaxCheck(openComponent);
    });
-   $("#component_list").removeClass("visible").addClass("hidden");
+   //$("#component_list").removeClass("visible").addClass("hidden");
    hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
    //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
    scanToSelected(item);
@@ -631,33 +668,97 @@ function clearVcInfo(){
 function initializeComponentMenu(json, selectedProjectName){
     selectedProject = selectedProjectName;
     myComponentList = new ComponentList(json["components"]);
-    myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
-    //$("#component_list").parent().trigger('mouseenter');
-    $("#component_list").bind("hover", function(){
-        $("#component_list").css({display:""});
-    });
-    /*var pathname = window.location.pathname;
-    if(pathname.length > 1){
-        pathname += "/";
-    }
-    $.ajax({
-        url: pathname+"public/data.json",
-        dataType: "json",
-        async: false,
-        success: function(json){
-            myComponentList = new ComponentList(json["components"]);
-            myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
-            //$("#component_list").parent().trigger('mouseenter');
-            $("#component_list").bind("hover", function(){
-                $("#component_list").css({display:""});
-            });
-            //localStorage.components = JSON.stringify(myComponentList);
-        },
-        error: function(err) {
-            alert(err.status + " - " + err.statusText);
-            log(err.status + " - " + err.statusText);
+    myConceptList = new ComponentList();
+    myFacilityList = new ComponentList();
+    myTheoryList = new ComponentList();
+    myComponentList.each(function(component){
+        // if the component is a concept, facility, or theory
+        // we add it to the View list to render
+        if(component.get("type") == "c"){
+            myConceptList.add(component);
         }
-    }); */
+        else if(component.get("type") == "f"){
+            myFacilityList.add(component);
+        }
+        else if(component.get("type") == "t"){
+            myTheoryList.add(component);
+        }
+    });
+    myConceptListView = new ComponentMenuView({collection: myConceptList});
+    myFacilityListView = new ComponentMenuView({collection: myFacilityList});
+    myTheoryListView = new ComponentMenuView({collection: myTheoryList});
+    //myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
+    //$("#component_list").parent().trigger('mouseenter');
+    $("#component_menu").bind("click", function(){
+        var componentDialog = $("#component-finder").dialog({
+            width:700,
+            height:350,
+            resizable:false,
+            draggable:false,
+            //dialogClass: "menu",
+            modal: true
+        });
+        //$("#component_list").css({display:""});
+    });
+    var componentList = $("#component_list");
+    componentList.find("a").click(function(){
+        var li = $(this).parent();
+        li.parent().find(".selected-component").removeClass("selected-component");
+        li.addClass("selected-component");
+        var viewElement = prepMenu($(this));
+        var id = li.attr("id");
+        var view = null;
+        if(id === "concepts"){
+            view = myConceptListView;
+        }
+        else if(id === "facilities"){
+            view = myFacilityListView;
+        }
+        else if(id === "theories"){
+            view = myTheoryListView;
+        }
+        view.setElement(viewElement).render();
+        setFinderWidth(viewElement);
+    });
+}
+
+function prepMenu(link){
+    var li = link.parent();
+    var listParent = li.closest("div");
+    var listSiblings = listParent.parent().children();
+    var finderWidth = 0;
+    var foundMyself = false;
+    _(listSiblings).each(function(child){
+        if(foundMyself){
+            $(child).remove();
+        }
+        else{
+            finderWidth += $(child).outerWidth();
+        }
+        if($(child).is(listParent)){
+            foundMyself = true;
+        }
+    });
+    var viewElement = $("<div>").addClass("finder-cell");
+    //var clearElement = $("<div style=\"clear:left\">");//.addClass("clear");
+    listParent.parent().append(viewElement);
+    //listParent.parent().append(clearElement);
+    //$("#finder").outerWidth(finderWidth + 400);
+    return viewElement;
+}
+
+function setFinderWidth(newElement){
+    var finder = $("#finder");
+    var parentWidth = finder.parent().outerWidth();
+    var listSiblings = finder.children();
+    var newFinderWidth = 0;
+    _(listSiblings).each(function(child){
+        newFinderWidth += $(child).outerWidth();
+    });
+    finder.outerWidth(newFinderWidth);
+    if(newFinderWidth > parentWidth){
+        finder.parent().animate({scrollLeft: (newFinderWidth - parentWidth)}, 'fast');
+    }
 }
 
 function initializeOpenComponentList(selectedProjectName){

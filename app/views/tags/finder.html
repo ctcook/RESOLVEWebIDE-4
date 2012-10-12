@@ -1,0 +1,21 @@
+<div id="component-finder" title="Component Finder">
+    <div id="finder-container">
+        <div id="finder" class="menu">
+            <div id="finder-main" class="finder-cell">
+                <ul id="component_list">
+                    <li><h2>Components</h2></li>
+                    <li id="facilities"><a class="component">Facilities</a></li>
+                    <li id="concepts"><a class="component">Concepts</a></li>
+                    #{secure.check 'superuser'}
+                    <li id="theories"><a class="component">Theories</a></li>
+                    #{/secure.check}
+                    #{secure.check 'user'}
+                    <li class="hidden"><a class="creater">Create</a></li>
+                    <li class="hidden"><a class="loader">Load</a></li>
+                    #{/secure.check}
+                </ul>
+                <!--<div id="component-list"></div>-->
+            </div>
+        </div>
+    </div>
+</div>
