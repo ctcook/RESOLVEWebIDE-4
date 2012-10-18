@@ -156,6 +156,14 @@ var ComponentMenuView = Backbone.View.extend({
         _(this._componentViews).each(function(cv){
             list.append(cv.render().el);
         });
+        var neHeight = element.outerHeight();
+        var finderHeight = $("#finder").outerHeight();
+        if(neHeight > finderHeight){
+            element.addClass("scrollable");
+        }
+        else{
+            element.addClass("non-scrollable");
+        }
         
         //var listParent = element.parent();
         //element.append($("<div>").addClass("finder-cell").html(""));
@@ -213,7 +221,18 @@ var ComponentNameView = Backbone.View.extend({
         var componentView = new ComponentView(({model:component}));
         var newElement = prepMenu($(event.currentTarget));
         newElement.html(componentView.render().el);
+        var neHeight = newElement.outerHeight();
+        var finderHeight = $("#finder").outerHeight();
+        if(neHeight > finderHeight){
+            newElement.addClass("scrollable");
+        }
+        else{
+            newElement.addClass("non-scrollable");
+        }
         setFinderWidth(newElement);
+        var li = $(event.currentTarget).parent();
+        li.parent().find(".selected-component").removeClass("selected-component");
+        li.addClass("selected-component");
         //$(event.currentTarget).trigger("mouseout");
         //$("#component_list").css({display:"none"});
     },
@@ -302,6 +321,9 @@ var ComponentView = Backbone.View.extend({
             view.setElement(newElement).render();
             setFinderWidth(newElement);
         }
+        var li = $(event.currentTarget).parent();
+        li.parent().find(".selected-component").removeClass("selected-component");
+        li.addClass("selected-component");
     }
 });
 

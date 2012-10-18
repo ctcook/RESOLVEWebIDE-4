@@ -5,7 +5,7 @@ import javax.persistence.Table;
 import play.db.jpa.Model;
 
 @Entity
-@Table(name="UserComponents")
+@Table(name="userComponents")
 public class UserComponent extends Model {
     public String name;
     public String pkg;
