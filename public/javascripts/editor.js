@@ -424,6 +424,14 @@ UserControlView = Backbone.View.extend({
         }
         log($(event.currentTarget).attr("checked"));
     },
+    createComponent: function(){
+        var component = this.model.get("componentModel").clone();
+        //component.set("content", encode(editor.getSession().getValue()));
+        //var tc = new UserComponent({component: component, ws: "default"});
+        //var targetJSON = tc.toJSON();
+        var targetJSON = component.toJSON();
+        updateComponent("create", targetJSON);
+    },
     increaseFontSize: function(){
         var oldFontSize = FONTSIZE;
         this.changeFontSize(oldFontSize+1);

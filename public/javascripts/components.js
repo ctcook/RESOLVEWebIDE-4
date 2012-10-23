@@ -53,6 +53,7 @@ var Component = Backbone.RelationalModel.extend({
             "pkg:\"" + this.get("pkg") + "\"," +
             "project:\"" + selectedProject + "\"," +
             "content:\"" + this.get("content") + "\"," +
+            "parent:\"" + this.get("parent") + "\"," +
             "type:\"" + this.get("type") + "\"}";
             //JSON.stringify(this.get("component")) +
             //Backbone.Model.prototype.toJSON.call(this.get("component")) +
@@ -219,7 +220,7 @@ var ComponentNameView = Backbone.View.extend({
         event.stopPropagation();
         var component = this.model
         var componentView = new ComponentView(({model:component}));
-        var newElement = prepMenu($(event.currentTarget));
+        var newElement = prepMenu($(event.currentTarget), component.get("name")+".list");
         newElement.html(componentView.render().el);
         var neHeight = newElement.outerHeight();
         var finderHeight = $("#finder").outerHeight();
@@ -317,7 +318,7 @@ var ComponentView = Backbone.View.extend({
         if(list !== undefined){
             view = new ComponentMenuView({collection: list});
             //var listParent = $(event.currentTarget).parent().parent().parent();
-            var newElement = prepMenu($(event.currentTarget));
+            var newElement = prepMenu($(event.currentTarget), this.model.get("name")+"."+listType+".list");
             view.setElement(newElement).render();
             setFinderWidth(newElement);
         }
@@ -727,7 +728,6 @@ function initializeComponentMenu(json, selectedProjectName){
         var li = $(this).parent();
         li.parent().find(".selected-component").removeClass("selected-component");
         li.addClass("selected-component");
-        var viewElement = prepMenu($(this));
         var id = li.attr("id");
         var view = null;
         if(id === "concepts"){
@@ -739,12 +739,22 @@ function initializeComponentMenu(json, selectedProjectName){
         else if(id === "theories"){
             view = myTheoryListView;
         }
+        var viewElement = prepMenu($(this), id+".list");
         view.setElement(viewElement).render();
         setFinderWidth(viewElement);
     });
+    var createButton = $("#createButton");
+    createButton.click(function(event){
+        var currentList = $("#finder").children().last().attr("id");
+        // need to handle concept, facilities, theories & enhancements/realizations
+        if(currentList === ""){
+            
+        }
+        alert(currentList)
+    });
 }
 
-function prepMenu(link){
+function prepMenu(link, newId){
     var li = link.parent();
     var listParent = li.closest("div");
     var listSiblings = listParent.parent().children();
@@ -761,7 +771,7 @@ function prepMenu(link){
             foundMyself = true;
         }
     });
-    var viewElement = $("<div>").addClass("finder-cell");
+    var viewElement = $("<div>").addClass("finder-cell").attr({id:newId});
     //var clearElement = $("<div style=\"clear:left\">");//.addClass("clear");
     listParent.parent().append(viewElement);
     //listParent.parent().append(clearElement);
@@ -1000,5 +1010,50 @@ function hideOpenComponents(menu, button){
     items.removeClass("visable").addClass("hidden");
     button.unbind("click").click(function(event){
         showOpenComponents(menu, button);
+    });
+}
+
+function updateComponent(targetJob, targetJSON){
+    //var loc = window.location;
+    //var pathname = loc.pathname;
+    //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+    //var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
+    //var params = "?job=" + targetJob + "&target="+targetJSON;
+    //var new_uri = url + params;
+    $.ajax({
+        url: "Components",
+        type: "POST",
+        //data: {"job": targetJob, "target":targetJSON, "userComponents": userJSON},
+        data: {"job": targetJob, "target":targetJSON},
+        success: function(result){
+
+            //waitGif.remove();
+            if(targetJob == "translateJava"){
+                $("#console-expander").trigger("click");
+                $("#console-info").html(result);
+                //analyzeJavaResults(model, result);
+            }
+            else if(targetJob == "build"){
+
+            }
+            else if(targetJob == "genVCs"){
+                //analyzeVcResults(model, result);
+            }
+            else if(targetJob == "verify"){
+                //analyzeVerifyResults(model, result);
+            }
+
+            //$(msg).find("genCodeResults").each(function(){
+                //var java = unescape($(this).find("code").text());
+                //log("result: "+java);
+                //java = String(java).replace(lsRegExp, " ");
+                //java = replaceRemoteFileNames(serverFileNames, java);
+                //name = $(this).find("userName").text();
+                //compilerOutput = $(this).find("compilerOutput").text();
+                //compilerOutput = String(compilerOutput).replace(lsRegExp, " ");
+                //success = $(this).find("translateSuccess").text();
+            //});
+
+        }
     });
 }

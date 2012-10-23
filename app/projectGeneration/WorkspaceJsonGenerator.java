@@ -143,7 +143,7 @@ public class WorkspaceJsonGenerator {
                                     String name =  Realization.getName(fileList[l].getName());
                                     String path = conceptDir + fileList[l].getName();
                                     String fileName = fileList[l].getName();
-                                    Realization r = new Realization(name, dirName, conceptDir + fileName, "er");
+                                    Realization r = new Realization(name, dirName, conceptDir + fileName, "er", eName);
                                     //Check to see if the realization is for this enhancement
                                     //if(r.isEnhRealiz(conceptDirName + "_Template;", eName, path, out)){
                                     if(r.isEnhRealiz(conceptDirName + ";", eName, path)){
@@ -163,7 +163,7 @@ public class WorkspaceJsonGenerator {
                             String name =  Realization.getName(fileList[k].getName());
                             String path = conceptDir + fileList[k].getName();
                             String fileName = fileList[k].getName();
-                            Realization r = new Realization(name, dirName, conceptDir + fileName, "r");
+                            Realization r = new Realization(name, dirName, conceptDir + fileName, "r", dirName);
 
                             //Check to see if the realization is for this enhancement
                             //if(r.isConRealiz(conceptDirName + "_Template;", path, out)){
@@ -261,7 +261,7 @@ public class WorkspaceJsonGenerator {
                                             String name =  Realization.getName(fileList[l].getName());
                                             String path = conceptDir + fileList[l].getName();
                                             String fileName = fileList[l].getName();
-                                            Realization r = new Realization(name, dirName, conceptDir + fileName, "er");
+                                            Realization r = new Realization(name, dirName, conceptDir + fileName, "er", eName);
                                             //Check to see if the realization is for this enhancement
                                             if(r.isEnhRealiz(conceptPath, eName, path)){
                                                 if(!hideStandard){
@@ -284,7 +284,7 @@ public class WorkspaceJsonGenerator {
                                     String name =  Realization.getName(fileList[l].getName());
                                     String path = conceptDir + fileList[l].getName();
                                     String fileName = fileList[l].getName();
-                                    Realization r = new Realization(name, dirName, conceptDir + fileName, "r");
+                                    Realization r = new Realization(name, dirName, conceptDir + fileName, "r", dirName);
 
                                     //Check to see if the realization is for this enhancement
                                     if(r.isConRealiz(conceptPath, path)){
