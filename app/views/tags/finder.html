@@ -1,17 +1,17 @@
 <div id="component-finder" title="Component Finder">
     <div id="finder-quickrow">
         <ul>
-            <li><button id="createButton">New</button></li>
+            <li><button id="createButton" disabled="disabled">New</button></li>
         </ul>
     </div>
     <div id="finder-container">
         <div id="finder">
             <div id="finder-main" class="finder-cell">
                 <ul id="component_list">
-                    <li id="facilities"><a class="component">Facilities</a></li>
-                    <li id="concepts"><a class="component">Concepts</a></li>
+                    <li id="facilities_list"><a class="component">Facilities</a></li>
+                    <li id="concepts_list"><a class="component">Concepts</a></li>
                     #{secure.check 'superuser'}
-                    <li id="theories"><a class="component">Theories</a></li>
+                    <li id="theories_list"><a class="component">Theories</a></li>
                     #{/secure.check}
                     #{secure.check 'user'}
                     <li class="hidden"><a class="creater">Create</a></li>

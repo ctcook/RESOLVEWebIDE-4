@@ -26,23 +26,21 @@
     color: black;
 }
 
-#finder-quickrow li:not(.component_title) {
+#finder-quickrow li {
     color: #000;
     /*background: #c8c8ff;*/
     text-decoration: none;
     position: relative;
-    border: solid gray 1px;
+    /*border: solid gray 1px;*/
     /*display: inline-block;*/
 }
 
-#finder-quickrow li:hover:not(.component_title) {
+/*#finder-quickrow li:hover:not(.component_title) {
     color: #01004c;
     background: #fff1e1;
     cursor: pointer;
     border-color: #01004c;
-   /* position: absolute; */
-    /*display: inline-block;*/
-}
+}*/
 
 #finder {
     /*width: 700px;*/

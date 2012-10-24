@@ -182,7 +182,7 @@ var ComponentMenuView = Backbone.View.extend({
         //alert(this);
     },
     createComponent: function(){
-        $("#dialog_new").dialog();
+        //$("#dialog_new").dialog();
     },
     loadComponent: function(){
         $("#dialog_load").dialog();
@@ -220,7 +220,7 @@ var ComponentNameView = Backbone.View.extend({
         event.stopPropagation();
         var component = this.model
         var componentView = new ComponentView(({model:component}));
-        var newElement = prepMenu($(event.currentTarget), component.get("name")+".list");
+        var newElement = prepMenu($(event.currentTarget), component.get("name"));
         newElement.html(componentView.render().el);
         var neHeight = newElement.outerHeight();
         var finderHeight = $("#finder").outerHeight();
@@ -318,7 +318,7 @@ var ComponentView = Backbone.View.extend({
         if(list !== undefined){
             view = new ComponentMenuView({collection: list});
             //var listParent = $(event.currentTarget).parent().parent().parent();
-            var newElement = prepMenu($(event.currentTarget), this.model.get("name")+"."+listType+".list");
+            var newElement = prepMenu($(event.currentTarget), this.model.get("name")+"."+listType);
             view.setElement(newElement).render();
             setFinderWidth(newElement);
         }
@@ -730,33 +730,89 @@ function initializeComponentMenu(json, selectedProjectName){
         li.addClass("selected-component");
         var id = li.attr("id");
         var view = null;
-        if(id === "concepts"){
+        if(id === "concepts_list"){
             view = myConceptListView;
         }
-        else if(id === "facilities"){
+        else if(id === "facilities_list"){
             view = myFacilityListView;
         }
-        else if(id === "theories"){
+        else if(id === "theories_list"){
             view = myTheoryListView;
         }
-        var viewElement = prepMenu($(this), id+".list");
+        var viewElement = prepMenu($(this), id);
         view.setElement(viewElement).render();
         setFinderWidth(viewElement);
+        var createButton = $("#createButton");
+        if(createButton.attr("disabled") === "disabled"){
+            createButton.removeAttr("disabled");
+        }
     });
     var createButton = $("#createButton");
     createButton.click(function(event){
         var currentList = $("#finder").children().last().attr("id");
-        // need to handle concept, facilities, theories & enhancements/realizations
-        if(currentList === ""){
-            
-        }
-        alert(currentList)
+        currentList = currentList.split(".");
+        var code = genCreateForm(currentList);    
+        var el = $("#dialog_new");
+        el.dialog({
+            width:300,
+            height:500,
+            resizable:false,
+            draggable:false,
+            //dialogClass: "menu",
+            modal: true
+        });
+        el.html(code);
     });
+}
+
+function genCreateForm(currentList){
+    var currentName = "";//currentList.substr(0, currentList.indexOf("."));
+    var code = "";
+    var model;
+    if(currentList.length > 1){
+        model = getNewModelParent(currentList, myComponentList);
+    }
+    if(model != null){
+        code = "creating new file associated with: " + model.get("name");
+    }
+    else{
+        code = "creating new component";
+    }
+    /*if(currentName === "concepts"){
+        code = genNewConceptForm();
+    }
+    else if(currentName === "facilities"){
+        code = genNewFacilityForm();
+    }
+    else if(currentName === "theories"){
+        code = genNewTheoryForm();
+    }
+    else{
+        code = genNewErForm();
+    }*/
+    return code;
+}
+
+function genNewConceptForm(){
+    return "new concept";
+}
+
+function genNewFacilityForm(){
+    return "new facility";
+}
+
+function genNewTheoryForm(){
+    return "new theory";
+}
+
+function genNewErForm(){
+    return "new other";
 }
 
 function prepMenu(link, newId){
     var li = link.parent();
     var listParent = li.closest("div");
+    var parentId = listParent.attr("id");
     var listSiblings = listParent.parent().children();
     var finderWidth = 0;
     var foundMyself = false;
@@ -771,7 +827,8 @@ function prepMenu(link, newId){
             foundMyself = true;
         }
     });
-    var viewElement = $("<div>").addClass("finder-cell").attr({id:newId});
+    var updatedId = (parentId !== "finder-main")?(parentId+"."+newId):newId;
+    var viewElement = $("<div>").addClass("finder-cell").attr({id:updatedId});
     //var clearElement = $("<div style=\"clear:left\">");//.addClass("clear");
     listParent.parent().append(viewElement);
     //listParent.parent().append(clearElement);
@@ -941,6 +998,28 @@ function getModelByCid(collection, cid){
         return comp;
     }
     return undefined;
+}
+
+function getNewModelParent(currentList, list){
+    var model = null;
+    if(currentList.length > 1){
+        var thisList = currentList[0];
+        if(thisList === "concepts_list"){
+            var id = currentList[1] + "." + currentList[2];
+            model = list.where({"id":id})[0];
+            if(currentList.length > 4){
+                var subList = currentList[3].toLowerCase();
+                id = currentList[1] + "." + currentList[4];
+                model = model.get(subList).where({"id":id})[0];
+            }
+        }
+            
+    }
+    else{
+        //var parentModel = getNewModelParent(, )
+        //model = getModelParent()
+    }
+    return model;
 }
 
 /*
