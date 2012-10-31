@@ -66,7 +66,8 @@ var Component = Backbone.RelationalModel.extend({
         var loc = window.location;
         var pathname = loc.pathname;
         pathname = pathname.substring(0,pathname.lastIndexOf("/"));
-        var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
+        //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
+        var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname:loc.pathname) + "Components";
         return url;
         //return this.collection.url() + '/Components';
     }

@@ -50,13 +50,13 @@ public class CompilerSocket extends WebSocketController {
             JPAQuery query = UserComponent.find("byAuthor_idAndProject", user.id, project);
             List<UserComponent> ucs = query.fetch();
             for(UserComponent c : ucs){
-                umf = getTargetMetaFile(c);
+                MetaFile umf2 = getTargetMetaFile(c);
                 key = "";
-                if(!umf.getMyPkg().equals("")){
-                    key += umf.getMyPkg() + ".";
+                if(!umf2.getMyPkg().equals("")){
+                    key += umf2.getMyPkg() + ".";
                 }
-                key += umf.getMyFileName();
-                userFileMap.put(key, umf);
+                key += umf2.getMyFileName();
+                userFileMap.put(key, umf2);
             }
         }
         if(job.compareTo("translateJava") == 0){
