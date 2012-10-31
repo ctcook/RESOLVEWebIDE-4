@@ -51,12 +51,15 @@ public class CompilerSocket extends WebSocketController {
             List<UserComponent> ucs = query.fetch();
             for(UserComponent c : ucs){
                 MetaFile umf2 = getTargetMetaFile(c);
-                key = "";
+                String key2 = "";
                 if(!umf2.getMyPkg().equals("")){
-                    key += umf2.getMyPkg() + ".";
+                    key2 += umf2.getMyPkg() + ".";
                 }
-                key += umf2.getMyFileName();
-                userFileMap.put(key, umf2);
+                key2 += umf2.getMyFileName();
+                if(!key2.equals(key)){
+                    userFileMap.put(key2, umf2);
+                }
+                    
             }
         }
         if(job.compareTo("translateJava") == 0){
