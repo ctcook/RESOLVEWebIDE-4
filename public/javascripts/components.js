@@ -61,6 +61,14 @@ var Component = Backbone.RelationalModel.extend({
             //this.get("ws") +
             //"\"}";
         return json;
+    },
+    url : function() {
+        var loc = window.location;
+        var pathname = loc.pathname;
+        pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+        var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
+        return url;
+        //return this.collection.url() + '/Components';
     }
 });
 
@@ -123,6 +131,9 @@ var UserComponent = Backbone.RelationalModel.extend({
 var ComponentList = Backbone.Collection.extend({
     model: Component,
     initialize: function(){        
+    },
+    url : function() {
+         //return $(this.document).url() + '/Components';
     }
 });
 
@@ -200,21 +211,26 @@ var ComponentNameView = Backbone.View.extend({
         var component = this.model;
         var id = component.get("pkg") + "." + component.get("name");
         var link = $("<a>").attr({"data-cid":this.model.cid,"data-id":id}).html(component.get("name"));
+        
         if(component.get("type") === "er" || component.get("type") === "r"){
             link.addClass("component_title");
         }
         else{
-            link.addClass("component");
+            link.addClass("component dir");
         }
         //var html = "<a data-cid=\"" + this.model.cid + "\" data-id=\"" + id + "\" class=\"component\">";
         //html += component.get("name") + "</a>";
         $(this.el).html(link);
+        //var listParent = $(this.el).closest("div");
+        //var parentId = listParent.attr("id");
+        //link.attr({"data-linkId":(parentId !== "finder-main")?(parentId+"."+component.get("name")):component.get("name")});
         return this;
     },
     events: {
         //"dblclick a.component" : "openComponent",
         "click a.component_title" : "openComponent",
-        "click a.component" : "selectComponent"
+        "click a.component" : "selectComponent"//,
+        /*"contextmenu" : "showContext"*/
     },
     selectComponent: function(event){
         event.stopPropagation();
@@ -234,6 +250,7 @@ var ComponentNameView = Backbone.View.extend({
         var li = $(event.currentTarget).parent();
         li.parent().find(".selected-component").removeClass("selected-component");
         li.addClass("selected-component");
+        //updateFinderTitle(component.get("name"));
         //$(event.currentTarget).trigger("mouseout");
         //$("#component_list").css({display:"none"});
     },
@@ -243,6 +260,38 @@ var ComponentNameView = Backbone.View.extend({
         displayComponent(model);
         //$(event.currentTarget).trigger("mouseout");
         //$("#component_list").css({display:"none"});
+    },
+    showContext: function(event){
+        var curr = $(event.currentTarget).selector;
+        var items = getCreateMenuItems(this.model);
+        var contextMenu = $.contextMenu({ 
+            selector: curr,
+            callback: function(key, options) {
+                var m = "clicked: " + key;
+                window.console && console.log(m) || alert(m); 
+            },
+            items: {
+                "fold1": {
+                    "name": "New",
+                    "items": items
+                }
+            }
+            /*build: function($trigger, e){
+                return {
+                    callback: function(key, options) {
+                        var m = "clicked: " + key;
+                        window.console && console.log(m) || alert(m); 
+                    },
+                    items: {
+                        "fold1": {
+                            "name": "New",
+                            "items": items
+                        }
+                    }
+                }
+            }*/
+
+        });
     }
 });
 
@@ -281,14 +330,14 @@ var ComponentView = Backbone.View.extend({
         //var html = "<li><a data-cid=\"" + this.model.cid + "\" data-id=\"" + id + "\" class=\"component\">";
         //html += component.get("name") + "</a><li>";
         $(this.el).html(componentNameView.render().el)
-        $(componentNameView.el).children("a").addClass("component_title").removeClass("component");
+        $(componentNameView.el).children("a").addClass("component_title").removeClass("component dir");
         var item;
         if(this.model.get("realizations").models.length > 0){
-            item = $("<li>").html($("<h2>").html("Realizations"));
+            item = $("<li>").html($("<h2 class=\"dir\">").html("Realizations"));
             item.appendTo($(this.el));
         }
         if(this.model.get("enhancements").models.length > 0){
-            item = $("<li>").html($("<h2>").html("Enhancements"));
+            item = $("<li>").html($("<h2  class=\"dir\">").html("Enhancements"));
             item.appendTo($(this.el));
         }
         //$(this.el).html(html).append(list);
@@ -327,6 +376,16 @@ var ComponentView = Backbone.View.extend({
         li.addClass("selected-component");
     }
 });
+
+function updateFinderTitle(title){
+    var currTitle = $("#componentTitle");
+    if(currTitle.html() === ""){
+        currTitle.html(title);
+    }
+    else{
+        currTitle.append(" >> " + title);
+    }
+}
 
 var OpenComponentListView = Backbone.View.extend({
     
@@ -661,6 +720,10 @@ function displayComponent(component){
     syntaxCheck(openComponent);
     session.on("change", function() {
       syntaxCheck(openComponent);
+      if(openComponent.get("componentModel").get("custom") === "true"){
+          var saveButton = $("#control_bar .save");
+          saveButton.removeAttr("disabled").addClass("active");
+      }
    });
    //$("#component_list").removeClass("visible").addClass("hidden");
    hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
@@ -763,21 +826,265 @@ function initializeComponentMenu(json, selectedProjectName){
         });
         el.html(code);
     });
+    var contextMenu = $.contextMenu({ 
+        selector: '.dir',
+        build: function($trigger, e){
+            
+            var items = getSubmenuItems($trigger);
+            
+            return {
+                callback: function(key, options) {
+                    var m = "clicked: " + key;
+                    window.console && console.log(m) || alert(m); 
+                },
+                items: {
+                    "fold1": {
+                        "name": "New",
+                        "items": items
+                    }
+                    /*"edit": {name: "Edit", icon: "edit"},
+                    "cut": {name: "Cut", icon: "cut"},
+                    "copy": {name: "Copy", icon: "copy"},
+                    "paste": {name: "Paste", icon: "paste"},
+                    "delete": {name: "Delete", icon: "delete"},
+                    "sep1": "---------",
+                    "quit": {name: "Quit", icon: "quit"}*/
+                }
+            }
+        }
+                
+    });
+    //Backbone.emulateJSON = true;
+    //createButton.contextMenu(true);
 }
 
-function genCreateForm(currentList){
-    var currentName = "";//currentList.substr(0, currentList.indexOf("."));
-    var code = "";
-    var model;
-    if(currentList.length > 1){
-        model = getNewModelParent(currentList, myComponentList);
+function initializeUserComponents(userComponents){
+    var ucs = userComponents.components;
+    jQuery.each(ucs, function(index, uc){
+        if(uc.type === "c"){
+            var newComponent = new Component({
+                content: uc.content,
+                custom: "true",
+                //enhancements: null,
+                id: uc.name+"."+uc.name,
+                name: uc.name,
+                pkg: uc.pkg,
+                //realizations: null,
+                standard: "false",
+                type: uc.type
+            });
+            myComponentList.add(newComponent);
+            myConceptList.add(newComponent);
+            //newComponent.set("id", uc.id);
+            newComponent.id = uc.name+"."+uc.name;
+        }
+        else if(uc.type === "f"){
+            newComponent = new Component({
+                content: uc.content,
+                custom: "true",
+                //enhancements: null,
+                //id: newName+"."+newName,
+                id: "facilities."+uc.name,
+                name: uc.name,
+                pkg: uc.pkg,
+                //realizations: null,
+                standard: "false",
+                type: uc.type
+            });
+            myComponentList.add(newComponent);
+            myFacilityList.add(newComponent);
+            //newComponent.set("id", uc.id);
+            newComponent.id = "facilities."+uc.name;
+        }
+    });
+    jQuery.each(ucs, function(index, uc){
+        if(uc.type === "e"){
+            var parent = myComponentList.where({"name":uc.pkg})[0];
+            var newComponent = new Component({
+                content: uc.content,
+                custom: "true",
+                //enhancements: null,
+                id: uc.pkg+"."+uc.name,
+                name: uc.name,
+                pkg: uc.pkg,
+                //realizations: null,
+                standard: "false",
+                type: uc.type
+            });
+            parent.get("enhancements").add(newComponent);
+            //newComponent.set("id", uc.id);
+            newComponent.id = uc.pkg+"."+uc.name;
+        }
+    });
+    jQuery.each(ucs, function(index, uc){
+        var newComponent = new Component({
+            content: uc.content,
+            custom: "true",
+            //enhancements: null,
+            id: uc.pkg+"."+uc.name,
+            name: uc.name,
+            pkg: uc.pkg,
+            //realizations: null,
+            standard: "false",
+            type: uc.type
+        });
+        //newComponent.set("id", uc.pkg+"."+uc.name);
+        newComponent.id = uc.pkg+"."+uc.name;
+        if(uc.type === "r"){
+            var parent = myComponentList.where({"name":uc.parent})[0];
+            parent.get("realizations").add(newComponent);
+        }
+        else if(uc.type === "er"){
+            var concept = myComponentList.where({"name":uc.pkg})[0];
+            parent = concept.get("enhancements").where({"name":uc.parent})[0];
+            parent.get("realizations").add(newComponent);
+        }
+    });
+}
+
+function getCreateMenuItems(model){
+    var items = {};
+    var type = model.get("type");
+    if(type === "c"){
+        items = {
+            "fold1-key1":{"name": "realization"},
+            "fold1-key2":{"name": "enhancement"}
+        }
     }
-    if(model != null){
-        code = "creating new file associated with: " + model.get("name");
+    else{
+        items = {"k1": {"name":"test"}};
+    }
+    return items;
+}
+
+function getSubmenuItems($trigger){
+    var id = $trigger.closest("div").attr("id");
+    var items = {};
+    if(id === "finder-main"){
+        items = {
+            "fold1-key1":{
+                "name": "concept",
+                callback: function(key, opt){
+                    genCreateForm("c", model);
+                }
+            },
+            "fold1-key2":{
+                "name": "facility",
+                callback: function(key, opt){
+                    genCreateForm("f", model);
+                }
+            },
+            "fold1-key3":{
+                "name": "theory",
+                callback: function(key, opt){
+                    genCreateForm("t", model);
+                }
+            }
+        }
+    }
+    else{
+        //var currentList = $("#finder").children().last().attr("id");
+        var linkText = $trigger.html();
+        if(linkText === "Realizations"){
+            var listParent = $trigger.closest("div");
+            var parentId = listParent.attr("id");
+            var currentList = parentId.split(".");
+            var parent = getNewModelParent(currentList, myComponentList);
+            items = {"fold1-key1":{
+                        "name": "realization",
+                        callback: function(key, opt){
+                            genCreateForm("r", parent);
+                        }
+                    }};
+            
+        }
+        else if(linkText === "Enhancements"){
+            listParent = $trigger.closest("div");
+            parentId = listParent.attr("id");
+            currentList = parentId.split(".");
+            parent = getNewModelParent(currentList, myComponentList);
+            items = {"fold1-key1":{
+                        "name": "enhancement",
+                        callback: function(key, opt){
+                            genCreateForm("e", parent);
+                        }
+                    }};
+        }
+        else{
+            var cid = $trigger.attr("data-cid");
+            var model = getModelByCid(myComponentList, cid);
+            var type = model.get("type");
+            if(type === "c"){
+                items = {
+                    "fold1-key1":{
+                        "name": "realization",
+                        callback: function(key, opt){
+                            genCreateForm("r", model);
+                        }
+                    },
+                    "fold1-key2":{
+                        "name": "enhancement",
+                        callback: function(key, opt){
+                            genCreateForm("e", model);
+                        }
+                    }
+                }
+            }
+            else if(type === "e"){
+                items = {
+                    "fold1-key1":{
+                        "name": "realization",
+                        callback: function(key, opt){
+                            genCreateForm("r", model);
+                        }
+                    }
+                }
+            }
+        }
+            
+    }
+    return items;
+}
+
+function genCreateForm(type, parent){
+    var code = "";
+    var el = $("#dialog_new");
+    var d = el.dialog({
+        width:400,
+        height:500,
+        resizable:false,
+        draggable:false,
+        //dialogClass: "menu",
+        modal: true
+    });
+    if(parent != null){
+        code = "creating new file associated with: " + parent.get("name");
     }
     else{
         code = "creating new component";
     }
+    if(type === "c"){
+        code = genNewConceptForm(parent, d);
+    }
+    else if(type === "e"){
+        code = genNewEForm(parent, d);
+    }
+    else if(type === "r"){
+        if(parent.get("type") === "c"){
+            code = genNewCrForm(parent, d);
+        }
+        else if(parent.get("type") === "e"){
+            code = genNewErForm(parent, d);
+        }
+    }
+    else if(type === "f"){
+        code = genNewFacilityForm(parent, d);
+    }
+    else if(type === "t"){
+        code = genNewTheoryForm(parent, d);
+    }
+    el.html(code);
+    
     /*if(currentName === "concepts"){
         code = genNewConceptForm();
     }
@@ -793,20 +1100,196 @@ function genCreateForm(currentList){
     return code;
 }
 
-function genNewConceptForm(){
-    return "new concept";
+function genNewConceptForm(parent, d){
+    var form = $("<div>");
+    form.html("Please enter a name for the concept:<br/>");
+    var name = $("<input>").attr({name:"name"});
+    var submit = $("<input>").attr({"type":"button","value":"OK"});
+    var error = $("<span>").addClass("namingError");
+    form.append(name);
+    form.append("<br/>");
+    form.append(error);
+    form.append("<br/>");
+    form.append(submit);
+    submit.click(function(event){
+        event.preventDefault();
+        var newName = name.attr("value");
+        var body = "Concept " + newName + ";\n\nend " + newName + ";";
+        var foundNames = myConceptList.where({"name":newName});
+        if(foundNames.length == 0){
+            var newComponent = new Component({
+                content: body,
+                custom: "true",
+                enhancements: null,
+                //id: newName+"."+newName,
+                name: newName,
+                pkg: newName,
+                realizations: null,
+                standard: "false",
+                type: "c"
+            });
+            myComponentList.add(newComponent);
+            myConceptList.add(newComponent);
+            newComponent.save();
+            newComponent.set("id", newName+"."+newName);
+            displayComponent(newComponent);
+            d.dialog("destroy");
+        }
+        else{
+            error.html("A component with this name already exists!");
+        }
+        //var name = $(event.currentTarget).attr("name");
+    });
+    return form;
 }
 
-function genNewFacilityForm(){
-    return "new facility";
+function genNewEForm(parent, d){
+    var form = $("<div>");
+    var text = "Please enter a name for the enhancement for " + parent.get("name") + ":<br/>";
+    form.html(text);
+    var name = $("<input>").attr({name:"name"});
+    var submit = $("<input>").attr({"type":"button","value":"OK"});
+    var error = $("<span>").addClass("namingError");
+    form.append(name);
+    form.append("<br/>");
+    form.append(error);
+    form.append("<br/>");
+    form.append(submit);
+    submit.click(function(event){
+        event.preventDefault();
+        var newName = name.attr("value");
+        var body = "Enhancement " + newName + " for " + parent.get("name") +
+                ";\n\nend " + newName + ";";
+        var foundNames = parent.get("enhancements").where({"name":newName});
+        if(foundNames.length == 0){
+            var newComponent = new Component({
+                content: body,
+                custom: "true",
+                enhancements: null,
+                //id: newName+"."+newName,
+                name: newName,
+                pkg: parent.get("pkg"),
+                parent: parent.get("name"),
+                realizations: null,
+                standard: "false",
+                type: "e"
+            });
+            parent.get("enhancements").add(newComponent);
+            newComponent.save();
+            newComponent.set("id", parent.get("pkg")+"."+newName);
+            displayComponent(newComponent);
+            d.dialog("destroy");
+        }
+        else{
+            error.html("A component with this name already exists!");
+        }
+        //var name = $(event.currentTarget).attr("name");
+    });
+    return form;
 }
 
-function genNewTheoryForm(){
-    return "new theory";
+function genNewCrForm(parent, d){
+    var form = $("<div>");
+    var text = "Please enter a name for the realization for " + parent.get("name") + ":<br/>";
+    form.html(text);
+    var name = $("<input>").attr({name:"name"});
+    var submit = $("<input>").attr({"type":"button","value":"OK"});
+    var error = $("<span>").addClass("namingError");
+    form.append(name);
+    form.append("<br/>");
+    form.append(error);
+    form.append("<br/>");
+    form.append(submit);
+    submit.click(function(event){
+        event.preventDefault();
+        var newName = name.attr("value");
+        var body = "Realization " + newName + " for " + parent.get("name") +
+                ";\n\nend " + newName + ";";
+        var foundNames = parent.get("realizations").where({"name":newName});
+        if(foundNames.length == 0){
+            var newComponent = new Component({
+                content: body,
+                custom: "true",
+                enhancements: null,
+                //id: newName+"."+newName,
+                name: newName,
+                pkg: parent.get("pkg"),
+                parent: parent.get("name"),
+                realizations: null,
+                standard: "false",
+                type: "r"
+            });
+            parent.get("realizations").add(newComponent);
+            newComponent.save();
+            newComponent.set("id", parent.get("pkg")+"."+newName);
+            displayComponent(newComponent);
+            d.dialog("destroy");
+        }
+        else{
+            error.html("A component with this name already exists!");
+        }
+        //var name = $(event.currentTarget).attr("name");
+    });
+    return form;
 }
 
-function genNewErForm(){
-    return "new other";
+function genNewErForm(parent, d){
+    var form = $("<div>");
+    var text = "Please enter a name for the realization for " + parent.get("name") + " of " +
+                myConceptList.where({"name":parent.get("pkg")})[0].get("name") + ":<br/>"
+    form.html(text);
+    var name = $("<input>").attr({name:"name"});
+    var submit = $("<input>").attr({"type":"button","value":"OK"});
+    var error = $("<span>").addClass("namingError");
+    form.append(name);
+    form.append("<br/>");
+    form.append(error);
+    form.append("<br/>");
+    form.append(submit);
+    submit.click(function(event){
+        event.preventDefault();
+        var newName = name.attr("value");
+        var body = "Realization " + newName + " for " + parent.get("name") + " of " +
+                myConceptList.where({"name":parent.get("pkg")})[0].get("name") + ";\n\nend " + newName + ";";
+        var foundNames = parent.get("realizations").where({"name":newName});
+        if(foundNames.length == 0){
+            var newComponent = new Component({
+                content: body,
+                custom: "true",
+                enhancements: null,
+                //id: newName+"."+newName,
+                name: newName,
+                pkg: parent.get("pkg"),
+                parent: parent.get("name"),
+                realizations: null,
+                standard: "false",
+                type: "er"
+            });
+            parent.get("realizations").add(newComponent);
+            newComponent.save();
+            newComponent.set("id", parent.get("pkg")+"."+newName);
+            displayComponent(newComponent);
+            d.dialog("destroy");
+        }
+        else{
+            error.html("A component with this name already exists!");
+        }
+        //var name = $(event.currentTarget).attr("name");
+    });
+    return form;
+}
+
+function genNewFacilityForm(parent){
+    var form = $("<div>");
+    var body = "Facility " + name + ";\n\nend " + name + ";";
+    return form;
+}
+
+function genNewTheoryForm(parent){
+    var form = $("<div>");
+    var body = "Realization " + name + " for " + selectedCon.name +
+                ";\n\nend " + name + ";";
+    return form;
 }
 
 function prepMenu(link, newId){
@@ -1005,13 +1488,20 @@ function getNewModelParent(currentList, list){
     if(currentList.length > 1){
         var thisList = currentList[0];
         if(thisList === "concepts_list"){
-            var id = currentList[1] + "." + currentList[2];
-            model = list.where({"id":id})[0];
-            if(currentList.length > 4){
-                var subList = currentList[3].toLowerCase();
-                id = currentList[1] + "." + currentList[4];
-                model = model.get(subList).where({"id":id})[0];
+            if(currentList.length == 2){
+                var id = currentList[1] + "." + currentList[1];
+                model = list.where({"id":id})[0];
             }
+            else{
+                id = currentList[1] + "." + currentList[2];
+                model = list.where({"id":id})[0];
+                if(currentList.length > 4){
+                    var subList = currentList[3].toLowerCase();
+                    id = currentList[1] + "." + currentList[4];
+                    model = model.get(subList).where({"id":id})[0];
+                }
+            }
+                
         }
             
     }

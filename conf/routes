@@ -7,7 +7,9 @@ GET     /                                       Interface.index
 GET     /projects                               Projects.projects
 POST    /WebCompiler                            WebCompiler.compile
 WS      /Compiler                               CompilerSocket.compile
-POST    /Components                             ComponentManager.update
+POST    /Components                             ComponentManager.add
+PUT     /Components                             ComponentManager.update
+DELETE  /Components                             ComponentManager.del
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

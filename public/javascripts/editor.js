@@ -281,11 +281,22 @@ UserControlView = Backbone.View.extend({
             else if(component.get("type") == "t"){
                 
             }
+            if(component.get("custom") === "true"){
+                var save = $("<button>").html("Save").addClass("save command shadow");
+                var del = $("<button>").html("Delete").addClass("del command active shadow");
+                save.appendTo(commands);
+                save.attr({disable: "diabled"});
+                del.appendTo(commands);
+            }
             if(this.model.has("syntaxErrors") && this.model.get("syntaxErrors").length > 0){
                 var buttons = commands.find("button");
                 buttons.attr({disable: "diabled"});
                 buttons.removeClass("active");
-            }   
+                var delButton = $("#control_bar.del");
+                if(delButton != null){
+                    delButton.removeAttr("disabled").addClass("active");
+                }
+            }
         }
         else{
             commands.append("Please select a component");
@@ -327,6 +338,8 @@ UserControlView = Backbone.View.extend({
         "click .active.build" : "compile",
         "click .active.vcs" : "compile",
         "click .active.verify" : "verify",
+        "click .active.save" : "save",
+        "click .active.del" : "del",
         "click #showJava" : "showJava",
         "click .plus" : "increaseFontSize",
         "click .minus" : "decreaseFontSize"
@@ -402,6 +415,21 @@ UserControlView = Backbone.View.extend({
         userJSON += "]";
         connect(ws, socketPing, model, targetJSON, waitGif);
         $( "#output_tabs" ).tabs("select", 1);
+    },
+    save : function(event){
+        var editorSession = this.model.get("editorSession");
+        var code = editorSession.doc.getValue();
+        var model = this.model.get("componentModel");
+        model.set("content", code);
+        model.save();
+        $(event.currentTarget).attr({disable: "diabled"}).removeClass("active");
+    },
+    del : function(event){
+        var model = this.model.get("componentModel");
+        var ans = confirm("Are you sure you want to delete " + model.get("name") + "?");
+        if(ans){
+            model.destroy();
+        }
     },
     showJava : function(event){
         var checked = $(event.currentTarget).attr("checked");
