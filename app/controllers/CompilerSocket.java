@@ -10,12 +10,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.persistence.Query;
+import models.User;
 import models.UserComponent;
 import play.Play;
+import play.db.jpa.GenericModel.JPAQuery;
 import play.mvc.WebSocketController;
 
 /**
@@ -23,7 +27,7 @@ import play.mvc.WebSocketController;
  * @author Chuck
  */
 public class CompilerSocket extends WebSocketController {
-    public static void compile(String job, String target) {
+    public static void compile(String job, String target, String project) {
         String slash = System.getProperty("file.separator");
         String relativeMainDir = "RESOLVE" + slash + "Main" + slash;
         UserComponent uc = new Gson().fromJson(target, UserComponent.class);
@@ -40,6 +44,21 @@ public class CompilerSocket extends WebSocketController {
         }
         key += umf.getMyFileName();
         userFileMap.put(key, umf);
+        if(Security.isConnected()) {
+            String email = Security.connected();
+            User user = User.find("byEmail", email).first();
+            JPAQuery query = UserComponent.find("byAuthor_idAndProject", user.id, project);
+            List<UserComponent> ucs = query.fetch();
+            for(UserComponent c : ucs){
+                umf = getTargetMetaFile(c);
+                key = "";
+                if(!umf.getMyPkg().equals("")){
+                    key += umf.getMyPkg() + ".";
+                }
+                key += umf.getMyFileName();
+                userFileMap.put(key, umf);
+            }
+        }
         if(job.compareTo("translateJava") == 0){
             //Constructing compiler
             String[] args = {"-maindir", compilerMainDir, "-translate", 

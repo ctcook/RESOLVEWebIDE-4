@@ -519,7 +519,7 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
     var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
-    var params = "?job=" + targetJob + "&target="+targetJSON;
+    var params = "?job=" + targetJob + "&target=" + targetJSON + "&project=" + selectedProject;
     var new_uri = url + params;
     if ('WebSocket' in window) {
         ws = new WebSocket(new_uri);
