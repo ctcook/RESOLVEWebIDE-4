@@ -14,10 +14,9 @@
                     #{secure.check 'superuser'}
                     <li id="theories_list"><a class="component dir">Theories</a></li>
                     #{/secure.check}
-                    #{secure.check 'user'}
-                    <li class="hidden"><a class="creater">Create</a></li>
-                    <li class="hidden"><a class="loader">Load</a></li>
-                    #{/secure.check}
+                    #{if _userComponents != null}
+                    <li id="user_component_list"><a class="component dir">User</a></li>
+                    #{/if}
                 </ul>
                 <!--<div id="component-list"></div>-->
             </div>

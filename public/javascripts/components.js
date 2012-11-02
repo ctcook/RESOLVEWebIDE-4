@@ -10,6 +10,7 @@ var myImportedUserComponentList = null;
 var myConceptListView = null;
 var myFacilityListView = null;
 var myTheoryListView = null;
+var myUserComponentListView = null;
 
 // myOpenComponentList is where we stor the Collection of components currently
 // open in the editor
@@ -740,7 +741,7 @@ function clearVcInfo(){
     $("#vcs").html("");
 }
 
-function initializeComponentMenu(json, selectedProjectName){
+function initializeComponents(json, selectedProjectName){
     selectedProject = selectedProjectName;
     myComponentList = new ComponentList(json["components"]);
     myConceptList = new ComponentList();
@@ -763,6 +764,10 @@ function initializeComponentMenu(json, selectedProjectName){
     myConceptListView = new ComponentMenuView({collection: myConceptList});
     myFacilityListView = new ComponentMenuView({collection: myFacilityList});
     myTheoryListView = new ComponentMenuView({collection: myTheoryList});
+}
+
+function initializeComponentMenu(){
+
     //myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
     //$("#component_list").parent().trigger('mouseenter');
     $("#component_menu").bind("click", function(){
@@ -792,15 +797,18 @@ function initializeComponentMenu(json, selectedProjectName){
         else if(id === "theories_list"){
             view = myTheoryListView;
         }
+        else if(id === "user_component_list"){
+            view = myUserComponentListView;
+        }
         var viewElement = prepMenu($(this), id);
         view.setElement(viewElement).render();
         setFinderWidth(viewElement);
-        var createButton = $("#createButton");
+        /*var createButton = $("#createButton");
         if(createButton.attr("disabled") === "disabled"){
             createButton.removeAttr("disabled");
-        }
+        }*/
     });
-    var createButton = $("#createButton");
+    /*var createButton = $("#createButton");
     createButton.click(function(event){
         var currentList = $("#finder").children().last().attr("id");
         currentList = currentList.split(".");
@@ -815,7 +823,7 @@ function initializeComponentMenu(json, selectedProjectName){
             modal: true
         });
         el.html(code);
-    });
+    });*/
     
     //Backbone.emulateJSON = true;
     //createButton.contextMenu(true);
@@ -933,6 +941,22 @@ function initializeUserComponents(userComponents){
             myUserComponentList.add(newComponent)
         }
     });
+    
+    myUserComponentListView = new ComponentMenuView({collection: myUserComponentList});
+    /*var componentList = $("#component_list");
+    componentList.find("a").click(function(){
+        var li = $(this).parent();
+        li.parent().find(".selected-component").removeClass("selected-component");
+        li.addClass("selected-component");
+        var id = li.attr("id");
+        var view = null;
+        if(id === "user_component_list"){
+            view = myConceptListView;
+            var viewElement = prepMenu($(this), id);
+            view.setElement(viewElement).render();
+            setFinderWidth(viewElement);
+        }
+    });*/
     
     var exportButton = $("#control_export");
     exportButton.click(function(event){
