@@ -73,7 +73,10 @@
                     initializeUserComponents(userComponents);
                 }
                 initializeComponentMenu();
-                initializeContextMenu("${user}");
+                #{if user != null}
+                    initializeContextMenu("${user}");
+                #{/if}
+                
                 //setMenuHandlers($("#project_list"));
                 //initializeMenuBar();
                 //initializeOutput();
