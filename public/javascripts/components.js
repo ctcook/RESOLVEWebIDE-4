@@ -5,6 +5,8 @@ var myComponentList = null;
 var myConceptList = null;
 var myFacilityList = null;
 var myTheoryList = null;
+var myUserComponentList = null;
+var myImportedUserComponentList = null;
 var myConceptListView = null;
 var myFacilityListView = null;
 var myTheoryListView = null;
@@ -263,7 +265,7 @@ var ComponentNameView = Backbone.View.extend({
         //$("#component_list").css({display:"none"});
     },
     showContext: function(event){
-        var curr = $(event.currentTarget).selector;
+        /*var curr = $(event.currentTarget).selector;
         var items = getCreateMenuItems(this.model);
         var contextMenu = $.contextMenu({ 
             selector: curr,
@@ -277,22 +279,8 @@ var ComponentNameView = Backbone.View.extend({
                     "items": items
                 }
             }
-            /*build: function($trigger, e){
-                return {
-                    callback: function(key, options) {
-                        var m = "clicked: " + key;
-                        window.console && console.log(m) || alert(m); 
-                    },
-                    items: {
-                        "fold1": {
-                            "name": "New",
-                            "items": items
-                        }
-                    }
-                }
-            }*/
 
-        });
+        });*/
     }
 });
 
@@ -758,6 +746,7 @@ function initializeComponentMenu(json, selectedProjectName){
     myConceptList = new ComponentList();
     myFacilityList = new ComponentList();
     myTheoryList = new ComponentList();
+    myUserComponentList = new ComponentList();
     myComponentList.each(function(component){
         // if the component is a concept, facility, or theory
         // we add it to the View list to render
@@ -827,36 +816,34 @@ function initializeComponentMenu(json, selectedProjectName){
         });
         el.html(code);
     });
+    
+    //Backbone.emulateJSON = true;
+    //createButton.contextMenu(true);
+}
+
+function initializeContextMenu(user){
     var contextMenu = $.contextMenu({ 
         selector: '.dir',
         build: function($trigger, e){
             
-            var items = getSubmenuItems($trigger);
+            var items = getSubmenuItems($trigger, user);
             
             return {
                 callback: function(key, options) {
                     var m = "clicked: " + key;
                     window.console && console.log(m) || alert(m); 
                 },
-                items: {
+                items: items
+                /*items: {
                     "fold1": {
                         "name": "New",
                         "items": items
                     }
-                    /*"edit": {name: "Edit", icon: "edit"},
-                    "cut": {name: "Cut", icon: "cut"},
-                    "copy": {name: "Copy", icon: "copy"},
-                    "paste": {name: "Paste", icon: "paste"},
-                    "delete": {name: "Delete", icon: "delete"},
-                    "sep1": "---------",
-                    "quit": {name: "Quit", icon: "quit"}*/
-                }
+                }*/
             }
         }
                 
     });
-    //Backbone.emulateJSON = true;
-    //createButton.contextMenu(true);
 }
 
 function initializeUserComponents(userComponents){
@@ -876,6 +863,7 @@ function initializeUserComponents(userComponents){
             });
             myComponentList.add(newComponent);
             myConceptList.add(newComponent);
+            myUserComponentList.add(newComponent);
             //newComponent.set("id", uc.id);
             newComponent.id = uc.name+"."+uc.name;
         }
@@ -894,6 +882,7 @@ function initializeUserComponents(userComponents){
             });
             myComponentList.add(newComponent);
             myFacilityList.add(newComponent);
+            myUserComponentList.add(newComponent)
             //newComponent.set("id", uc.id);
             newComponent.id = "facilities."+uc.name;
         }
@@ -913,6 +902,7 @@ function initializeUserComponents(userComponents){
                 type: uc.type
             });
             parent.get("enhancements").add(newComponent);
+            myUserComponentList.add(newComponent)
             //newComponent.set("id", uc.id);
             newComponent.id = uc.pkg+"."+uc.name;
         }
@@ -934,13 +924,312 @@ function initializeUserComponents(userComponents){
         if(uc.type === "r"){
             var parent = myComponentList.where({"name":uc.parent})[0];
             parent.get("realizations").add(newComponent);
+            myUserComponentList.add(newComponent)
         }
         else if(uc.type === "er"){
             var concept = myComponentList.where({"name":uc.pkg})[0];
             parent = concept.get("enhancements").where({"name":uc.parent})[0];
             parent.get("realizations").add(newComponent);
+            myUserComponentList.add(newComponent)
         }
     });
+    
+    var exportButton = $("#control_export");
+    exportButton.click(function(event){
+        event.preventDefault();
+        var loc = window.location;
+        var pathname = loc.pathname;
+        pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+        //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
+        var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname:loc.pathname) + "export?project=" + selectedProject;
+        window.location.href = url;
+    });
+    
+    var importButton = $("#control_import");
+    importButton.click(function(event){
+        var text = "Please select a file to import:<br/>";
+        var importInput = $("<input type=\"file\" id=\"importFile\" size=\"36\">");
+        var el = $("#dialog_new");
+        el.html(text);
+        el.append(importInput);
+        var d = el.dialog({
+            width:400,
+            height:500,
+            resizable:false,
+            draggable:false,
+            //dialogClass: "menu",
+            modal: true
+        });
+        importInput.on("change", function(evt){
+            parseImportFile(evt, d);
+        });
+        //document.getElementById("importFile").addEventListener("change", parseFile, false);
+    });
+}
+
+function parseImportFile(evt, d){
+    var files = evt.target.files;
+    var file = files[0];
+    var filename = file.name;
+    var reader = new FileReader();
+    if(filename.match(/^.+(\.json|\.JSON)$/)){
+        reader.readAsText(file);
+        reader.onloadend = function(event){
+            handleJsonImport(event, filename, d);
+        }
+    }
+    else{
+        alert("Please select a valid JSON file");
+    }
+}
+
+function handleJsonImport(evt, fileName, d){
+    var textData = evt.target.result;
+    var success = false;
+    try{
+        var json = jQuery.parseJSON(textData);
+        importUserComponents(json, d);
+        
+    } catch(err) {
+        alert("Unable to process JSON file\n"+err);
+    }
+}
+
+function importUserComponents(userComponents, d){
+    myImportedUserComponentList = new ComponentList();
+    var project = userComponents.project;
+    if(project === selectedProject){
+        var ucs = userComponents.components;
+        jQuery.each(ucs, function(index, uc){
+            if(uc.type === "c"){
+                var newComponent = new Component({
+                    content: uc.content,
+                    custom: "true",
+                    //enhancements: null,
+                    id: uc.name+"."+uc.name,
+                    name: uc.name,
+                    pkg: uc.pkg,
+                    //realizations: null,
+                    standard: "false",
+                    type: uc.type
+                });
+                myImportedUserComponentList.add(newComponent);
+                //newComponent.set("id", uc.id);
+                newComponent.id = uc.name+"."+uc.name;
+            }
+            else if(uc.type === "f"){
+                newComponent = new Component({
+                    content: uc.content,
+                    custom: "true",
+                    //enhancements: null,
+                    //id: newName+"."+newName,
+                    id: "facilities."+uc.name,
+                    name: uc.name,
+                    pkg: uc.pkg,
+                    //realizations: null,
+                    standard: "false",
+                    type: uc.type
+                });
+                myImportedUserComponentList.add(newComponent)
+                //newComponent.set("id", uc.id);
+                newComponent.id = "facilities."+uc.name;
+            }
+        });
+        jQuery.each(ucs, function(index, uc){
+            if(uc.type === "e"){
+                var parent = myComponentList.where({"name":uc.parent})[0];
+                if(parent == null){
+                    parent = myImportedUserComponentList.where({"name":uc.parent})[0];
+                }
+                var newComponent = new Component({
+                    content: uc.content,
+                    custom: "true",
+                    //enhancements: null,
+                    id: uc.pkg+"."+uc.name,
+                    name: uc.name,
+                    pkg: uc.pkg,
+                    //realizations: null,
+                    standard: "false",
+                    parent: uc.parent,
+                    type: uc.type
+                });
+                if(parent != null){
+                    myImportedUserComponentList.add(newComponent);
+                }
+                //newComponent.set("id", uc.id);
+                newComponent.id = uc.pkg+"."+uc.name;
+            }
+        });
+        jQuery.each(ucs, function(index, uc){
+            var newComponent = new Component({
+                content: uc.content,
+                custom: "true",
+                //enhancements: null,
+                id: uc.pkg+"."+uc.name,
+                name: uc.name,
+                pkg: uc.pkg,
+                //realizations: null,
+                standard: "false",
+                parent: uc.parent,
+                type: uc.type
+            });
+            //newComponent.set("id", uc.pkg+"."+uc.name);
+            newComponent.id = uc.pkg+"."+uc.name;
+            if(uc.type === "r"){
+                var parent = myComponentList.where({"name":uc.parent})[0];
+                if(parent == null){
+                    parent = myImportedUserComponentList.where({"name":uc.parent})[0];
+                }
+                if(parent != null){
+                    myImportedUserComponentList.add(newComponent);
+                } 
+            }
+            else if(uc.type === "er"){
+                var concept = myComponentList.where({"name":uc.pkg})[0];
+                if(concept == null){
+                    concept = myImportedUserComponentList.where({"name":uc.pkg})[0];
+                }
+                parent = concept.get("enhancements").where({"name":uc.parent})[0];
+                if(parent == null){
+                    parent = myImportedUserComponentList.where({"name":uc.parent})[0];
+                }
+                if(parent != null){
+                    myImportedUserComponentList.add(newComponent);
+                }
+            }
+        });
+        var importDialog = createImportDialog(project);
+        //var importPrompt = getEnvImportPrompt(fileName, selectedWsName, importArray);
+        var el = $("#dialog_new")
+        el.html(importDialog);
+        var importButton = $("<button>").val("import").text("Import");
+        el.append(importButton);
+        importButton.click(function(event){
+            event.preventDefault();
+            var success = false;
+            var selectedFiles = new Array();
+            $("input[@name=userFileSelect]:checked").each(function(){
+                selectedFiles.push($(this).val());
+            });
+            var json = genImportJson(project, selectedFiles);
+            importUserFiles(json, d);
+            //importFiles(importArray, selectedFiles);
+        });
+        //d.dialog("destroy");
+    }
+    else{
+        alert("Please open the project: "+project+" and try again");
+    } 
+}
+
+function createImportDialog(project){
+    var prompt = "Import File Analysis:<br/><br/>" +
+                "Target Project: " + project + "<br/><br/>" +
+                "Please select components to import:<br/><br/>";
+    //if(userArray.length != 0){
+        // @todo move this formatting to the css file
+        //prompt += "<span style=\"color:red\">** NOTE: Duplicate components are not supported and will be disabled **</span><br/><br/>"
+    //}
+    prompt += selectUserFileInfo(true);
+    var overrideDup = $("<input type=\"checkbox\">").attr({id:"overrideDup"});
+    overrideDup.click(function(event){
+        event.preventDefault();
+        var importCheckboxes = $("#dialog_new input[disabled]");
+        importCheckboxes.removeAttr("disabled");
+        $(event.currentTarget).attr({disabled:"disabled"});
+        
+    });
+    var overrideLabel = $("<label>").html("Allow duplicate overwrite").attr({"for":"overrideDup"});
+    var div = $("<div>").html(prompt+"<br/><br/>");
+    div.append(overrideDup);
+    div.append(overrideLabel);
+    return div;
+}
+
+function selectUserFileInfo(amImporting){
+    var info = "";
+    myImportedUserComponentList.each(function(model, index){
+        info += "<input type=\"checkbox\" name=\"userFileSelect\" value=\"" + index + 
+            "\" ";
+        
+            // add a check to see if the file is a duplicate of someting already in the env
+            // and disable if so
+            var isDup = false;
+            if(amImporting){
+                var selectedFile = this;
+                isDup = myUserComponentList.where({id:model.id})[0];
+                if(isDup != null){
+                    info += "disabled=\"disabled\"";
+                }
+                else{
+                    info += "checked=\"checked\"";
+                }
+            }
+            else{
+                info += "checked=\"checked\"";
+            }
+        info += ">" + model.get("name");
+        if(isDup){
+            info += " <span class=\"inputError\">(duplicate)</span>"
+        }
+        info += "<br/>";
+    });
+    return info;
+}
+
+function genImportJson(project, selectedFiles){
+    var json = "{\"project\":\"" + project + "\",\"importComponents\":[";
+    for(var i = 0; i < selectedFiles.length; i++){
+        var model = myImportedUserComponentList.at(selectedFiles[i]);
+        json += model.toJSON();
+        if(i < selectedFiles.length - 1){
+            json += ",";
+        }
+    }
+    json += "]}";
+    return json;
+}
+
+function importUserFiles(json, d){
+    var loc = window.location;
+    var pathname = loc.pathname;
+    pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+    //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
+    var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname:loc.pathname) + "import";
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: json,
+        success: function(data){
+            var json = jQuery.parseJSON(data);
+            displayImportReport(json, d);
+        },
+        error: function(){
+            alert("Import Server Error!");
+        }
+    });
+}
+
+function displayImportReport(json, d){
+    var report = $("<div>").html("Import Report:<br/><br/>");
+    var actions = json.actions;
+    $.each(actions, function(index, event){
+        var success = (event.success)?"Success":"Fail";
+        var info = event.action + " " + event.name + ": " + success + "<br/>";
+        report.append(info);
+    });
+    report.append("<br/>");
+    var msg = "Please reload the environment to load any newly imported components.<br/>"
+    report.append("<br/>");
+    var refreshButton = $("<button>").val("reload").text("Reload");
+    refreshButton.click(function(event){
+        event.preventDefault();
+        location.reload(true);
+    });
+    var el = $("#dialog_new")
+    el.html(report);
+    el.append(msg);
+    el.append(refreshButton);
 }
 
 function getCreateMenuItems(model){
@@ -992,7 +1281,7 @@ function getSubmenuItems($trigger){
             var currentList = parentId.split(".");
             var parent = getNewModelParent(currentList, myComponentList);
             items = {"fold1-key1":{
-                        "name": "realization",
+                        "name": " new realization",
                         callback: function(key, opt){
                             genCreateForm("r", parent);
                         }
@@ -1005,7 +1294,7 @@ function getSubmenuItems($trigger){
             currentList = parentId.split(".");
             parent = getNewModelParent(currentList, myComponentList);
             items = {"fold1-key1":{
-                        "name": "enhancement",
+                        "name": "new enhancement",
                         callback: function(key, opt){
                             genCreateForm("e", parent);
                         }
@@ -1018,13 +1307,13 @@ function getSubmenuItems($trigger){
             if(type === "c"){
                 items = {
                     "fold1-key1":{
-                        "name": "realization",
+                        "name": "new realization",
                         callback: function(key, opt){
                             genCreateForm("r", model);
                         }
                     },
                     "fold1-key2":{
-                        "name": "enhancement",
+                        "name": "new enhancement",
                         callback: function(key, opt){
                             genCreateForm("e", model);
                         }
@@ -1034,7 +1323,7 @@ function getSubmenuItems($trigger){
             else if(type === "e"){
                 items = {
                     "fold1-key1":{
-                        "name": "realization",
+                        "name": "new realization",
                         callback: function(key, opt){
                             genCreateForm("r", model);
                         }
@@ -1044,6 +1333,12 @@ function getSubmenuItems($trigger){
         }
             
     }
+    var item = {
+        "fold1": {
+            "name": "New",
+            "items": items
+        }
+    };
     return items;
 }
 
@@ -1131,10 +1426,11 @@ function genNewConceptForm(parent, d){
             });
             myComponentList.add(newComponent);
             myConceptList.add(newComponent);
+            myUserComponentList.add(newComponent)
             newComponent.save();
             newComponent.set("id", newName+"."+newName);
             displayComponent(newComponent);
-            d.dialog("destroy");
+            d.dialod.dg("destroy");
         }
         else{
             error.html("A component with this name already exists!");
@@ -1176,6 +1472,7 @@ function genNewEForm(parent, d){
                 type: "e"
             });
             parent.get("enhancements").add(newComponent);
+            myUserComponentList.add(newComponent)
             newComponent.save();
             newComponent.set("id", parent.get("pkg")+"."+newName);
             displayComponent(newComponent);
@@ -1221,6 +1518,7 @@ function genNewCrForm(parent, d){
                 type: "r"
             });
             parent.get("realizations").add(newComponent);
+            myUserComponentList.add(newComponent)
             newComponent.save();
             newComponent.set("id", parent.get("pkg")+"."+newName);
             displayComponent(newComponent);
@@ -1267,6 +1565,7 @@ function genNewErForm(parent, d){
                 type: "er"
             });
             parent.get("realizations").add(newComponent);
+            myUserComponentList.add(newComponent)
             newComponent.save();
             newComponent.set("id", parent.get("pkg")+"."+newName);
             displayComponent(newComponent);
@@ -1280,9 +1579,47 @@ function genNewErForm(parent, d){
     return form;
 }
 
-function genNewFacilityForm(parent){
+function genNewFacilityForm(parent, d){
     var form = $("<div>");
-    var body = "Facility " + name + ";\n\nend " + name + ";";
+    form.html("Please enter a name for the facility:<br/>");
+    var name = $("<input>").attr({name:"name"});
+    var submit = $("<input>").attr({"type":"button","value":"OK"});
+    var error = $("<span>").addClass("namingError");
+    form.append(name);
+    form.append("<br/>");
+    form.append(error);
+    form.append("<br/>");
+    form.append(submit);
+    submit.click(function(event){
+        event.preventDefault();
+        var newName = name.attr("value");
+        var body = "Concept " + newName + ";\n\nend " + newName + ";";
+        var foundNames = myFacilityList.where({"name":newName});
+        if(foundNames.length == 0){
+            var newComponent = new Component({
+                content: body,
+                custom: "true",
+                enhancements: null,
+                //id: newName+"."+newName,
+                name: newName,
+                pkg: newName,
+                realizations: null,
+                standard: "false",
+                type: "f"
+            });
+            myComponentList.add(newComponent);
+            myFacilityList.add(newComponent);
+            myUserComponentList.add(newComponent)
+            newComponent.save();
+            newComponent.set("id", "facilities."+newName);
+            displayComponent(newComponent);
+            d.dialog("destroy");
+        }
+        else{
+            error.html("A component with this name already exists!");
+        }
+        //var name = $(event.currentTarget).attr("name");
+    });
     return form;
 }
 
@@ -1580,50 +1917,5 @@ function hideOpenComponents(menu, button){
     items.removeClass("visable").addClass("hidden");
     button.unbind("click").click(function(event){
         showOpenComponents(menu, button);
-    });
-}
-
-function updateComponent(targetJob, targetJSON){
-    //var loc = window.location;
-    //var pathname = loc.pathname;
-    //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
-    //var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
-    //var params = "?job=" + targetJob + "&target="+targetJSON;
-    //var new_uri = url + params;
-    $.ajax({
-        url: "Components",
-        type: "POST",
-        //data: {"job": targetJob, "target":targetJSON, "userComponents": userJSON},
-        data: {"job": targetJob, "target":targetJSON},
-        success: function(result){
-
-            //waitGif.remove();
-            if(targetJob == "translateJava"){
-                $("#console-expander").trigger("click");
-                $("#console-info").html(result);
-                //analyzeJavaResults(model, result);
-            }
-            else if(targetJob == "build"){
-
-            }
-            else if(targetJob == "genVCs"){
-                //analyzeVcResults(model, result);
-            }
-            else if(targetJob == "verify"){
-                //analyzeVerifyResults(model, result);
-            }
-
-            //$(msg).find("genCodeResults").each(function(){
-                //var java = unescape($(this).find("code").text());
-                //log("result: "+java);
-                //java = String(java).replace(lsRegExp, " ");
-                //java = replaceRemoteFileNames(serverFileNames, java);
-                //name = $(this).find("userName").text();
-                //compilerOutput = $(this).find("compilerOutput").text();
-                //compilerOutput = String(compilerOutput).replace(lsRegExp, " ");
-                //success = $(this).find("translateSuccess").text();
-            //});
-
-        }
     });
 }

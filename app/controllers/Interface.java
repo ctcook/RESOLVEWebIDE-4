@@ -98,7 +98,7 @@ public class Interface extends Controller {
                 }
             }
             userComponents += "]}";
-            System.out.println(userComponents);
+            //System.out.println(userComponents);
         }
         renderArgs.put("ucs", userComponents);
         render();

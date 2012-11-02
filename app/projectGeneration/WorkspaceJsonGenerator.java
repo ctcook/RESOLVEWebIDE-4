@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -614,6 +615,17 @@ public class WorkspaceJsonGenerator {
         String encoded = null;
         try {
             encoded = URLEncoder.encode(raw.replaceAll(" ", "%20"), "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(WorkspaceJsonGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return encoded;
+    }
+    
+    public static String decode(String raw){
+        String encoded = null;
+        try {
+            encoded = URLDecoder.decode(raw, "UTF-8");
+            encoded = encoded.replaceAll("%20", " ");
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(WorkspaceJsonGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
