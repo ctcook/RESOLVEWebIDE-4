@@ -73,9 +73,7 @@
                     initializeUserComponents(userComponents);
                 }
                 initializeComponentMenu();
-                #{if user != null}
-                    initializeContextMenu("${user}");
-                #{/if}
+                initializeContextMenu("${user}");
                 
                 //setMenuHandlers($("#project_list"));
                 //initializeMenuBar();
