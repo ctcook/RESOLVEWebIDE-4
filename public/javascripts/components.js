@@ -52,10 +52,14 @@ var Component = Backbone.RelationalModel.extend({
         collectionType: 'ComponentList'
     }],
     toJSON: function(){
+        var content = this.get("content");
+        // we need to escape quotes so that we have valid JSON going to the server
+        content = content.replace(/%22/g, "\\%22");
+        content = content.replace(/\"/g, "\\\"");
         var json = "{name:\"" + this.get("name") + "\"," +
             "pkg:\"" + this.get("pkg") + "\"," +
             "project:\"" + selectedProject + "\"," +
-            "content:\"" + this.get("content") + "\"," +
+            "content:\"" + content + "\"," +
             "parent:\"" + this.get("parent") + "\"," +
             "type:\"" + this.get("type") + "\"}";
             //JSON.stringify(this.get("component")) +
