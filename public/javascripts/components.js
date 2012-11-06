@@ -993,7 +993,7 @@ function initializeUserComponents(userComponents){
         var pathname = loc.pathname;
         pathname = pathname.substring(0,pathname.lastIndexOf("/"));
         //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-        var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "export?project=" + selectedProject;
+        var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "export?project=" + selectedProject;
         window.location.href = url;
     });
     
@@ -1247,7 +1247,7 @@ function importUserFiles(json, d){
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
     //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-    var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "import";
+    var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "import";
     $.ajax({
         type: "POST",
         url: url,
