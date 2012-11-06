@@ -777,6 +777,7 @@ function initializeEditor(){
     consoleExpander.click(function(event){
         showConsole(this);
     });
+    document.onkeydown = keyHandler;
 }
 
 function setEditorHeight(){
@@ -1209,4 +1210,39 @@ function showKeywordTooltip(pos, editor, textRange){
             }
         });
     }
+}
+
+function keyHandler(e){
+    var evtobj=window.event? event : e
+    if (evtobj.keyCode == '192') {
+        //showNewUserMsg();
+    }
+    else if(evtobj.keyCode == '8'){
+        var focusedElement = $(":focus")[0];
+        if(typeof focusedElement === "undefined"){
+            var msg = "You are about to navigate away from the RESOLVE Web Interface. " +
+                        "Click OK to continue or Cancel to remain."
+            var ans = confirm(msg);
+            if(!ans){
+                return false;
+            }
+        }
+        else if($(focusedElement).attr("id") == "fileName"){
+            return true;
+        }
+        else{
+            return false;
+        }    
+    }
+    
+    // these handle increasing/decreasing font size with ctrl+ and ctrl-
+    // they have more than one keycode for cross-browser compatibility
+    /*else if((evtobj.keyCode == '187' || evtobj.keyCode == '107'  || evtobj.keyCode == '61') && evtobj.ctrlKey){
+        increaseFontSize();
+        return false;
+    }
+    else if((evtobj.keyCode == '187' || evtobj.keyCode == '107') && evtobj.ctrlKey){
+        decreaseFontSize();
+        return false;
+    }*/
 }
