@@ -481,10 +481,13 @@ var OpenComponentListView = Backbone.View.extend({
         var menuLeft = openMenuDiv.position().left;
         var menuRightSide = menuLeft + openMenuDiv.width();
         var itemPos = item.position();
-        var itemRightSide = menuLeft + itemPos.left + item.width();
+        var itemWidth = item.width();
+        var itemRightSide = menuLeft + itemPos.left + itemWidth;
         var listLeft = list.position().left;
         if(itemRightSide > menuRightSide){
-            list.css("left", listLeft - (itemRightSide - menuRightSide + 10));
+            var excess = "-" + (itemRightSide - menuRightSide + 10);
+            //list.css("left", excess);
+            list.animate({"left": excess}, "fast");
         }
         updateOpenComponents(component);
         //localStorage.localOpenComponentList = JSON.stringify(myOpenComponentList.toJSON());
@@ -1797,10 +1800,13 @@ function scanToSelected(item){
     var listLeft = list.position().left;
     var itemRightSide = itemPos.left + item.outerWidth(true);
     if(itemRightSide > menuRightSide){
-        list.css("left", listLeft - (itemRightSide - menuRightSide));
+        var excess = "-" + (itemRightSide - menuRightSide);
+        list.animate({"left": excess}, "fast");
+        //list.css("left", listLeft - (itemRightSide - menuRightSide));
     }
     else if(itemPos.left + listLeft < menuLeft){
-        list.css("left", 0);
+        list.animate({"left": -(itemPos.left - 5)}, "fast");
+        //list.css("left", 0);
     }
 }
 
