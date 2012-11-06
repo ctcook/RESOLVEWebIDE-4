@@ -345,6 +345,9 @@ UserControlView = Backbone.View.extend({
         "click .minus" : "decreaseFontSize"
     },
     compile: function(event){
+        var openComponentTab = $("#open_menu").find(".component_tab.selected");
+        var infoBlock = openComponentTab.find(".componentInfo");
+        var waitGif = addWaitGif(infoBlock);
         var targetJob = null;
         var targetButton = $(event.currentTarget);
         // these classes must match what is assigned in the render function above
@@ -380,9 +383,6 @@ UserControlView = Backbone.View.extend({
             index++;
         });
         userJSON += "]"
-        var openComponentTab = $("#open_menu").find(".component_tab.selected");
-        var infoBlock = openComponentTab.find(".componentInfo");
-        var waitGif = addWaitGif(infoBlock);
         //var elementClass = $(event.currentTarget).attr("class");
         //ajaxCompile(targetJob, targetJSON, waitGif, model);
         wsCompile(targetJob, targetJSON, waitGif, model);
@@ -545,7 +545,7 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         }
     };
     ws.onclose = function (event) {
-        console.log(event);
+        //console.log(event);
     };
         
     //new Socket(new_uri+"?target="+targetJSON);
@@ -662,7 +662,10 @@ function analyzeResults(resultJSON, component, waitGif){
     else if(resultJSON.job == VERIFY){
         
     }
-    waitGif.remove();
+    var openComponentTab = $("#open_menu").find(".component_tab.selected");
+    var infoBlock = openComponentTab.find(".componentInfo");
+    infoBlock.html("");
+    //waitGif.remove();
 }
 
 function cancelJarDownload(facName, downloadDir, d){
