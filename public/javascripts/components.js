@@ -410,16 +410,20 @@ var OpenComponentListView = Backbone.View.extend({
         var that = this;
         this.collection.each(function(component){
             var model = getModelByCid(myComponentList, component.get("cid"));
-            if(model.get("name") == component.get("name") &&
-                    model.get("pkg") == component.get("pkg")){
-                component.set("componentModel", model);
-                that._openComponents.push(component);
-                component.get("componentModel").bind("change:name", component.changeName, component);
+            if(model != null){ // null check in case a user created component was open
+                if(model.get("name") == component.get("name") &&
+                        model.get("pkg") == component.get("pkg")){
+                    component.set("componentModel", model);
+                    that._openComponents.push(component);
+                    component.get("componentModel").bind("change:name", component.changeName, component);
+                }
             }
             else{
+                myOpenComponentList.remove(component);
                 log("couldn't find open component: "+component.get("name"));
             }
         });
+        updateOpenComponents(null);
         this.collection.bind( 'add', this.added, this );
         this.collection.bind( 'remove', this.removed, this );
         this.render();
@@ -510,7 +514,7 @@ var OpenComponentListView = Backbone.View.extend({
             }
             else{
                 this._selectedComponent = myOpenComponentList.at(newSelected).get("id");
-                model = myOpenComponentList.at(newSelected);
+                model = myOpenComponentList.at(newSelected).get("componentModel");
             }
             displayComponent(model);
         }
@@ -1785,7 +1789,12 @@ function initializeOpenComponentList(selectedProjectName){
         else{
             openComponent = myOpenComponentList.at(0);
         }
-        displayComponent(openComponent);
+        if(openComponent != null){
+            displayComponent(openComponent);
+        }
+        else if(myOpenComponentList.length > 0){
+            displayComponent(myOpenComponentList.at(0).get("componentModel"));
+        }
         var item = $("#open_component_list>li.selected");
         //scanToSelected(item);
     }
