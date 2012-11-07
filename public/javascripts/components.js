@@ -71,10 +71,10 @@ var Component = Backbone.RelationalModel.extend({
     },
     url : function() {
         var loc = window.location;
-        var pathname = loc.pathname;
-        pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+        //var pathname = loc.pathname;
+        //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
         //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-        var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "Components";
+        var url = "http://" + getUrl(loc) + "Components";
         return url;
         //return this.collection.url() + '/Components';
     }
@@ -992,10 +992,10 @@ function initializeUserComponents(userComponents){
     exportButton.click(function(event){
         event.preventDefault();
         var loc = window.location;
-        var pathname = loc.pathname;
-        pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+        //var pathname = loc.pathname;
+        //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
         //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-        var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "export?project=" + selectedProject;
+        var url = "http://" + getUrl(loc) + "export?project=" + selectedProject;
         window.location.href = url;
     });
     
@@ -1246,10 +1246,10 @@ function genImportJson(project, selectedFiles){
 
 function importUserFiles(json, d){
     var loc = window.location;
-    var pathname = loc.pathname;
-    pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+    //var pathname = loc.pathname;
+    //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
     //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-    var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "import";
+    var url = "http://" + getUrl(loc) + "import";
     $.ajax({
         type: "POST",
         url: url,
