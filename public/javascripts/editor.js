@@ -282,9 +282,13 @@ UserControlView = Backbone.View.extend({
                 
             }
             if(component.get("custom") === "true"){
+                var divider = $("<span>").html(" | ").addClass("divider");
                 var save = $("<button>").html("Save").addClass("save command shadow");
+                var rename = $("<button>").html("Rename").addClass("rename command active shadow");
                 var del = $("<button>").html("Delete").addClass("del command active shadow");
+                divider.appendTo(commands);
                 save.appendTo(commands);
+                rename.appendTo(commands);
                 save.attr({disable: "diabled"});
                 del.appendTo(commands);
             }
@@ -338,6 +342,7 @@ UserControlView = Backbone.View.extend({
         "click .active.buildJar" : "compile",
         "click .active.vcs" : "compile",
         "click .active.verify" : "verify",
+        "click .active.rename" : "rename",
         "click .active.save" : "save",
         "click .active.del" : "del",
         "click #showJava" : "showJava",
@@ -416,6 +421,11 @@ UserControlView = Backbone.View.extend({
         connect(ws, socketPing, model, targetJSON, waitGif);
         $( "#output_tabs" ).tabs("select", 1);
     },
+    rename : function(event){
+        //var editorSession = this.model.get("editorSession");
+        //var code = editorSession.doc.getValue();
+        renameUserComponent(this.model.get("componentModel"));
+    },
     save : function(event){
         var editorSession = this.model.get("editorSession");
         var code = editorSession.doc.getValue();
@@ -425,10 +435,10 @@ UserControlView = Backbone.View.extend({
         $(event.currentTarget).attr({disable: "diabled"}).removeClass("active");
     },
     del : function(event){
-        var model = this.model.get("componentModel");
+        var model = this.model;
         var ans = confirm("Are you sure you want to delete " + model.get("name") + "?");
         if(ans){
-            model.destroy();
+            deleteUserComponent(model);
         }
     },
     showJava : function(event){
@@ -474,6 +484,117 @@ UserControlView = Backbone.View.extend({
     }
 });
 
+function renameUserComponent(model){
+    var code = "";
+    var el = $("#dialog_new");
+    var d = el.dialog({
+        width:400,
+        height:200,
+        resizable:false,
+        draggable:false,
+        //dialogClass: "menu",
+        modal: true
+    });
+    var form = $("<div>");
+    form.html("Please enter a new name for " + model.get("name") +":<br/>");
+    var name = $("<input>").attr({id:"fileName",name:"name"});
+    var submit = $("<input>").attr({"type":"button","value":"OK"});
+    var error = $("<span>").addClass("namingError");
+    form.append(name);
+    form.append("<br/>");
+    form.append(error);
+    form.append("<br/>");
+    form.append(submit);
+    submit.click(function(event){
+        event.preventDefault();
+        error.html("");
+        var oldName = model.get("name");
+        var newName = name.attr("value");
+        var oldId = "";
+        var type = model.get("type");
+        if(type === "c"){
+            oldId = newName;
+        }
+        else if(type === "e"){
+            oldId = model.get("pkg");
+        }
+        else if(type === "r"){
+            oldId = model.get("pkg");
+        }
+        else if(type === "f"){
+            oldId = "facilities";
+        }
+        else if(type === "t"){
+            oldId = "theories";
+        }
+        oldId += "." + newName;
+        var existingModel = getModelById(myComponentList, oldId);
+        if(existingModel != null){
+            error.html("A component with this name already exists!");
+        }
+        else{
+            if(type === "f" || type === "t"){
+                existingModel = getTheoryOrFacilityByName(newName, type);
+            }
+            if(existingModel != null){
+                error.html("A component with this name already exists!");
+            }
+            else{
+                // @todo ajax to update the component
+                error.html("good to go");
+                
+                var loc = window.location;
+                var pathname = loc.pathname;
+                pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+                var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname)
+                        + "rename";
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: {
+                        job: "rename",
+                        newName: newName,
+                        target: model.toJSON()
+                    },
+                    success: function(data){
+                        model.set("name", newName)
+                        d.dialog("destroy");
+                    }
+                });
+            }    
+        }
+    });
+    el.html(form);
+    
+}
+
+function deleteUserComponent(openModel){
+    var model = openModel.get("componentModel");
+    var loc = window.location;
+    var pathname = loc.pathname;
+    pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+    var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname)
+            + "delete";
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {
+            target: model.toJSON()
+        },
+        success: function(data){
+            model.id = null;
+            model.destroy();
+            openModel.id = null;
+            openModel.destroy();
+        }
+    });
+}
+
+
+function getRenameDialog(){
+    
+}
+
 function ajaxCompile(targetJob, targetJSON, waitGif, model){
     $.ajax({
         url: "WebCompiler",
@@ -518,7 +639,6 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     var loc = window.location;
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
-    //var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
     var url = "ws://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "Compiler";
     var params = "?job=" + targetJob + "&target=" + targetJSON + "&project=" + selectedProject;
     var new_uri = url + params;
@@ -672,7 +792,6 @@ function cancelJarDownload(facName, downloadDir, d){
     var loc = window.location;
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
-    //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
     var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname)
             + "download?job=cancel&name=" + facName + "&dir=" + downloadDir;
     $.ajax({

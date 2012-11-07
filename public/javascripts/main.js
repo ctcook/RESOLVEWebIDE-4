@@ -11,7 +11,7 @@ function intializeUserControls(){
 }
 
 function logout(url){
-    localStorage.clear();
+    //localStorage.clear();
     window.location.href=url;
 }
 
