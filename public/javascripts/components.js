@@ -706,6 +706,7 @@ function displayComponent(component){
             editorSession: session
         });
         myOpenComponentList.add(openComponent);
+        myOpenComponent_view.render();
     }
     if(session == null){
         var EditSession = require("ace/edit_session").EditSession;
@@ -716,8 +717,6 @@ function displayComponent(component){
         openComponent.set({"editorSession":session});
     }
     var dataIndex = component.get("index");
-    var search = "a[data-id=\"" + componentId + "\"]";
-    var link = $("#open_component_list").find(search);
     $("#open_component_list>li.selected").removeClass("selected");
     if(component.get("type") == 't'){
         // readonly for theory files
@@ -745,6 +744,8 @@ function displayComponent(component){
    //$("#component_list").removeClass("visible").addClass("hidden");
    //hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
    //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
+    var search = "a[data-id=\"" + componentId + "\"]";
+    var link = $("#open_component_list").find(search);
     var item = $(link).parent();
     item.addClass("selected");
    scanToSelected(item);
