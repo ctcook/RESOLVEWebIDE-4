@@ -519,7 +519,7 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
     //var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
-    var url = "ws://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Compiler";
+    var url = "ws://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname) + "Compiler";
     var params = "?job=" + targetJob + "&target=" + targetJSON + "&project=" + selectedProject;
     var new_uri = url + params;
     if ('WebSocket' in window) {
@@ -631,7 +631,7 @@ function analyzeResults(resultJSON, component, waitGif){
             var pathname = loc.pathname;
             pathname = pathname.substring(0,pathname.lastIndexOf("/"));
             //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-            var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname)
+            var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname)
                     + "download?job=download&name=" + facName + "&dir=" + downloadDir;
             window.location.href = url;
             d.dialog("destroy");
@@ -673,7 +673,7 @@ function cancelJarDownload(facName, downloadDir, d){
     var pathname = loc.pathname;
     pathname = pathname.substring(0,pathname.lastIndexOf("/"));
     //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-    var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname)
+    var url = "http://" + loc.host + (loc.pathname.length>1?pathname+"/":loc.pathname)
             + "download?job=cancel&name=" + facName + "&dir=" + downloadDir;
     $.ajax({
         type: "GET",
