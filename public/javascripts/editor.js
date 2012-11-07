@@ -822,7 +822,9 @@ function handleErrors(resultJSON, component){
         triggerConsole();
         $("#console-info").html("").append(code+"<br/>");
     }
-    // @todo add error handling
+    var openComponentTab = $("#open_menu").find(".component_tab.selected");
+    var infoBlock = openComponentTab.find(".componentInfo");
+    infoBlock.html("");
 }
 
 function getErrorArray(jsonResults){

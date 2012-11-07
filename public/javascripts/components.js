@@ -1522,10 +1522,14 @@ function genNewConceptForm(parent, d){
             myComponentList.add(newComponent);
             myConceptList.add(newComponent);
             myUserComponentList.add(newComponent)
-            newComponent.save();
-            newComponent.set("id", newName+"."+newName);
-            displayComponent(newComponent);
-            d.dialod.dg("destroy");
+            //newComponent.save();
+            var id = newName+"."+newName;
+            newComponent.save(null, {success:function(){
+                    saveSuccess(newComponent, id, d);
+            }});
+            //newComponent.set("id", newName+"."+newName);
+            //displayComponent(newComponent);
+            //d.dialod.dg("destroy");
         }
         else{
             error.html("A component with this name already exists!");
@@ -1567,11 +1571,15 @@ function genNewEForm(parent, d){
                 type: "e"
             });
             parent.get("enhancements").add(newComponent);
-            myUserComponentList.add(newComponent)
-            newComponent.save();
-            newComponent.set("id", parent.get("pkg")+"."+newName);
-            displayComponent(newComponent);
-            d.dialog("destroy");
+            myUserComponentList.add(newComponent);
+            var id = parent.get("pkg")+"."+newName;
+            newComponent.save(null, {success:function(){
+                    saveSuccess(newComponent, id, d);
+            }});
+            //newComponent.save();
+            //newComponent.set("id", parent.get("pkg")+"."+newName);
+            //displayComponent(newComponent);
+            //d.dialog("destroy");
         }
         else{
             error.html("A component with this name already exists!");
@@ -1613,11 +1621,11 @@ function genNewCrForm(parent, d){
                 type: "r"
             });
             parent.get("realizations").add(newComponent);
-            myUserComponentList.add(newComponent)
-            newComponent.save();
-            newComponent.set("id", parent.get("pkg")+"."+newName);
-            displayComponent(newComponent);
-            d.dialog("destroy");
+            myUserComponentList.add(newComponent);
+            var id = parent.get("pkg")+"."+newName;
+            newComponent.save(null, {success:function(){
+                    saveSuccess(newComponent, id, d);
+            }});
         }
         else{
             error.html("A component with this name already exists!");
@@ -1660,11 +1668,15 @@ function genNewErForm(parent, d){
                 type: "er"
             });
             parent.get("realizations").add(newComponent);
-            myUserComponentList.add(newComponent)
-            newComponent.save();
-            newComponent.set("id", parent.get("pkg")+"."+newName);
-            displayComponent(newComponent);
-            d.dialog("destroy");
+            myUserComponentList.add(newComponent);
+            var id = parent.get("pkg")+"."+newName;
+            newComponent.save(null, {success:function(){
+                    saveSuccess(newComponent, id, d);
+            }});
+            //newComponent.save();
+            //newComponent.set("id", parent.get("pkg")+"."+newName);
+            //displayComponent(newComponent);
+            //d.dialog("destroy");
         }
         else{
             error.html("A component with this name already exists!");
@@ -1704,11 +1716,15 @@ function genNewFacilityForm(parent, d){
             });
             myComponentList.add(newComponent);
             myFacilityList.add(newComponent);
-            myUserComponentList.add(newComponent)
-            newComponent.save();
-            newComponent.set("id", "facilities."+newName);
-            displayComponent(newComponent);
-            d.dialog("destroy");
+            myUserComponentList.add(newComponent);
+            var id = "facilities."+newName;
+            newComponent.save(null, {success:function(){
+                    saveSuccess(newComponent, id, d);
+            }});
+            //newComponent.save();
+            //newComponent.set("id", "facilities."+newName);
+            //displayComponent(newComponent);
+            //d.dialog("destroy");
         }
         else{
             error.html("A component with this name already exists!");
@@ -1723,6 +1739,12 @@ function genNewTheoryForm(parent){
     var body = "Realization " + name + " for " + selectedCon.name +
                 ";\n\nend " + name + ";";
     return form;
+}
+
+function saveSuccess(newComponent, id, d){
+    newComponent.set("id", id);
+    displayComponent(newComponent);
+    d.dialog("destroy");
 }
 
 function prepMenu(link, newId){
@@ -1804,28 +1826,21 @@ function initializeOpenComponentList(selectedProjectName){
 
 function scanToSelected(item){
     var itemPos = item.position();
-    if(itemPos == null){
-        setTimeout(function(){
-            scanToSelected(item);
-        }, 500);
+    var openMenuDiv = $("#open_components")
+    var list = $("#open_component_list");
+    var menuLeft = openMenuDiv.position().left;
+    var menuRightSide = openMenuDiv.width();
+    var listLeft = list.position().left;
+    var itemRightSide = itemPos.left + item.outerWidth(true);
+    if(itemRightSide > menuRightSide){
+        var excess = "-" + (itemRightSide - menuRightSide);
+        list.animate({"left": excess}, "fast");
+        //list.css("left", listLeft - (itemRightSide - menuRightSide));
     }
-    else{
-        var openMenuDiv = $("#open_components")
-        var list = $("#open_component_list");
-        var menuLeft = openMenuDiv.position().left;
-        var menuRightSide = openMenuDiv.width();
-        var listLeft = list.position().left;
-        var itemRightSide = itemPos.left + item.outerWidth(true);
-        if(itemRightSide > menuRightSide){
-            var excess = "-" + (itemRightSide - menuRightSide);
-            list.animate({"left": excess}, "fast");
-            //list.css("left", listLeft - (itemRightSide - menuRightSide));
+    else if(itemPos.left + listLeft < menuLeft){
+        list.animate({"left": -(itemPos.left - 5)}, "fast");
+        //list.css("left", 0);
         }
-        else if(itemPos.left + listLeft < menuLeft){
-            list.animate({"left": -(itemPos.left - 5)}, "fast");
-            //list.css("left", 0);
-        }
-    }   
 }
 
 function updateOpenComponents(component){
