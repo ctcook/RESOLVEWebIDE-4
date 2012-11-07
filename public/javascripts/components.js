@@ -1826,6 +1826,9 @@ function initializeOpenComponentList(selectedProjectName){
 
 function scanToSelected(item){
     var itemPos = item.position();
+    if(itemPos == null){
+        itemPos = {top:0,left:0};
+    }
     var openMenuDiv = $("#open_components")
     var list = $("#open_component_list");
     var menuLeft = openMenuDiv.position().left;
