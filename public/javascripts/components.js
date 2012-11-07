@@ -718,9 +718,7 @@ function displayComponent(component){
     var dataIndex = component.get("index");
     var search = "a[data-id=\"" + componentId + "\"]";
     var link = $("#open_component_list").find(search);
-    var item = $(link).parent();
     $("#open_component_list>li.selected").removeClass("selected");
-    item.addClass("selected");
     if(component.get("type") == 't'){
         // readonly for theory files
         editor.setReadOnly(true);
@@ -735,7 +733,7 @@ function displayComponent(component){
     updateSelectedComponent(component);
     updateOpenComponents(component);
     //localStorage.set(component.get("project") + "_selected_id", componentPkg + "." + componentName);
-    displayComponentInfo(component);
+    //displayComponentInfo(component);
     syntaxCheck(openComponent);
     session.on("change", function() {
       syntaxCheck(openComponent);
@@ -745,8 +743,10 @@ function displayComponent(component){
       }
    });
    //$("#component_list").removeClass("visible").addClass("hidden");
-   hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
+   //hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
    //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
+    var item = $(link).parent();
+    item.addClass("selected");
    scanToSelected(item);
    clearConsole();
    //clearVcInfo();
@@ -1826,9 +1826,9 @@ function initializeOpenComponentList(selectedProjectName){
 
 function scanToSelected(item){
     var itemPos = item.position();
-    if(itemPos == null){
+    /*if(itemPos == null){
         itemPos = {top:0,left:0};
-    }
+    }*/
     var openMenuDiv = $("#open_components")
     var list = $("#open_component_list");
     var menuLeft = openMenuDiv.position().left;
