@@ -424,7 +424,7 @@ UserControlView = Backbone.View.extend({
     rename : function(event){
         //var editorSession = this.model.get("editorSession");
         //var code = editorSession.doc.getValue();
-        renameUserComponent(this.model.get("componentModel"));
+        renameUserComponent(this.model);
     },
     save : function(event){
         var editorSession = this.model.get("editorSession");
@@ -484,7 +484,8 @@ UserControlView = Backbone.View.extend({
     }
 });
 
-function renameUserComponent(model){
+function renameUserComponent(openModel){
+    var model = openModel.get("componentModel");
     var code = "";
     var el = $("#dialog_new");
     var d = el.dialog({
@@ -510,25 +511,25 @@ function renameUserComponent(model){
         error.html("");
         var oldName = model.get("name");
         var newName = name.attr("value");
-        var oldId = "";
+        var newId = "";
         var type = model.get("type");
         if(type === "c"){
-            oldId = newName;
+            newId = newName;
         }
         else if(type === "e"){
-            oldId = model.get("pkg");
+            newId = model.get("pkg");
         }
         else if(type === "r"){
-            oldId = model.get("pkg");
+            newId = model.get("pkg");
         }
         else if(type === "f"){
-            oldId = "facilities";
+            newId = "facilities";
         }
         else if(type === "t"){
-            oldId = "theories";
+            newId = "theories";
         }
-        oldId += "." + newName;
-        var existingModel = getModelById(myComponentList, oldId);
+        newId += "." + newName;
+        var existingModel = getModelById(myComponentList, newId);
         if(existingModel != null){
             error.html("A component with this name already exists!");
         }
@@ -557,7 +558,11 @@ function renameUserComponent(model){
                         target: model.toJSON()
                     },
                     success: function(data){
-                        model.set("name", newName)
+                        model.set({"name": newName, "id":newId});
+                        model.id = newId;
+                        openModel.set({"name": newName, "id":newId});
+                        openModel.id = newId;
+                        updateOpenComponents(openModel);
                         d.dialog("destroy");
                     }
                 });
@@ -586,6 +591,7 @@ function deleteUserComponent(openModel){
             model.destroy();
             openModel.id = null;
             openModel.destroy();
+            updateOpenComponents(null);
         }
     });
 }
@@ -886,7 +892,7 @@ function initializeEditor(){
     editor.setTheme("ace/theme/textmate");
     var ResolveMode = require("ace/mode/resolve").Mode;
     editor.getSession().setMode(new ResolveMode());
-    editor.getSession().setValue("test content");
+    editor.getSession().setValue("");
     editor.renderer.setHScrollBarAlwaysVisible(false);
     document.getElementById(editorDiv).style.fontSize=FONTSIZE+"px";
     
