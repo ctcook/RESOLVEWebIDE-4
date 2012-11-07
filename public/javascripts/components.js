@@ -625,7 +625,7 @@ var OpenComponentView = Backbone.View.extend({
         //html += "title=\"" + component.get("name") + "\">";
         //html += component.get("componentModel").get("name") + "</a>";
         //$(this.el).html(html).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
-        $(this.el).append(link).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
+        $(this.el).html(link).append(getInfoBlock()).append(getCloseDiv()).addClass("component_tab");
         return this;
     },
     events: {
@@ -1494,7 +1494,7 @@ function genCreateForm(type, parent){
 function genNewConceptForm(parent, d){
     var form = $("<div>");
     form.html("Please enter a name for the concept:<br/>");
-    var name = $("<input>").attr({name:"name"});
+    var name = $("<input>").attr({id:"fileName",name:"name"});
     var submit = $("<input>").attr({"type":"button","value":"OK"});
     var error = $("<span>").addClass("namingError");
     form.append(name);
@@ -1539,7 +1539,7 @@ function genNewEForm(parent, d){
     var form = $("<div>");
     var text = "Please enter a name for the enhancement for " + parent.get("name") + ":<br/>";
     form.html(text);
-    var name = $("<input>").attr({name:"name"});
+    var name = $("<input>").attr({id:"fileName",name:"name"});
     var submit = $("<input>").attr({"type":"button","value":"OK"});
     var error = $("<span>").addClass("namingError");
     form.append(name);
@@ -1585,7 +1585,7 @@ function genNewCrForm(parent, d){
     var form = $("<div>");
     var text = "Please enter a name for the realization for " + parent.get("name") + ":<br/>";
     form.html(text);
-    var name = $("<input>").attr({name:"name"});
+    var name = $("<input>").attr({id:"fileName",name:"name"});
     var submit = $("<input>").attr({"type":"button","value":"OK"});
     var error = $("<span>").addClass("namingError");
     form.append(name);
@@ -1632,7 +1632,7 @@ function genNewErForm(parent, d){
     var text = "Please enter a name for the realization for " + parent.get("name") + " of " +
                 myConceptList.where({"name":parent.get("pkg")})[0].get("name") + ":<br/>"
     form.html(text);
-    var name = $("<input>").attr({name:"name"});
+    var name = $("<input>").attr({id:"fileName",name:"name"});
     var submit = $("<input>").attr({"type":"button","value":"OK"});
     var error = $("<span>").addClass("namingError");
     form.append(name);
@@ -1677,7 +1677,7 @@ function genNewErForm(parent, d){
 function genNewFacilityForm(parent, d){
     var form = $("<div>");
     form.html("Please enter a name for the facility:<br/>");
-    var name = $("<input>").attr({name:"name"});
+    var name = $("<input>").attr({id:"fileName",name:"name"});
     var submit = $("<input>").attr({"type":"button","value":"OK"});
     var error = $("<span>").addClass("namingError");
     form.append(name);
@@ -1958,6 +1958,11 @@ function getModelById(collection, id){
         return comp;
     }
     return null;
+}
+
+function getTheoryOrFacilityByName(name, type){
+    var comp = myComponentList.where({"name":name, "type":type})[0];
+    return comp;
 }
 
 function getNewModelParent(currentList, list){
