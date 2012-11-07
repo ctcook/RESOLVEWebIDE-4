@@ -409,7 +409,8 @@ var OpenComponentListView = Backbone.View.extend({
         this._openComponentCount = 0;
         var that = this;
         this.collection.each(function(component){
-            var model = getModelByCid(myComponentList, component.get("cid"));
+            var model = getModelById(myComponentList, component.id);
+            //var model = getModelByCid(myComponentList, component.get("cid"));
             if(model != null){ // null check in case a user created component was open
                 if(model.get("name") == component.get("name") &&
                         model.get("pkg") == component.get("pkg")){
@@ -1687,7 +1688,7 @@ function genNewFacilityForm(parent, d){
     submit.click(function(event){
         event.preventDefault();
         var newName = name.attr("value");
-        var body = "Concept " + newName + ";\n\nend " + newName + ";";
+        var body = "Facility " + newName + ";\n\nend " + newName + ";";
         var foundNames = myFacilityList.where({"name":newName});
         if(foundNames.length == 0){
             var newComponent = new Component({
@@ -1696,7 +1697,7 @@ function genNewFacilityForm(parent, d){
                 enhancements: null,
                 //id: newName+"."+newName,
                 name: newName,
-                pkg: newName,
+                pkg: "facilities",
                 realizations: null,
                 standard: "false",
                 type: "f"
@@ -1782,7 +1783,8 @@ function initializeOpenComponentList(selectedProjectName){
             var pkg = selectedComponentId.substring(selectedComponentId.indexOf(".")+1, selectedComponentId.length);
             var openModel = myOpenComponentList.where({"id": selectedComponentId});
             if(openModel.length != 0){
-                var model = getModelByCid(myComponentList, openModel[0].get("cid"));
+                var model = getModelById(myComponentList, openModel[0].id);
+                //var model = getModelByCid(myComponentList, openModel[0].get("cid"));
                 openComponent = model;
             }
         }
@@ -1921,6 +1923,41 @@ function getModelByCid(collection, cid){
         return comp;
     }
     return undefined;
+}
+
+function getModelById(collection, id){
+    var comp = collection.where({"id":id})[0];
+    if(comp == null){
+        var i = 0;
+        while(i < collection.models.length){
+            var realizations = collection.models[i].get("realizations");
+            comp = realizations.where({"id":id})[0];
+            if(comp == null){
+                var enhancements = collection.models[i].get("enhancements");
+                comp = enhancements.where({"id":id})[0];
+                if(comp == null){
+                    comp = getModelByCid(enhancements, id);
+                    if(comp == null){
+                        //return null;
+                    }
+                    else{
+                        return comp;
+                    }
+                }
+                else{
+                    return comp;
+                }
+            }
+            else{
+                return comp;
+            }
+            i++
+        }
+    }
+    else{
+        return comp;
+    }
+    return null;
 }
 
 function getNewModelParent(currentList, list){
