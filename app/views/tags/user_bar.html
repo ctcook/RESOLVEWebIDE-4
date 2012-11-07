@@ -12,7 +12,10 @@
     <div id="user_controls" class="pane_right">
         #{if _currentUser != null}
             <!--<button id="control_logout">Logout</button>-->
-            <a href="@{Secure.logout()}">Log out</a>
+            <a id="logout-link" href="javascript:void(0)" onclick="">Log out</a>
+            <script type="text/javascript">
+                document.getElementById("logout-link").onclick = function() {logout("@{Secure.logout()}"); return false}
+            </script>
             <button id="control_import">Import</button>
             <button id="control_export">Export</button>
         #{/if}
