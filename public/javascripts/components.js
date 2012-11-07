@@ -1803,22 +1803,29 @@ function initializeOpenComponentList(selectedProjectName){
 }
 
 function scanToSelected(item){
-    var openMenuDiv = $("#open_components")
-    var list = $("#open_component_list");
-    var menuLeft = openMenuDiv.position().left;
-    var menuRightSide = openMenuDiv.width();
     var itemPos = item.position();
-    var listLeft = list.position().left;
-    var itemRightSide = itemPos.left + item.outerWidth(true);
-    if(itemRightSide > menuRightSide){
-        var excess = "-" + (itemRightSide - menuRightSide);
-        list.animate({"left": excess}, "fast");
-        //list.css("left", listLeft - (itemRightSide - menuRightSide));
+    if(itemPos == null){
+        setTimeout(function(){
+            scanToSelected(item);
+        }, 500);
     }
-    else if(itemPos.left + listLeft < menuLeft){
-        list.animate({"left": -(itemPos.left - 5)}, "fast");
-        //list.css("left", 0);
-    }
+    else{
+        var openMenuDiv = $("#open_components")
+        var list = $("#open_component_list");
+        var menuLeft = openMenuDiv.position().left;
+        var menuRightSide = openMenuDiv.width();
+        var listLeft = list.position().left;
+        var itemRightSide = itemPos.left + item.outerWidth(true);
+        if(itemRightSide > menuRightSide){
+            var excess = "-" + (itemRightSide - menuRightSide);
+            list.animate({"left": excess}, "fast");
+            //list.css("left", listLeft - (itemRightSide - menuRightSide));
+        }
+        else if(itemPos.left + listLeft < menuLeft){
+            list.animate({"left": -(itemPos.left - 5)}, "fast");
+            //list.css("left", 0);
+        }
+    }   
 }
 
 function updateOpenComponents(component){
