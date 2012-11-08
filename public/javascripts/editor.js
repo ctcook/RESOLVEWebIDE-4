@@ -2,6 +2,7 @@ var TRANSLATE = "translateJava";
 var VCS = "genVCs";
 var BUILD = "buildJar";
 var VERIFY = "verify";
+var VCVERIFY = "vcVerify";
 var PRETTYJAVA = "prettyJavaTranslate"
 var PRETTYC = "prettyCTranslate";
 /* 
@@ -384,58 +385,40 @@ UserControlView = Backbone.View.extend({
             targetJob = VCS;
         }
         else if(targetButton.hasClass("verify")){
-            targetJob = VERIFY;
+            targetJob = VCVERIFY;
         }
         var model = this.model;
         var component = model.get("componentModel").clone();
         component.set("content", encode(editor.getSession().getValue()));
-        //var tc = new UserComponent({component: component, ws: "default"});
-        //var targetJSON = tc.toJSON();
         var targetJSON = component.toJSON();
-        /*var userJSON = "[";
-        var numOpenComponents = myOpenComponentList.size();
-        var index = 0;
-        myOpenComponentList.each(function(component){
-            var uc = new UserComponent({"component":component, ws: "default"});
-            userJSON += uc.toJSON();
-            if(index < numOpenComponents){
-                userJSON += ",";
-            }
-            index++;
-        });
-        userJSON += "]"*/
-        //var elementClass = $(event.currentTarget).attr("class");
-        //ajaxCompile(targetJob, targetJSON, waitGif, model);
         wsCompile(targetJob, targetJSON, waitGif, model);
-        
-        //log(json);
     },
     verify: function(event){
-        var ws = null;
-        var socketPing;
         var openComponentTab = $("#open_menu").find(".component_tab.selected");
         var infoBlock = openComponentTab.find(".componentInfo");
         var waitGif = addWaitGif(infoBlock);
-        
+        var targetJob = null;
+        var targetButton = $(event.currentTarget);
+        // these classes must match what is assigned in the render function above
+        // for the sevlet backend to understand what to do. That means the servlet
+        // must also match when it checks for the job parameter
+        if(targetButton.hasClass("translateJava")){
+            targetJob = TRANSLATE;
+        }
+        else if(targetButton.hasClass("buildJar")){
+            targetJob = BUILD;
+        }
+        else if(targetButton.hasClass("vcs")){
+            targetJob = VCS;
+        }
+        else if(targetButton.hasClass("verify")){
+            targetJob = VCVERIFY;
+        }
         var model = this.model;
         var component = model.get("componentModel").clone();
         component.set("content", encode(editor.getSession().getValue()));
-        var tc = new UserComponent({component: component, ws: "default"});
-        var targetJSON = tc.toJSON();
-        var userJSON = "[";
-        var numOpenComponents = myOpenComponentList.size();
-        var index = 0;
-        myOpenComponentList.each(function(component){
-            var uc = new UserComponent({"component":component, ws: "default"});
-            userJSON += uc.toJSON();
-            if(index < numOpenComponents){
-                userJSON += ",";
-            }
-            index++;
-        });
-        userJSON += "]";
-        connect(ws, socketPing, model, targetJSON, waitGif);
-        $( "#output_tabs" ).tabs("select", 1);
+        var targetJSON = component.toJSON();
+        wsCompile(targetJob, targetJSON, waitGif, model);
     },
     prettyTranslate : function(event){
         var checkbox = $(event.currentTarget);
@@ -705,8 +688,11 @@ function ajaxCompile(targetJob, targetJSON, waitGif, model){
 function wsCompile(targetJob, targetJSON, waitGif, model){
     var ws;
     var loc = window.location;
-    //var pathname = loc.pathname;
-    //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+    var verify = false;
+    if(targetJob == VCVERIFY){
+        verify = true;
+        targetJob = VCS;
+    }
     var url = "ws://" + getUrl(loc) + "Compiler";
     var params = "?job=" + targetJob + "&target=" + targetJSON + "&project=" + selectedProject;
     var new_uri = url + params;
@@ -727,6 +713,19 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         }
         else if(status == "complete"){
             analyzeResults(resultJSON, model, waitGif);
+            if(verify){
+                var vcSpans = $("#console-info").find(".vc_status");
+                vcSpans.each(function(){
+                    addWaitGif($(this));
+                })
+                targetJob = VERIFY;
+                wsCompile(targetJob, targetJSON, waitGif, model);
+            }
+            else{
+                var openComponentTab = $("#open_menu").find(".component_tab.selected");
+                var infoBlock = openComponentTab.find(".componentInfo");
+                infoBlock.html("");
+            }  
         }
         else if(status == "error"){
             handleErrors(resultJSON, model);
@@ -896,9 +895,6 @@ function analyzeResults(resultJSON, component, waitGif){
         commandButtons.removeClass("active");
         $("#console-info").append("complete<br/>");
     }
-    var openComponentTab = $("#open_menu").find(".component_tab.selected");
-    var infoBlock = openComponentTab.find(".componentInfo");
-    infoBlock.html("");
     //waitGif.remove();
 }
 
@@ -1245,13 +1241,18 @@ function reformatVCs(vc){
         //var step = decode(vcJSON.step);
         var goal = vc.goal;
         var given = vc.given;
-        vcDiv.html("VC "+vcID+"<br/><br/>");
-        vcDiv.append(step+"<br/><br/>");
-        vcDiv.append("Goal:");
+        vcDiv.attr({id:"VC_"+vcID});
+        var infoSpan = $("<span>").addClass("componentInfo vc_status");
+        vcDiv.html("VC "+vcID+" ");
+        vcDiv.append(infoSpan);
+        var vcDetails = $("<div>");
+        vcDetails.append("<br/>");
+        vcDetails.append(step+"<br/><br/>");
+        vcDetails.append("Goal:");
         goal = goal.substr(goal.indexOf(":")+1);
         var goalDiv = $("<div>").addClass("vcIndent").html("<p>"+goal.replace(/&nbsp;/g, " ")+"</p>");
-        vcDiv.append(goalDiv);
-        vcDiv.append("Given:");
+        vcDetails.append(goalDiv);
+        vcDetails.append("Given:");
         //given = given.substr(given.indexOf(":")+1);
         //var givensDiv = $("<div>").addClass("vcIndent").html("");
         var givensList = $("<ol>");
@@ -1268,7 +1269,8 @@ function reformatVCs(vc){
                 givensList.append(givenItem);
             }
         });
-        vcDiv.append(givensList);
+        vcDetails.append(givensList);
+        vcDetails.appendTo(vcDiv);
         vcsDiv.append(vcDiv);
     }
     else{

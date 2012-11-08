@@ -1962,7 +1962,7 @@ function getModelById(collection, id){
                 var enhancements = collection.models[i].get("enhancements");
                 comp = enhancements.where({"id":id})[0];
                 if(comp == null){
-                    comp = getModelByCid(enhancements, id);
+                    comp = getModelById(enhancements, id);
                     if(comp == null){
                         //return null;
                     }
