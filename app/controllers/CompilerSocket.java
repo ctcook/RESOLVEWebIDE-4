@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import compiler.JarBuilderInvoker;
 import compiler.JavaTranslatorInvoker;
 import compiler.VCGeneratorInvoker;
+import compiler.VerifyInvoker;
 import edu.clemson.cs.r2jt.ResolveCompiler;
 import edu.clemson.cs.r2jt.data.MetaFile;
 import edu.clemson.cs.r2jt.data.ModuleKind;
@@ -86,6 +87,16 @@ public class CompilerSocket extends WebSocketController {
 
             VCGeneratorInvoker vcgi = new VCGeneratorInvoker(r, args, outbound);
             vcgi.generateVcs(job);
+        }
+        else if(job.compareTo("verify") == 0){
+            //Constructing compiler
+            String[] args = {"-maindir", compilerMainDir, "-vcs", 
+                        "-listVCs", "-quickprove", "-webinterface",
+                        "-timeout", "1000"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
+            vcgi.verifyResolve(job);
         }
         else if(job.compareTo("buildJar") == 0){
             
