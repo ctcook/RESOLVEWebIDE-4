@@ -480,6 +480,9 @@ UserControlView = Backbone.View.extend({
         model.set("content", code);
         model.save();
         $(event.currentTarget).attr({disable: "diabled"}).removeClass("active");
+        var openComponentTab = $("#open_menu").find(".component_tab.selected");
+        var editedIcon = openComponentTab.find("b");
+        editedIcon.remove();
     },
     del : function(event){
         var model = this.model;
@@ -969,31 +972,8 @@ function getBugMsgs(bugs){
 
 function initializeEditor(){
     var editorDiv = "code_editor";
-    //var lowerHeight = $("#content").outerHeight(true) - $("#user_bar").outerHeight(true) - 
-        //$("#menu_bar").outerHeight(true) - $("#control_bar").outerHeight(true) -
-        //$("#open_menu").outerHeight(true) - $("#footer").outerHeight(true);;
-    /*$("#editor_container").resizable({
-        handles: {e:$("#editor_handle")},
-        maxHeight: 500,
-        maxWidth: 875,
-        alsoResize: "#code_editor,#control_bar",
-        alsoResizeReverse: "#output_container",
-        resize: function(){
-            editor.resize();
-            $( "#output_tabs" ).tabs('resize');
-        },
-        minHeight: 500,
-        minWidth: 275
-    });*/
-    //var editorHeight =  lowerHeight;// - $("#editor_container").outerHeight(true);
-    //$("#editor_container").outerHeight(lowerHeight + $("#control_bar").outerHeight(true));
-    //$("#code_editor").outerHeight(editorHeight);
     setEditorHeight();
     setConsolePosition();
-    //var outputHeight = editorHeight + $("#control_bar").outerHeight(true);
-    //$("#output_container").outerHeight(outputHeight-10);
-    //$("#tabs_output").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
-    //$("#tabs_vcs").outerHeight($("#output_container").outerHeight(true)-10 - $("#output_list").outerHeight(true));
     editor = ace.edit(editorDiv);
     editor.setTheme("ace/theme/textmate");
     var ResolveMode = require("ace/mode/resolve").Mode;
@@ -1482,86 +1462,4 @@ function keyHandler(e){
         decreaseFontSize();
         return false;
     }*/
-}
-
-
-function doPrettyJavaTranslate(selectedFile, checkbox, waitGif, targetContent){
-    var code = selectedFile.tempBody;
-    $.ajax({
-        url: webCompiler,
-        data: {
-                type: "prettyJavaTranslate",
-                pkg: selectedFile.pkg,
-                fileName: selectedFile.name,
-                fileSource: code,
-                fileType: "facility",
-                selectedWsName: localStorage.getItem("selectedWsName")
-                },
-        success: function(data){
-            if(selectedFile.editor != null){
-                var success = analyzeSimpleTranslate(data, selectedFile, targetContent, "java");
-                if(success){
-                    checkbox.attr("checked","checked");
-                    $(selectedFile.editor.renderer.content).addClass("javaRenderer");
-                    selectedFile.editor.setHighlightActiveLine(false);
-                    if(selectedFile.vcArray != null){
-                        //var tempSession = selectedFile.editorSession;
-                        //selectedFile.editorSession = selectedFile.javaEditorSession;
-                        addVcs(selectedFile, selectedFile.vcArray);
-                        //selectedFile.editorSession = tempSession;
-                    }
-                    else{
-                        redrawEditor(selectedFile);
-                    }
-
-                }
-                else{
-                    checkbox.attr("checked",false);
-                }
-                waitGif.remove();
-            }
-        },
-        type: "POST"
-    });  
-}
-
-function doPrettyCTranslate(selectedFile, checkbox, waitGif, targetContent){
-    //if(selectedFile.javaEditorSession == null){
-    var code = selectedFile.tempBody;
-    $.ajax({
-        url: webCompiler,
-        data: {
-                type: "prettyCTranslate",
-                pkg: selectedFile.pkg,
-                fileName: selectedFile.name,
-                fileSource: code,
-                fileType: "facility",
-                selectedWsName: localStorage.getItem("selectedWsName")
-                },
-        success: function(data){
-            if(selectedFile.editor != null){
-                var success = analyzeSimpleTranslate(data, selectedFile, targetContent, "c");
-                if(success){
-                    checkbox.attr("checked","checked");
-                    $(selectedFile.editor.renderer.content).addClass("javaRenderer");
-                    selectedFile.editor.setHighlightActiveLine(false);
-                    if(selectedFile.vcArray != null){
-                        //var tempSession = selectedFile.editorSession;
-                        //selectedFile.editorSession = selectedFile.javaEditorSession;
-                        addVcs(selectedFile, selectedFile.vcArray);
-                        //selectedFile.editorSession = tempSession;
-                    }
-                    else{
-                        redrawEditor(selectedFile);
-                    }
-
-                }
-                else{
-                    checkbox.attr("checked",false);
-                }
-                waitGif.remove();
-            }
-        },
-        type: "POST"
-    });   
 }
