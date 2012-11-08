@@ -2,6 +2,8 @@ var TRANSLATE = "translateJava";
 var VCS = "genVCs";
 var BUILD = "buildJar";
 var VERIFY = "verify";
+var PRETTYJAVA = "prettyJavaTranslate"
+var PRETTYC = "prettyCTranslate";
 /* 
  * This file contains code for creating and using the ACE editor
  */
@@ -246,6 +248,11 @@ UserControlView = Backbone.View.extend({
         var build = $("<button>").html("build").addClass("buildJar command active shadow");
         var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
         var verify = $("<button>").html("verify").addClass("verify command active shadow");
+        var renderSpan = $("<div>").attr({id:"render-controls"}).addClass(" render command");
+        var javaRenderbox = $("<input>").attr({type:"checkbox","id":"javaCheckbox","data-type":"javaCheckbox"});
+        var javaRenderSpan = $("<label>").attr({"for":"javaCheckbox"}).html("Java Rendering");
+        var cRenderbox = $("<input>").attr({type:"checkbox","id":"cCheckbox","data-type":"cCheckbox"});
+        var cRenderSpan = $("<label>").attr({"for":"cCheckbox"}).html("C Rendering");
         var showJava = $("<div>").addClass("java");
         var inputID = "showJava";
         this._javaCheckbox = $("<input>").attr({type:"checkbox", id: inputID});
@@ -277,6 +284,11 @@ UserControlView = Backbone.View.extend({
                 translate.appendTo(commands);
                 vcs.appendTo(commands);
                 verify.appendTo(commands);
+                javaRenderbox.appendTo(renderSpan);
+                javaRenderSpan.appendTo(renderSpan);
+                cRenderbox.appendTo(renderSpan);
+                cRenderSpan.appendTo(renderSpan);
+                renderSpan.appendTo(commands);
             }
             else if(component.get("type") == "t"){
                 
@@ -289,13 +301,15 @@ UserControlView = Backbone.View.extend({
                 divider.appendTo(commands);
                 save.appendTo(commands);
                 rename.appendTo(commands);
-                save.attr({disable: "diabled"});
+                save.attr({disable: "disabled"});
                 del.appendTo(commands);
             }
             if(this.model.has("syntaxErrors") && this.model.get("syntaxErrors").length > 0){
                 var buttons = commands.find("button");
-                buttons.attr({disable: "diabled"});
+                buttons.attr({disable: "disabled"});
                 buttons.removeClass("active");
+                var renderers = commands.find(".render input");
+                renderers.attr({disabled: true});
                 var delButton = $("#control_bar.del");
                 if(delButton != null){
                     delButton.removeAttr("disabled").addClass("active");
@@ -342,6 +356,8 @@ UserControlView = Backbone.View.extend({
         "click .active.buildJar" : "compile",
         "click .active.vcs" : "compile",
         "click .active.verify" : "verify",
+        "click #javaCheckbox" : "prettyTranslate",
+        "click #cCheckbox" : "prettyTranslate",
         "click .active.rename" : "rename",
         "click .active.save" : "save",
         "click .active.del" : "del",
@@ -376,7 +392,7 @@ UserControlView = Backbone.View.extend({
         //var tc = new UserComponent({component: component, ws: "default"});
         //var targetJSON = tc.toJSON();
         var targetJSON = component.toJSON();
-        var userJSON = "[";
+        /*var userJSON = "[";
         var numOpenComponents = myOpenComponentList.size();
         var index = 0;
         myOpenComponentList.each(function(component){
@@ -387,7 +403,7 @@ UserControlView = Backbone.View.extend({
             }
             index++;
         });
-        userJSON += "]"
+        userJSON += "]"*/
         //var elementClass = $(event.currentTarget).attr("class");
         //ajaxCompile(targetJob, targetJSON, waitGif, model);
         wsCompile(targetJob, targetJSON, waitGif, model);
@@ -420,6 +436,54 @@ UserControlView = Backbone.View.extend({
         userJSON += "]";
         connect(ws, socketPing, model, targetJSON, waitGif);
         $( "#output_tabs" ).tabs("select", 1);
+    },
+    prettyTranslate : function(event){
+        var checkbox = $(event.currentTarget);
+        var javaCheckbox = $("#javaCheckbox");
+        var cCheckbox = $("#cCheckbox");
+        var thisCheckbox = (checkbox.attr("id") === javaCheckbox.attr("id"))?javaCheckbox:cCheckbox;
+        var thatCheckbox = (checkbox.attr("id") === javaCheckbox.attr("id"))?cCheckbox:javaCheckbox;
+        if(thisCheckbox.attr("checked")){
+            var openComponentTab = $("#open_menu").find(".component_tab.selected");
+            var infoBlock = openComponentTab.find(".componentInfo");
+            var waitGif = addWaitGif(infoBlock);
+            //var waitGif = addWaitGif(thisCheckbox.next());
+            //doPrettyJavaTranslate(selectedFile, checkbox, waitGif, targetContent);
+            thatCheckbox.attr({"disabled":true});
+            var model = this.model;
+            var component = model.get("componentModel").clone();
+            component.set("content", encode(editor.getSession().getValue()));
+            var targetJSON = component.toJSON();
+            var targetJob = "";
+            if(checkbox.attr("id") === javaCheckbox.attr("id")){
+                targetJob = PRETTYJAVA;
+            }
+            else{
+                targetJob = PRETTYC;
+            }
+            wsCompile(targetJob, targetJSON, waitGif, model);
+        }
+        else{
+            thatCheckbox.attr({"disabled":false});
+            var resolveEditorSession = this.model.get("editorSession");
+            var commandButtons = $(".controls_commands").find("button");
+            commandButtons.attr({disable: ""});
+            commandButtons.addClass("active");
+            editor.setSession(resolveEditorSession);
+            editor.setReadOnly(false);
+            editor.setHighlightActiveLine(true);
+            //checkbox.attr("checked","");
+            /*selectedFile.editor.setSession(selectedFile.editorSession);
+            selectedFile.editor.setReadOnly(false);
+            $(selectedFile.editor.renderer.content).removeClass("javaRenderer");
+            selectedFile.editor.setHighlightActiveLine(true);
+            if(selectedFile.vcArray != null){
+                //var tempSession = selectedFile.editorSession;
+                //selectedFile.editorSession = selectedFile.javaEditorSession;
+                addVcs(selectedFile, selectedFile.vcArray);
+                //selectedFile.editorSession = tempSession;
+            }*/
+        }  
     },
     rename : function(event){
         //var editorSession = this.model.get("editorSession");
@@ -799,6 +863,38 @@ function analyzeResults(resultJSON, component, waitGif){
     }
     else if(resultJSON.job == VERIFY){
         
+    }
+    else if(resultJSON.job == PRETTYJAVA){
+        EditSession = require("ace/edit_session").EditSession;
+        javaCode = resultJSON.result;
+        javaSession = new EditSession(decode(javaCode));
+        JavaMode = require("ace/mode/java").Mode;
+        component.set("java", javaSession);
+        editor.setReadOnly(true);
+        editor.setSession(javaSession);
+        editor.getSession().setMode(new JavaMode());
+        //myUserControlView.render();
+        //myUserControlView._javaCheckbox.attr({checked: "checked"});
+        commandButtons = $(".controls_commands").find("button");
+        commandButtons.attr({disable: "diabled"});
+        commandButtons.removeClass("active");
+        $("#console-info").append("complete<br/>");
+    }
+    else if(resultJSON.job == PRETTYC){
+        EditSession = require("ace/edit_session").EditSession;
+        var cCode = resultJSON.result;
+        javaSession = new EditSession(decode(cCode));
+        var CMode = require("ace/mode/c_cpp").Mode;
+        component.set("java", javaSession);
+        editor.setReadOnly(true);
+        editor.setSession(javaSession);
+        editor.getSession().setMode(new CMode());
+        //myUserControlView.render();
+        //myUserControlView._javaCheckbox.attr({checked: "checked"});
+        commandButtons = $(".controls_commands").find("button");
+        commandButtons.attr({disable: "diabled"});
+        commandButtons.removeClass("active");
+        $("#console-info").append("complete<br/>");
     }
     var openComponentTab = $("#open_menu").find(".component_tab.selected");
     var infoBlock = openComponentTab.find(".componentInfo");
@@ -1316,7 +1412,7 @@ function checkResolveKeywords(value){
 function showKeywordTooltip(pos, editor, textRange){
     var selectedWord = editor.session.getTextRange(textRange);
  //   if(jQuery.inArray(selectedWord, keywordsTable.items) >= 0){
-    if(keywordsTable.hasKeyword(selectedWord)){    
+    if(keywordsTable.hasKeyword(selectedWord) && (keywordsTable.getTip(selectedWord) !== "")){    
         var keyword = $("#code_editor").find(".ace_keyword:contains("+selectedWord+")");
             
         var length = selectedWord.length;
@@ -1384,4 +1480,86 @@ function keyHandler(e){
         decreaseFontSize();
         return false;
     }*/
+}
+
+
+function doPrettyJavaTranslate(selectedFile, checkbox, waitGif, targetContent){
+    var code = selectedFile.tempBody;
+    $.ajax({
+        url: webCompiler,
+        data: {
+                type: "prettyJavaTranslate",
+                pkg: selectedFile.pkg,
+                fileName: selectedFile.name,
+                fileSource: code,
+                fileType: "facility",
+                selectedWsName: localStorage.getItem("selectedWsName")
+                },
+        success: function(data){
+            if(selectedFile.editor != null){
+                var success = analyzeSimpleTranslate(data, selectedFile, targetContent, "java");
+                if(success){
+                    checkbox.attr("checked","checked");
+                    $(selectedFile.editor.renderer.content).addClass("javaRenderer");
+                    selectedFile.editor.setHighlightActiveLine(false);
+                    if(selectedFile.vcArray != null){
+                        //var tempSession = selectedFile.editorSession;
+                        //selectedFile.editorSession = selectedFile.javaEditorSession;
+                        addVcs(selectedFile, selectedFile.vcArray);
+                        //selectedFile.editorSession = tempSession;
+                    }
+                    else{
+                        redrawEditor(selectedFile);
+                    }
+
+                }
+                else{
+                    checkbox.attr("checked",false);
+                }
+                waitGif.remove();
+            }
+        },
+        type: "POST"
+    });  
+}
+
+function doPrettyCTranslate(selectedFile, checkbox, waitGif, targetContent){
+    //if(selectedFile.javaEditorSession == null){
+    var code = selectedFile.tempBody;
+    $.ajax({
+        url: webCompiler,
+        data: {
+                type: "prettyCTranslate",
+                pkg: selectedFile.pkg,
+                fileName: selectedFile.name,
+                fileSource: code,
+                fileType: "facility",
+                selectedWsName: localStorage.getItem("selectedWsName")
+                },
+        success: function(data){
+            if(selectedFile.editor != null){
+                var success = analyzeSimpleTranslate(data, selectedFile, targetContent, "c");
+                if(success){
+                    checkbox.attr("checked","checked");
+                    $(selectedFile.editor.renderer.content).addClass("javaRenderer");
+                    selectedFile.editor.setHighlightActiveLine(false);
+                    if(selectedFile.vcArray != null){
+                        //var tempSession = selectedFile.editorSession;
+                        //selectedFile.editorSession = selectedFile.javaEditorSession;
+                        addVcs(selectedFile, selectedFile.vcArray);
+                        //selectedFile.editorSession = tempSession;
+                    }
+                    else{
+                        redrawEditor(selectedFile);
+                    }
+
+                }
+                else{
+                    checkbox.attr("checked",false);
+                }
+                waitGif.remove();
+            }
+        },
+        type: "POST"
+    });   
 }

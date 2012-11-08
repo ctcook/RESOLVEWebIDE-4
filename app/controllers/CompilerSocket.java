@@ -114,6 +114,28 @@ public class CompilerSocket extends WebSocketController {
             JarBuilderInvoker jbi = new JarBuilderInvoker(r, args, tempDir, outbound);
             jbi.generateFacilityJar(job, umf);
         }
+        else if(job.compareTo("prettyJavaTranslate") == 0){
+            String[] args = {"-maindir", compilerMainDir, "-prettyJavaTranslate", 
+                "-webinterface"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            //invoking the translator with the compiler specially created for
+            //translating
+            JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
+            //outbound.send(gji.generateJava().toString());
+            gji.generateJava(job);//event);
+        }
+        else if(job.compareTo("prettyCTranslate") == 0){
+            String[] args = {"-maindir", compilerMainDir, "-prettyCTranslate", 
+                "-webinterface"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            //invoking the translator with the compiler specially created for
+            //translating
+            JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
+            //outbound.send(gji.generateJava().toString());
+            gji.generateJava(job);//event);
+        }
         //System.out.println(decode(uc.content));
         //outbound.send(uc.name);
     }
