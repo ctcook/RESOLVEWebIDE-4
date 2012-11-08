@@ -731,6 +731,10 @@ function displayComponent(component){
     myUserControlView.render();
     updateSelectedComponent(component);
     updateOpenComponents(component);
+    var search = "a[data-id=\"" + componentId + "\"]";
+    var link = $("#open_component_list").find(search);
+    var item = $(link).parent();
+    item.addClass("selected");
     //localStorage.set(component.get("project") + "_selected_id", componentPkg + "." + componentName);
     //displayComponentInfo(component);
     syntaxCheck(openComponent);
@@ -739,18 +743,19 @@ function displayComponent(component){
       if(openComponent.get("componentModel").get("custom") === "true"){
           var saveButton = $("#control_bar .save");
           saveButton.removeAttr("disabled").addClass("active");
-      }
-   });
-   //$("#component_list").removeClass("visible").addClass("hidden");
-   //hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
-   //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
-    var search = "a[data-id=\"" + componentId + "\"]";
-    var link = $("#open_component_list").find(search);
-    var item = $(link).parent();
-    item.addClass("selected");
-   scanToSelected(item);
-   clearConsole();
-   //clearVcInfo();
+          var name = link.html();
+          var edited = name.match(/^<b>\*<\/b>(.)+/g);
+          if(edited == null){
+              link.prepend("<b>*</b>");
+          }
+        }
+     });
+     //$("#component_list").removeClass("visible").addClass("hidden");
+     //hideOpenComponents($("#open_menu"), $("#ocv_dropdown"));
+     //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
+     scanToSelected(item);
+     clearConsole();
+     //clearVcInfo();
 }
 
 function displayComponentInfo(component){
