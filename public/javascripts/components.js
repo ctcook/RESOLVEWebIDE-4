@@ -653,15 +653,32 @@ var OpenComponentView = Backbone.View.extend({
     },
     closeComponent: function(event){
         event.stopPropagation();
-        var openModel = this.model;
-        //var model = getModelByCid(myComponentList, openModel.get("cid"));
-        var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
-        //if(prevIndex >= 0){
-            //var prevComponent = myOpenComponentList.at(prevIndex);;
-            //myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
-        //}
-        openModel.unset("editorSession");
-        myOpenComponentList.remove(openModel);
+        var hasUnsavedChanges = true;
+        var link = $(event.currentTarget).parent().find("a");
+        var name = link.html();
+        var edited = name.match(/^<b>\*<\/b>(.)+/g);
+        var res = false;
+        if(edited == null){
+            hasUnsavedChanges = false;
+        }
+        if(hasUnsavedChanges){
+            res = confirm(this.model.get("name")+" has unsaved changes. Click OK to close without saving");
+        }
+        else{
+            res = true;
+        }
+        if(res){
+            var openModel = this.model;
+            //var model = getModelByCid(myComponentList, openModel.get("cid"));
+            var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
+            //if(prevIndex >= 0){
+                //var prevComponent = myOpenComponentList.at(prevIndex);;
+                //myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
+            //}
+            openModel.unset("editorSession");
+            myOpenComponentList.remove(openModel);
+        }
+            
     }
 });
 
