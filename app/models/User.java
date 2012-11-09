@@ -34,7 +34,7 @@ public class User extends Model {
         createdOn = new Date();
         currentProject = Project.getDefault().name;
         userType = 0;
-        authenticated = false;
+        authenticated = true;
         confirmationCode = "";
     }
     
