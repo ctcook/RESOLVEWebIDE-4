@@ -759,7 +759,7 @@ function analyzeResults(resultJSON, component, waitGif){
     if(resultJSON.job == TRANSLATE){
         var EditSession = require("ace/edit_session").EditSession;
         var javaCode = resultJSON.result;
-        var javaSession = new EditSession(decode(javaCode));
+        var javaSession = new EditSession(formatCode(decode(javaCode)));
         var JavaMode = require("ace/mode/java").Mode;
         component.set("java", javaSession);
         editor.setReadOnly(true);
@@ -869,7 +869,7 @@ function analyzeResults(resultJSON, component, waitGif){
     else if(resultJSON.job == PRETTYJAVA){
         EditSession = require("ace/edit_session").EditSession;
         javaCode = resultJSON.result;
-        javaSession = new EditSession(decode(javaCode));
+        javaSession = new EditSession(formatCode(decode(javaCode)));
         JavaMode = require("ace/mode/java").Mode;
         component.set("java", javaSession);
         editor.setReadOnly(true);
@@ -885,7 +885,7 @@ function analyzeResults(resultJSON, component, waitGif){
     else if(resultJSON.job == PRETTYC){
         EditSession = require("ace/edit_session").EditSession;
         var cCode = resultJSON.result;
-        javaSession = new EditSession(decode(cCode));
+        javaSession = new EditSession(formatCode(decode(cCode)));
         var CMode = require("ace/mode/c_cpp").Mode;
         component.set("java", javaSession);
         editor.setReadOnly(true);
@@ -1427,6 +1427,109 @@ function showKeywordTooltip(pos, editor, textRange){
             }
         });
     }
+}
+
+function formatCode(input)
+{
+    var myString = input.replace(/\t/g,"");
+  var newline = new RegExp('\n', 'g');
+  var tabline = new RegExp('\t', 'g');
+  var braceLine = new RegExp("{\n\n", 'g');
+  var count = 0;
+  var loc = 0;
+  var openLoc = new Array();
+  var closeLoc = new Array();
+  while(loc > -1)
+  {
+     loc = myString.indexOf("{", loc+1);
+     if(loc > -1)
+     {
+       openLoc[count] = loc;
+       count++;
+     }
+  }
+  loc=0;
+  count = 0;
+  while(loc > -1)
+  {
+     loc = myString.indexOf("}", loc+1);
+     if(loc > -1)
+     {
+       closeLoc[count] = loc;
+       count++;
+     }
+  }
+  var curopen = 0;
+  var curclose = 0;
+  count = 0;
+  myString = myString.replace("{\n\n", "\n{\n");
+  myString = myString.replace("}\n\n", "\n}\n");
+  var fin = myString.substring(0, openLoc[curopen]);
+  var tempD;
+  var start;
+  var updown;
+  var finish;
+  var tabApp = "";
+  //if(!(closeLoc[4] == undefined)){
+  //document.write("sucess");}
+ while(openLoc[curopen] != undefined || closeLoc[curclose] != undefined){
+     if(openLoc[curopen] != undefined){
+         if(openLoc[curopen] < closeLoc[curclose]){
+             start = openLoc[curopen];
+             if(openLoc[curopen+1] !=undefined && openLoc[curopen+1] < closeLoc[curclose]){
+                 finish = openLoc[curopen+1];
+             }
+             else {
+                 finish = closeLoc[curclose];
+             }
+             count++;
+             curopen++;
+         } else {
+             start = closeLoc[curclose];
+             if(openLoc[curopen] < closeLoc[curclose+1]){
+                 finish = openLoc[curopen];
+             }
+             else{
+                 finish = closeLoc[curclose+1];
+             }
+             count--;
+             curclose++;
+         }
+     }
+     else{
+         start = closeLoc[curclose];
+         if(closeLoc[curclose+1] != undefined){
+             finish = closeLoc[curclose+1];
+         }
+         else{
+             finish = undefined;
+         }
+         curclose++;
+         count--;
+     }
+     if(finish != undefined){
+         tempD = myString.substring(start, finish);
+     } else{
+         tempD = myString.substring(start);
+     }
+     var c = 0;
+    tempD = tempD.replace("{\n\n", "\n{\n");
+    tempD = tempD.replace("}\n\n", "\n}\n");
+    while(c < count){
+        tabApp = tabApp.concat("\t");
+        c++;
+    }
+    tabApp = "\n" + tabApp;
+     tempD = tempD.replace(newline, tabApp);
+    tempD = tempD.replace("\t{", "{");
+    fin = fin.concat(tempD);
+    tempD="";
+    tabApp = "";
+  }
+
+
+  myString = fin;
+  return myString;
 }
 
 function keyHandler(e){
