@@ -822,6 +822,7 @@ function analyzeResults(resultJSON, component, waitGif){
         //log("VCs complete");
         //selectedFile.vcArray = vcArray;
         addVcs(component, vcArray);
+        component.set("vcs", vcArray);
         triggerConsole();
     }
     else if(resultJSON.job == BUILD){
@@ -881,6 +882,9 @@ function analyzeResults(resultJSON, component, waitGif){
         commandButtons.attr({disable: "diabled"});
         commandButtons.removeClass("active");
         $("#console-info").append("complete<br/>");
+        if(component.get("vcs") != null){
+            addVcs(component, component.get("vcs"));
+        }
     }
     else if(resultJSON.job == PRETTYC){
         EditSession = require("ace/edit_session").EditSession;
@@ -897,6 +901,9 @@ function analyzeResults(resultJSON, component, waitGif){
         commandButtons.attr({disable: "diabled"});
         commandButtons.removeClass("active");
         $("#console-info").append("complete<br/>");
+        if(component.get("vcs") != null){
+            addVcs(component, component.get("vcs"));
+        }
     }
     //waitGif.remove();
 }

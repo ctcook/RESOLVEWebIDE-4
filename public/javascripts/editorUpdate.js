@@ -147,10 +147,11 @@ function addVcs(component, vcArray) {
    $("#vcs").empty();
    //logVCs(vcs);
    logVCs(vcArray);
-   /*if(selectedFile.fileType == "facility" && selectedFile.javaEditorSession != null){
-       var simpleJavaDoc = selectedFile.javaEditorSession.doc;
-       simpleJavaDoc._emit("annotate",vcs);
-   }*/
+   var javaSession = component.get("componentModel").get("javaEditorSession");
+   if(component.get("type") === "f" && javaSession != null){
+       //var simpleJavaDoc = selectedFile.javaEditorSession.doc;
+       javaSession.doc._emit("annotate",vcs);
+   }
     //var t, timerSet, title, lastTarget;
     //var targetId = targetContent.attr("id");
     //var vcIcon = $("#"+targetId).find(".ace_gutter-cell.ace_vc");
@@ -159,44 +160,6 @@ function addVcs(component, vcArray) {
     //var vcCorrectIcon = $("#codeEditor").find(".ace_gutter-cell.ace_vc_selected");
     //var vcCloseIcon = $(".vc_close");
     vcIcon.die();
-    //vcCorrectIcon.die();
-    /*vcIcon.live("mouseover", function(target){
-        //bindMouseover(target, vcs, doc);
-        var dataVcs = $(target.target).attr("data-vcs");
-        if(dataVcs == null){
-            var vcs = $(target.target).attr("title");
-            var vcSteps = getVcSteps(encodeVcContent(vcs));
-            $(target.target).attr("title", vcSteps);
-            $(target.target).attr("data-vcs", vcs);
-        }            
-        //$(target.target).attr("title", vcs);
-    });*/
-        
-    //var gutters = $(".ace_vcs");
-    //gutters.die("mouseover");
-    /*vcIcon.live("mouseenter", function(event){
-        event.stopPropagation();
-        var el = $(event.currentTarget);
-        var vcInfo = $("#code_editor").find(".ace_gutter-tooltip");
-        vcInfo.hide();
-        var vcs = vcInfo.html();
-        //var vcs = el.attr("title");
-        //var dataVcs = el.attr("data-vcs");
-        //if(dataVcs == null){
-            //el.attr("data-vcs", vcs);
-        //}
-        var vcSteps = getVcSteps(encodeVcContent(vcs));
-        //var that = $(this);
-        if(vcs != ""){
-            addQtip(el, vcSteps, "vc");
-            //el.attr({title: ""});
-        }
-        //el.mouseleave(function(){
-            //el.attr({title: vcs});
-            //el.qtip("hide");
-            //el.qtip("api").hide();
-        //});
-    });*/
     vcIcon.live("click", function(target){
         //var session = editor.getSession();
         //var vcs = $(target.target).attr("title");
@@ -206,77 +169,6 @@ function addVcs(component, vcArray) {
         //selectVC(formattedVCs);
         //showVcBox($(target.target),encodeVcContent(title), vcs, session.doc);
     });
-   /*vcIcon.live("click", function(target) {
-       var session = editor.getSession();
-       clearLastSelected(vcs, session.doc);
-        //clearTimeout(t);
-        $(target.target).unbind("mouseout").bind("mouseout", function(target) {
-            $(target.target).attr("title", title);
-            lastTarget = $(target.target);
-        });
-        vcIcon.die("mouseover");
-        //vcIcon.live("mouseover", bindMouseover);
-        vcIcon.live("mouseover", function(target){
-            title = $(target.target).attr("title");
-            $(target.target).attr("title", "");
-            $(target.target).unbind("mouseout").bind("mouseout", function(target) {
-                $(target.target).attr("title", title);
-            });
-        });
-        //timerSet = false;
-        lastSelectedLineNum = $(target.target).html();
-        updateAndEmit(lastSelectedLineNum, "vc_selected", vcs, session.doc);
-        showVcBox($(target.target),encodeVcContent(title), vcs, session.doc);
-        //$.each(vcs,
-            //function(){
-                //var vcLineNum = this.row + 1;
-                //if(vcLineNum.toString() == lineNum){
-                    //this.type = "vc_correct";
-            //}
-        //});
-        //session.doc._emit("annotate", vcs);
-    });
-    vcCorrectIcon.live("mouseover", function(target){
-        title = $(target.target).attr("title");
-        $(target.target).attr("title", "Click to release this VC");
-        $(target.target).unbind("mouseout").bind("mouseout", function(target){
-            $(target.target).attr("title", title);
-        });
-    });
-    vcCorrectIcon.live("click", function(target){
-        var session = selectedFile.editorSession;
-        lastSelectedLineNum = null;
-        //title = $(target.target).attr("title");
-        //$(target.target).attr("title", "");
-        //$(target.target).unbind("mouseout").bind("mouseout", function(target){
-            //$(target.target).attr("title", title);
-        //});
-        vcIcon.die("mouseover");
-        //vcIcon.live("mouseover", bindMouseover);
-        vcIcon.live("mouseover", function(target){
-            bindMouseover(target, vcs, doc);
-        });
-        var lineNum = $(target.target).html();
-        updateAndEmit(lineNum, "vc", vcs, session.doc);
-        //$.each(vcs,
-            //function(){
-                //var vcLineNum = this.row + 1;
-                //if(vcLineNum.toString() == lineNum){
-                    //this.type = "vc";
-            //}
-        //});
-        //session.doc._emit("annotate", vcs);
-    });
-    vcCloseIcon.die();
-    vcCloseIcon.live("click", function(target){
-        //event.preventDefault();
-        hideVcBox(vcs, doc);
-        vcIcon.die("mouseover");
-        vcIcon.live("mouseover", function(target){
-            bindMouseover(target, vcs, doc);
-        });
-        return false;
-    });*/
 }
 
 function addWaitGif(div){
