@@ -73,7 +73,7 @@ function addErrors(errorArray, component, errMsg) {
    session.setAnnotations(errors);
    // @todo move this into a function, it is a duplicate of the the error tooltip in checker.js
     var gutters = $(".ace_error");
-    gutters.die("mouseover");
+    /*gutters.die("mouseover");
     gutters.live("mouseover", function(event){
         event.stopPropagation();
         var el = $(event.currentTarget);
@@ -91,23 +91,8 @@ function addErrors(errorArray, component, errMsg) {
             var caratLine = errorLines[errorLines.length-2];
             
             addQtip(el, errorMsg);
-            /*el.attr({title: ""});
-            $(this).qtip({
-                content: {
-                    text: "<pre>"+errorMsg+"</pre>"
-                }, 
-                show: {
-                    event: false, // Only show when show() is called manually
-                    ready: true // Also show on page load
-                },
-                hide: "unfocus"
-            });*/
         }
-        /*$(this).mouseout(function(){
-            $(this).attr({title: errorMsg});
-            that.qtip("api").hide();
-        });*/
-    });
+    });*/
 }
 
 var vcEditor;
@@ -141,6 +126,7 @@ function addVcs(component, vcArray) {
             msg += "\"goal\":\"" + vcArray[i].goal.replace(/\n/g, "") + "\",";
             msg += "\"given\":\"" + vcArray[i].given + "\"}";
             msg += "@";
+            msg = getVcSteps(encodeVcContent(msg));
             //msg = msg.replace(/\n/g, "");
             var lineNum = vcArray[i].line;
 
@@ -169,6 +155,7 @@ function addVcs(component, vcArray) {
     //var targetId = targetContent.attr("id");
     //var vcIcon = $("#"+targetId).find(".ace_gutter-cell.ace_vc");
     var vcIcon = $("#code_editor").find(".ace_gutter-cell.ace_vc");
+    
     //var vcCorrectIcon = $("#codeEditor").find(".ace_gutter-cell.ace_vc_selected");
     //var vcCloseIcon = $(".vc_close");
     vcIcon.die();
@@ -187,10 +174,13 @@ function addVcs(component, vcArray) {
         
     //var gutters = $(".ace_vcs");
     //gutters.die("mouseover");
-    vcIcon.live("mouseenter", function(event){
+    /*vcIcon.live("mouseenter", function(event){
         event.stopPropagation();
         var el = $(event.currentTarget);
-        var vcs = el.attr("title");
+        var vcInfo = $("#code_editor").find(".ace_gutter-tooltip");
+        vcInfo.hide();
+        var vcs = vcInfo.html();
+        //var vcs = el.attr("title");
         //var dataVcs = el.attr("data-vcs");
         //if(dataVcs == null){
             //el.attr("data-vcs", vcs);
@@ -200,35 +190,16 @@ function addVcs(component, vcArray) {
         if(vcs != ""){
             addQtip(el, vcSteps, "vc");
             //el.attr({title: ""});
-            /*el.qtip({
-                content: {
-                    text: "<pre>"+vcSteps+"</pre>"
-                }, 
-                show: {
-                    event: false, // Only show when show() is called manually
-                    ready: true // Also show on page load
-                }//,
-                //hide: {
-                    //event: 'mouseleave'
-                //},
-                //events: {
-                    //hide: function(event, api){
-                        //var tooltip = api.elements.tooltip;
-                        //console.log("hide called");
-                        //el.attr({title: vcs});
-                    //}
-                /}
-            });*/
         }
         //el.mouseleave(function(){
             //el.attr({title: vcs});
             //el.qtip("hide");
             //el.qtip("api").hide();
         //});
-    });
+    });*/
     vcIcon.live("click", function(target){
-        var session = editor.getSession();
-        var vcs = $(target.target).attr("title");
+        //var session = editor.getSession();
+        //var vcs = $(target.target).attr("title");
         var lineNum = $(target.target).html();
         selectVC(lineNum);
         //var formattedVCs = formatVCs(encodeVcContent(vcs));
