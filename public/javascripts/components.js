@@ -476,6 +476,7 @@ var OpenComponentListView = Backbone.View.extend({
     added: function(component){
         this._openComponents.push(component);
         this.render();
+        setOpenComponentsWidth();
         var search = "a[data-id=\"" + component.get("pkg") + "." + component.get("name") + "\"]";
         var link = $("#open_menu").find(search);
         var item = $(link).parent();
@@ -1805,7 +1806,23 @@ function setFinderWidth(newElement){
     _(listSiblings).each(function(child){
         newFinderWidth += $(child).outerWidth();
     });
-    finder.outerWidth(newFinderWidth);
+    var zoom = DetectZoom.zoom();
+    finder.outerWidth(newFinderWidth * zoom);
+    if(newFinderWidth > parentWidth){
+        finder.parent().animate({scrollLeft: (newFinderWidth - parentWidth)}, 'fast');
+    }
+}
+
+function setOpenComponentsWidth(newElement){
+    var finder = $("#open_component_list");
+    var parentWidth = finder.parent().outerWidth();
+    var listSiblings = finder.children();
+    var newFinderWidth = 0;
+    _(listSiblings).each(function(child){
+        newFinderWidth += $(child).outerWidth();
+    });
+    var zoom = DetectZoom.zoom();
+    finder.outerWidth(newFinderWidth * zoom);
     if(newFinderWidth > parentWidth){
         finder.parent().animate({scrollLeft: (newFinderWidth - parentWidth)}, 'fast');
     }
