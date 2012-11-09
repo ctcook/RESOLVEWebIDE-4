@@ -7,8 +7,12 @@
         #{/if}
         #{else}
             User.
-        #{/else}
-        Current project: ${_selectedProject.name}
+        #{/else} 
+        #{if _selectedProject != null}
+            <!--<button id="control_logout">Logout</button>-->
+            Current project: ${_selectedProject.name}
+        #{/if}
+        
     </span>
     <div id="user_controls" class="pane_right">
         #{if _currentUser != null}
