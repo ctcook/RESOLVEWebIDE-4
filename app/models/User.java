@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import notifiers.Mails;
 import play.db.jpa.Model;
 
 @Entity
@@ -34,8 +35,36 @@ public class User extends Model {
         createdOn = new Date();
         currentProject = Project.getDefault().name;
         userType = 0;
-        authenticated = true;
-        confirmationCode = "";
+        authenticated = false;
+        
+        // Generate confirmation code
+        confirmationCode = passWordHash(password + email + firstName);
+        
+        // Send email to the new user
+        Mails.confirmation(this);
+    }
+    
+    public static Boolean hasAuthenticated(String email, String password) {
+        User currentUser = find("byEmailAndPassword", email, passWordHash(password)).first();
+        return currentUser.authenticated;
+    }
+    
+    public static void authenticate(String email) {
+        User currentUser = find("byEmail", email).first();
+        currentUser.authenticated = true;
+        currentUser.confirmationCode = "";
+        currentUser.save();
+        Mails.welcome(currentUser);
+    }
+    
+    public static String generateConfirmation(String email) {
+        User user = find("byEmail", email).first();
+        String toBeHash = user.password + user.email + user.firstName;
+        String retval = passWordHash(toBeHash);
+        user.confirmationCode = retval;
+        user.save();
+        
+        return retval;
     }
     
     public static User connect(String email, String password) {
@@ -49,7 +78,7 @@ public class User extends Model {
     }
     
     // SHA-256 password hashing
-    private static String passWordHash(String passWord){
+    public static String passWordHash(String passWord){
         StringBuilder sb = new StringBuilder();
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

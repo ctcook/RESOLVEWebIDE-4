@@ -52,12 +52,12 @@ public class Registration extends Controller {
         }
         
         // Add new user to the database
-        String hashPass = passWordHash(password);
+        String hashPass = User.passWordHash(password);
         User user = new User(email, hashPass, firstName, lastName);
         user.create();
         
         // Render Success Page
-        render(email, firstName, lastName);
+        render();
         
         // Clear the parms field
         email = "";
@@ -72,6 +72,24 @@ public class Registration extends Controller {
         Cache.delete(randomID);
     }
     
+    public static void passwordRecovery(String email) {
+        // Validation Rules for User Email
+        validation.required(email);
+        validation.email(email);
+        
+        if (User.find("byEmail", email).first() == null) {
+            validation.addError("email", "Email not found! Please check for spelling!");
+        }
+        
+        // Handle Errors
+        if (validation.hasErrors()) {
+            render("Registration/passwordRecovery.html");
+        }
+        
+        // Render Interface Page
+        render("@Interface.index()");
+    }
+    
     public static void captcha(String id) {
         // Image class used to generate the captcha
         Images.Captcha captcha = Images.captcha(160, 50);
@@ -82,24 +100,5 @@ public class Registration extends Controller {
         captcha.setBackground("#996633", "#FF9900");
         
         renderBinary(captcha);
-    }
-    
-    // SHA-256 password hashing (Copy from User.java)
-    private static String passWordHash(String passWord){
-        StringBuilder sb = new StringBuilder();
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(passWord.getBytes());
-
-            byte byteData[] = md.digest();
-
-            //convert the byte to hex format method 1
-            for (int i = 0; i < byteData.length; i++) {
-                sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-            }
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return sb.toString();
     }
 }
