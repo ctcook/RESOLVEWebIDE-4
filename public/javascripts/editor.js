@@ -1067,19 +1067,25 @@ function analyzeVerifyResult(resultJSON){
         var vcID = "VC_" + vcResult.id;
         var result = vcResult.result;
         var vcDiv = $("#" + vcID);
-        var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
-        var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
+        //var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
+        //var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
         var pRegExp = /Proved/i;
         var msRegExp = /[0-9]+/;
-        var statusSpan = vcDiv.find(".vcStatus");
+        var statusSpan = vcDiv.find(".vc_status");
         if(pRegExp.test(result)) {
             addProveSuccess(statusSpan);
-            statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
+            statusSpan.attr({
+                title: "Proved after " + msRegExp.exec(result) + " ms"
+            });
+            //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }
         else {
             addProveFail(statusSpan);
-            statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
+            statusSpan.attr({
+                title: "Skipped after " + msRegExp.exec(result) + " ms"
+            });
+            //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }
     }
