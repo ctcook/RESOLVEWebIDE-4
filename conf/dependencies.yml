@@ -6,7 +6,7 @@ require:
     - antlr-3.3-complete -> antlr
     - tools -> tools
     - mail -> mail
-    - WebsocketWriter -> WebsocketWriter
+    - WebSocketWriter -> WebSocketWriter
     
 repositories:
     - My modules:
@@ -17,4 +17,4 @@ repositories:
             - antlr-3.3-complete
             - tools
             - mail
-            - WebsocketWriter
+            - WebSocketWriter
