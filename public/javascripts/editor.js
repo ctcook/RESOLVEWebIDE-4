@@ -854,6 +854,8 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
                 vcSpans.each(function(){
                     addWaitGif($(this));
                 })
+                var vcsDetails = $("#console-info").find(".vc_details");
+                vcsDetails.addClass("vc_details_hidden");
                 targetJob = VERIFY;
                 wsCompile(targetJob, targetJSON, waitGif, model);
             }
@@ -1387,6 +1389,10 @@ function selectVC(lineNum){
     //$( "#output_tabs" ).tabs("select", 2);
     var vcsDiv = $("#console-info");
     var vcDiv = $("#vc_line_"+lineNum);
+    var hiddenVcDetails = vcDiv.find(".vc_details_hidden");
+    if(hiddenVcDetails.length > 0){
+        hiddenVcDetails.removeClass("vc_details_hidden")
+    }
     var openVCs = vcsDiv.find(".vcContainer.selectedVC");
     openVCs.removeClass("selectedVC");
     vcDiv.addClass("selectedVC");
@@ -1415,7 +1421,7 @@ function reformatVCs(vc){
         var infoSpan = $("<span>").addClass("componentInfo vc_status");
         vcDiv.html("VC "+vcID+" ");
         vcDiv.append(infoSpan);
-        var vcDetails = $("<div>");
+        var vcDetails = $("<div>").addClass("vc_details");
         vcDetails.append("<br/>");
         vcDetails.append(step+"<br/><br/>");
         vcDetails.append("Goal:");
