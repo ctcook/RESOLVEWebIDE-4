@@ -13,6 +13,35 @@ var editor = null;
 var FONTSIZE = 12;
 myUserControlView = null;
 
+var UserEvent = Backbone.Model.extend({
+    initialize: function(){
+        this.project = selectedProject;
+        this.eventType = "";
+        this.component = null;
+    },
+    toJSON: function(){
+        //var content = this.get("content");
+        // we need to escape quotes so that we have valid JSON going to the server
+        //content = content.replace(/%22/g, "\\%22");
+        //content = content.replace(/\"/g, "\\\"");
+        var json = "{\"project\":\"" + this.get("project") + "\"," +
+            "\"eventType\":\"" + this.get("eventType") + "\"," +
+            "\"name\":\"" + this.get("name") + "\"," +
+            "\"pkg\":\"" + this.get("pkg") + "\"," +
+            "\"content\":\"" + this.get("content") + "\"}";
+        return json;
+    },
+    url : function() {
+        var loc = window.location;
+        //var pathname = loc.pathname;
+        //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
+        //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
+        var url = "http://" + getUrl(loc) + "events";
+        return url;
+        //return this.collection.url() + '/Components';
+    }
+});
+
 /* 
  * This will hold all of our keywords information such as the hashmap that
  * holds the keywords with their tool-tip values in it. 
@@ -605,6 +634,14 @@ UserControlView = Backbone.View.extend({
         //var editorSession = this.model.get("editorSession");
         //var code = editorSession.doc.getValue();
         renameUserComponent(this.model);
+        var userEvent = new UserEvent({
+            eventType: "renameComponent",
+            project: selectedProject,
+            name: model.get("name"),
+            pkg: model.get("pkg"),
+            content: model.get("content")
+        });
+        userEvent.save();
     },
     save : function(event){
         var editorSession = this.model.get("editorSession");
@@ -616,12 +653,30 @@ UserControlView = Backbone.View.extend({
         var openComponentTab = $("#open_menu").find(".component_tab.selected");
         var editedIcon = openComponentTab.find("b");
         editedIcon.remove();
+        
+        var userEvent = new UserEvent({
+            eventType: "saveComponent",
+            project: selectedProject,
+            name: model.get("name"),
+            pkg: model.get("pkg"),
+            content: model.get("content")
+        });
+        userEvent.save();
     },
     del : function(event){
         var model = this.model;
         var ans = confirm("Are you sure you want to delete " + model.get("name") + "?");
         if(ans){
             deleteUserComponent(model);
+            
+            var userEvent = new UserEvent({
+                eventType: "deleteComponent",
+                project: selectedProject,
+                name: model.get("name"),
+                pkg: model.get("pkg"),
+                content: model.get("content")
+            });
+            userEvent.save();
         }
     },
     showJava : function(event){
@@ -875,7 +930,15 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     ws.onclose = function (event) {
         //console.log(event);
     };
-        
+    
+    var userEvent = new UserEvent({
+        eventType: targetJob,
+        project: selectedProject,
+        name: model.get("name"),
+        pkg: model.get("pkg"),
+        content: model.get("componentModel").get("content")
+    });
+    userEvent.save();    
     //new Socket(new_uri+"?target="+targetJSON);
 }
 
