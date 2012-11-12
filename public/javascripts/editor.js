@@ -863,6 +863,9 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
                 infoBlock.html("");
             }  
         }
+        else if(status == "processing"){
+            analyzeVerifyResult(resultJSON);
+        }
         else if(status == "error"){
             handleErrors(resultJSON, model);
         }
@@ -1056,6 +1059,30 @@ function analyzeResults(resultJSON, component, waitGif){
         }
     }
     //waitGif.remove();
+}
+
+function analyzeVerifyResult(resultJSON){
+    if(resultJSON.job == VERIFY){
+        var vcResult = resultJSON.result;
+        var vcID = "VC_" + vcResult.id;
+        var result = vcResult.result;
+        var vcDiv = $("#" + vcID);
+        var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
+        var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
+        var pRegExp = /Proved/i;
+        var msRegExp = /[0-9]+/;
+        var statusSpan = vcDiv.find(".vcStatus");
+        if(pRegExp.test(result)) {
+            addProveSuccess(statusSpan);
+            statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
+            //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
+        }
+        else {
+            addProveFail(statusSpan);
+            statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
+            //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
+        }
+    }
 }
 
 function cancelJarDownload(facName, downloadDir, d){
