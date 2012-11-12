@@ -845,7 +845,7 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         var resultJSON = JSON.parse(event.data);
         var status = resultJSON.status;
         if(status == "info"){
-            $("#console-info").append(resultJSON.msg+"<br/>");
+            //$("#console-info").append(resultJSON.msg+"<br/>");
         }
         else if(status == "complete"){
             analyzeResults(resultJSON, model, waitGif);
