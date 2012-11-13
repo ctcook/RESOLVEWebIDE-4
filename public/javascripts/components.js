@@ -276,8 +276,11 @@ var ComponentNameView = Backbone.View.extend({
         }
         setFinderWidth(newElement);
         var li = $(event.currentTarget).parent();
-        li.parent().find(".selected-component").removeClass("selected-component");
+        var prevSel = li.parent().find(".selected-component");
+        prevSel.removeClass("selected-component");
+        prevSel.children("a").addClass("component dir");
         li.addClass("selected-component");
+        li.children("a").removeClass("component dir");
         //updateFinderTitle(component.get("name"));
         //$(event.currentTarget).trigger("mouseout");
         //$("#component_list").css({display:"none"});
@@ -394,8 +397,11 @@ var ComponentView = Backbone.View.extend({
             setFinderWidth(newElement);
         }
         var li = $(event.currentTarget).parent();
-        li.parent().find(".selected-component").removeClass("selected-component");
+        var prevSel = li.parent().find(".selected-component");
+        prevSel.removeClass("selected-component");
+        prevSel.children("a").addClass("component dir");
         li.addClass("selected-component");
+        li.children("a").removeClass("component dir");
     }
 });
 
@@ -860,8 +866,11 @@ function initializeComponentMenu(){
     var componentList = $("#component_list");
     componentList.find("a").click(function(){
         var li = $(this).parent();
-        li.parent().find(".selected-component").removeClass("selected-component");
+        var prevSel = li.parent().find(".selected-component");
+        prevSel.removeClass("selected-component");
+        prevSel.children("a").addClass("component dir");
         li.addClass("selected-component");
+        li.children("a").removeClass("component dir");        
         var id = li.attr("id");
         var view = null;
         if(id === "concepts_list"){

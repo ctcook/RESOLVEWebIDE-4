@@ -106,6 +106,7 @@
 }*/
 
 #finder .dir {
+    background: #CCFFCC;
     background-image: url("../images/submenu.png");
     background-repeat:no-repeat;
     background-position: right;

@@ -3,14 +3,14 @@
         Welcome 
         #{if _currentUser != null}
             <!--<button id="control_logout">Logout</button>-->
-            ${_currentUser.firstName}.
+            <b>${_currentUser.firstName}</b>.
         #{/if}
         #{else}
-            User.
+            <b>User</b>.
         #{/else} 
         #{if _selectedProject != null}
             <!--<button id="control_logout">Logout</button>-->
-            Current project: ${_selectedProject.name}
+            Current project: <b>${_selectedProject.name}</b>
         #{/if}
         
     </span>
