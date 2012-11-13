@@ -17,6 +17,8 @@ public class Security extends Secure.Security {
 
                 // Set the last login date
                 User.lastLogin(email, password);
+                UserEvent ev = new UserEvent("login", "", currentUser);
+                ev.save();
             } else {
                 // Render the page asking them to authenticate their account
                 render("Registration/authenticate.html", email);
@@ -32,6 +34,13 @@ public class Security extends Secure.Security {
             return true;
         }
         return false;
+    }
+    
+    static void onDisconnect() {
+        String email = Security.connected();
+        User currentUser = User.find("byEmail", email).first();
+        UserEvent ev = new UserEvent("logout", "", currentUser);
+        ev.save();
     }
     
     static void onDisconnected() {
