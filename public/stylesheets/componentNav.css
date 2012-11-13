@@ -145,7 +145,7 @@
 }*/
 
 #project_menu {
-    background: #afaeff;
+    /*background: #E8E8E8;*/
     float: left;
 }
 
@@ -202,8 +202,13 @@
 }
 
 #component_menu {
-    background: #afaeff;
+    /*background: #E8E8E8;*/
     float: left;
+    margin-left: 10px;
+}
+
+.menu_button {
+    margin: 0;
 }
 
 /*.menu ul ul ul {
