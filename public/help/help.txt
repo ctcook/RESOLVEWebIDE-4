@@ -2,7 +2,7 @@
 <div>
     <h3>Web IDE Introductory Video:</h3>
     <p align="center">
-        <object width="640" height="360"><param name="movie" value="http://www.youtube.com/v/9vg3WuxeOkA?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/9vg3WuxeOkA?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="640" height="360" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+        <iframe width="560" height="315" src="http://www.youtube.com/embed/9vg3WuxeOkA?wmode=transparent" frameborder="0" allowfullscreen></iframe>
     </p>
     <h3>General Information</h3>
     <p>

@@ -6,13 +6,15 @@ function genHelp() {
         type: "get",
         url: url,
         success: function(data){
+            var div = $("<div>").html(data).css({height:"560px","overflow-y":"scroll"});
             var d = el.dialog({
                 width: 800,
                 height: 600,
                 resizable:false,
-                draggable:false
+                draggable:false,
+                modal: true
             });
-            el.html(data);
+            el.html(div);
         }
     });
 }
