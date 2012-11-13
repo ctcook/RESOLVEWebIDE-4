@@ -1789,6 +1789,14 @@ function genNewTheoryForm(parent){
 }
 
 function saveSuccess(newComponent, id, d){
+    var userEvent = new UserEvent({
+        eventType: "renameComponent",
+        project: selectedProject,
+        name: newComponent.get("name"),
+        pkg: newComponent.get("pkg"),
+        content: newComponent.get("content")
+    });
+    userEvent.save();
     newComponent.set("id", id);
     displayComponent(newComponent);
     d.dialog("destroy");
