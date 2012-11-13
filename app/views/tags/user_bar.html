@@ -29,7 +29,10 @@
         #{if request.controller == 'Projects'}
         <a href="@{Interface.index()}">Home</a>
         #{/if}
-        <a href="">Help</a>
+        <a id="help-link" href="javascript:void(0)" onclick="">Help</a>
+        <script type="text/javascript">
+            document.getElementById("help-link").onclick = function() {genHelp(); return false}
+        </script>
         <!--<button id="control_settings">Settings</button>-->
     </div>
     <!--<div id="help_container" class="menu pane_right"></div>
