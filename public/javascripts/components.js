@@ -1790,7 +1790,7 @@ function genNewTheoryForm(parent){
 
 function saveSuccess(newComponent, id, d){
     var userEvent = new UserEvent({
-        eventType: "renameComponent",
+        eventType: "createComponent",
         project: selectedProject,
         name: newComponent.get("name"),
         pkg: newComponent.get("pkg"),
