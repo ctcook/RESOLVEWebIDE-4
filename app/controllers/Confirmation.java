@@ -21,6 +21,9 @@ public class Confirmation extends Controller  {
             // Mark the user as authenticated in our database
             User.authenticate(email);
             
+            // Send welcome email
+            Mails.welcome(currentUser);
+            
             // Render success page!
             render("Confirmation/index.html", email, firstName, lastName);
         } else {

@@ -72,24 +72,6 @@ public class Registration extends Controller {
         Cache.delete(randomID);
     }
     
-    public static void passwordRecovery(String email) {
-        // Validation Rules for User Email
-        validation.required(email);
-        validation.email(email);
-        
-        if (User.find("byEmail", email).first() == null) {
-            validation.addError("email", "Email not found! Please check for spelling!");
-        }
-        
-        // Handle Errors
-        if (validation.hasErrors()) {
-            render("Registration/passwordRecovery.html");
-        }
-        
-        // Render Interface Page
-        render("@Interface.index()");
-    }
-    
     public static void captcha(String id) {
         // Image class used to generate the captcha
         Images.Captcha captcha = Images.captcha(160, 50);

@@ -54,17 +54,15 @@ public class User extends Model {
         currentUser.authenticated = true;
         currentUser.confirmationCode = "";
         currentUser.save();
-        Mails.welcome(currentUser);
     }
     
-    public static String generateConfirmation(String email) {
+    public static void generateConfirmation(String email) {
         User user = find("byEmail", email).first();
         String toBeHash = user.password + user.email + user.firstName;
         String retval = passWordHash(toBeHash);
         user.confirmationCode = retval;
+        user.authenticated = false;
         user.save();
-        
-        return retval;
     }
     
     public static User connect(String email, String password) {

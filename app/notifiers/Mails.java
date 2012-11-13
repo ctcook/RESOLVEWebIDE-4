@@ -32,7 +32,20 @@ public class Mails extends Mailer {
         send(user, link);
     }
  
-    public static void lostPassword(String email) {
+    public static void lostPassword(User user) {
+        String confirmationCode = user.confirmationCode;
+        setSubject("RESOLVE Web IDE Password Recovery");
+        addRecipient(user.email);
+        setFrom("Clemson RSRG <do_not_reply@resolve.cs.clemson.edu>");
         
+        String link = Http.Request.current().getBase() + (String)Play.configuration.get("http.path") + "/reset?c_code=" + confirmationCode + "&email=" + user.email;
+        send(user, link);
+    }
+    
+    public static void resetPassword(User user) {
+        setSubject("RESOLVE Web IDE Password Reset");
+        addRecipient(user.email);
+        setFrom("Clemson RSRG <do_not_reply@resolve.cs.clemson.edu>");
+        send(user);
     }
 }
