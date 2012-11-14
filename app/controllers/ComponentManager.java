@@ -3,6 +3,7 @@ package controllers;
 import com.google.gson.Gson;
 import models.User;
 import models.UserComponent;
+import models.UserEvent;
 import org.apache.commons.lang.StringEscapeUtils;
 import play.mvc.Controller;
 import play.mvc.With;
@@ -22,6 +23,9 @@ public class ComponentManager extends Controller {
             uc.author = user;
             uc.setCreatedDate();
             uc.create();
+            UserEvent event = new UserEvent(uc.name, uc.pkg, uc.project,
+                        "createComponent", uc.content, uc.author);
+            event.save();
             //}
             //else{
                 
@@ -43,6 +47,9 @@ public class ComponentManager extends Controller {
                                     updatedUc.name, updatedUc.pkg, updatedUc.project, user).first();
             uc.content = StringEscapeUtils.unescapeJava(updatedUc.content);
             uc.save();
+            UserEvent event = new UserEvent(uc.name, uc.pkg, uc.project,
+                        "saveComponent", uc.content, uc.author);
+            event.save();
         } 
     }
     
@@ -59,6 +66,9 @@ public class ComponentManager extends Controller {
             UserComponent uc = UserComponent.find("byNameAndPkgAndProjectAndAuthor",
                                     updatedUc.name, updatedUc.pkg, updatedUc.project, user).first();
             uc.delete();
+            UserEvent event = new UserEvent(uc.name, uc.pkg, uc.project,
+                        "deleteComponent", uc.content, uc.author);
+            event.save();
         } 
     }
     
@@ -73,6 +83,9 @@ public class ComponentManager extends Controller {
                                     updatedUc.name, updatedUc.pkg, updatedUc.project, user).first();
             uc.name = newName;
             uc.save();
+            UserEvent event = new UserEvent(uc.name, uc.pkg, uc.project,
+                        "renameComponent", uc.content, uc.author);
+            event.save();
         } 
     }
 }
