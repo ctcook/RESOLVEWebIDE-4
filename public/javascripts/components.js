@@ -852,7 +852,7 @@ function initializeComponentMenu(){
 
     //myComponent_view = new ComponentMenuView({el: $("#component_list"), collection: myComponentList});
     //$("#component_list").parent().trigger('mouseenter');
-    $("#component_menu").bind("click", function(){
+    $("#component-selector").bind("click", function(){
         var componentDialog = $("#component-finder").dialog({
             width:700,
             height:350,
