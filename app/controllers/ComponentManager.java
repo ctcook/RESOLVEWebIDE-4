@@ -17,8 +17,6 @@ public class ComponentManager extends Controller {
             String body = params.get("body");
             body = StringEscapeUtils.unescapeJava(body);
             target = body.substring(1, body.length() - 1);
-            //System.out.println(body);
-            //if(job.compareTo("create") == 0){
             UserComponent uc = new Gson().fromJson(target, UserComponent.class);
             uc.author = user;
             uc.setCreatedDate();
@@ -26,10 +24,6 @@ public class ComponentManager extends Controller {
             UserEvent event = new UserEvent(uc.name, uc.pkg, uc.project,
                         "createComponent", uc.content, uc.author);
             event.save();
-            //}
-            //else{
-                
-            //}
         } 
     }
     
@@ -40,8 +34,6 @@ public class ComponentManager extends Controller {
             String body = params.get("body");
             body = StringEscapeUtils.unescapeJava(body);
             target = body.substring(1, body.length() - 1);
-            //System.out.println(body);
-            //if(job.compareTo("create") == 0){
             UserComponent updatedUc = new Gson().fromJson(target, UserComponent.class);
             UserComponent uc = UserComponent.find("byNameAndPkgAndProjectAndAuthor",
                                     updatedUc.name, updatedUc.pkg, updatedUc.project, user).first();
@@ -57,11 +49,6 @@ public class ComponentManager extends Controller {
         if(Security.isConnected()) {
             String email = Security.connected();
             User user = User.find("byEmail", email).first();
-            //String body = params.get("body");
-            //body = StringEscapeUtils.unescapeJava(body);
-            //target = body.substring(1, body.length() - 1);
-            //System.out.println(body);
-            //if(job.compareTo("create") == 0){
             UserComponent updatedUc = new Gson().fromJson(target, UserComponent.class);
             UserComponent uc = UserComponent.find("byNameAndPkgAndProjectAndAuthor",
                                     updatedUc.name, updatedUc.pkg, updatedUc.project, user).first();
@@ -76,8 +63,6 @@ public class ComponentManager extends Controller {
         if(Security.isConnected()) {
             String email = Security.connected();
             User user = User.find("byEmail", email).first();
-            //System.out.println(body);
-            //if(job.compareTo("create") == 0){
             UserComponent updatedUc = new Gson().fromJson(target, UserComponent.class);
             UserComponent uc = UserComponent.find("byNameAndPkgAndProjectAndAuthor",
                                     updatedUc.name, updatedUc.pkg, updatedUc.project, user).first();
