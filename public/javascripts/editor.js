@@ -866,8 +866,10 @@ function ajaxCompile(targetJob, targetJSON, waitGif, model){
     });
 }
 
+var ws = null;
+var pingTimer = null;
+
 function wsCompile(targetJob, targetJSON, waitGif, model){
-    var ws;
     var loc = window.location;
     var verify = false;
     if(targetJob == VCVERIFY){
@@ -917,7 +919,13 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
             handleErrors(resultJSON, model);
         }
     };
+    ws.onopen = function(event){
+        ws.send("starting job");
+        //pingTimer = setTimeout(ping, 10000);
+    };
+    
     ws.onclose = function (event) {
+        clearTimeout(pingTimer);
         //console.log(event);
     };
     
@@ -931,6 +939,12 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     userEvent.save();    
     //new Socket(new_uri+"?target="+targetJSON);
 }
+
+
+ function ping(){
+	ws.send("ping");
+	pingTimer = setTimeout(ping, 15000);
+ }
 
 function getUrl(loc){
     var url = "";
