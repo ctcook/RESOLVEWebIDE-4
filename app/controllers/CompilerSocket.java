@@ -21,23 +21,48 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
+import models.CompileJob;
 import models.User;
 import models.UserComponent;
+import org.apache.commons.lang.StringEscapeUtils;
 import play.Play;
 import play.db.jpa.GenericModel.JPAQuery;
+import play.mvc.Http.WebSocketEvent;
 import play.mvc.WebSocketController;
 import webui.utils.WebSocketWriter;
+import static play.libs.F.*;
+import static play.libs.F.Matcher.*;
+import static play.mvc.Http.WebSocketEvent.*;
+import play.mvc.Http.WebSocketFrame;
 
 /**
  *
  * @author Chuck
  */
 public class CompilerSocket extends WebSocketController {
-    public static void compile(String job, String target, String project) {
+    public static void compile(/*String job, String target, String project*/) {
+        String jobParams = "";
+        while(inbound.isOpen()){
+            WebSocketEvent e = await(inbound.nextEvent());
+            jobParams = ((WebSocketFrame)e).textData;
+            if(!jobParams.equals("")){
+                break;
+            }
+            //for(String quit: TextFrame.and(Equals("complete")).match(e)) {
+                //outbound.send("Bye!");
+                //disconnect();
+            //}
+        }
+        CompileJob cj = new Gson().fromJson(jobParams, CompileJob.class);
+        String job = cj.job;
+        String project = cj.project;
+        //String target = cj.target;
         WebSocketWriter myWsWriter = new WebSocketWriter(outbound);
         String slash = System.getProperty("file.separator");
         String relativeMainDir = "RESOLVE" + slash + "Main" + slash;
-        UserComponent uc = new Gson().fromJson(target, UserComponent.class);
+        UserComponent uc = cj.target;
+        uc.content = decode(uc.content);
+        //UserComponent uc = new Gson().fromJson(target, UserComponent.class);
         String workingDir = (String)Play.configuration.get("workingdir");
         String compilerMainDir = workingDir + "workspaces" + slash + uc.project + slash + relativeMainDir;
         ResolveCompiler r = null;
