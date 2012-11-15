@@ -867,7 +867,6 @@ function ajaxCompile(targetJob, targetJSON, waitGif, model){
 }
 
 var ws = null;
-var pingTimer = null;
 
 function wsCompile(targetJob, targetJSON, waitGif, model){
     var loc = window.location;
@@ -920,12 +919,10 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         }
     };
     ws.onopen = function(event){
-        ws.send("starting job");
-        //pingTimer = setTimeout(ping, 10000);
+        ws.send("starting job"); // need to do this to make it work right with Trend Micro AV
     };
     
     ws.onclose = function (event) {
-        clearTimeout(pingTimer);
         //console.log(event);
     };
     
@@ -939,12 +936,6 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     userEvent.save();    
     //new Socket(new_uri+"?target="+targetJSON);
 }
-
-
- function ping(){
-	ws.send("ping");
-	pingTimer = setTimeout(ping, 15000);
- }
 
 function getUrl(loc){
     var url = "";
