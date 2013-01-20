@@ -16,6 +16,7 @@ var myUserComponentListView = null;
 // open in the editor
 var myOpenComponentList = null;
 var selectedProject;
+var userType = null;
 /*
  * The Component is the model where we will store all the data necessary to process
  * the RESOLVE components (regardless of the ModuleKind)
