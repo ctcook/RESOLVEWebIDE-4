@@ -165,6 +165,16 @@ public class CompilerSocket extends WebSocketController {
             //outbound.send(gji.generateJava().toString());
             gji.generateJava(job);//event);
         }
+        else if(job.compareTo("analyze") == 0){
+            String[] args = {"-maindir", compilerMainDir, "-webinterface"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            //invoking the translator with the compiler specially created for
+            //translating
+            JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
+            //outbound.send(gji.generateJava().toString());
+            gji.generateJava(job);//event);
+        }
         //System.out.println(decode(uc.content));
         //outbound.send(uc.name);
     }
@@ -200,6 +210,9 @@ public class CompilerSocket extends WebSocketController {
         }
         else if(fileType.equals("f")){
             kind = ModuleKind.FACILITY;
+        }
+        else if(fileType.equals("t")){
+            kind = ModuleKind.THEORY;
         }
         return kind;
     }
