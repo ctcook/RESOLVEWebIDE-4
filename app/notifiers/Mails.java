@@ -23,6 +23,9 @@ public class Mails extends Mailer {
     }
     
     public static void confirmation(User user) {
+        // Regenerate the confirmation code
+        User.generateConfirmation(user.email);
+        
         String confirmationCode = user.confirmationCode;
         setSubject("RESOLVE Web IDE Registration Confirmation");
         addRecipient(user.email);
@@ -33,6 +36,9 @@ public class Mails extends Mailer {
     }
  
     public static void lostPassword(User user) {
+         // Regenerate the confirmation code
+        User.generateConfirmation(user.email);
+        
         String confirmationCode = user.confirmationCode;
         setSubject("RESOLVE Web IDE Password Recovery");
         addRecipient(user.email);
