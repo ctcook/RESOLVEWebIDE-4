@@ -13,19 +13,24 @@ public class Confirmation extends Controller  {
         
         // Check if the user is in our database and has the correct confirmation code
         User currentUser = User.find("byEmail", email).first();
-        if (currentUser != null && currentUser.confirmationCode.equals(confirmation)) {
-            // Variables
-            String firstName = currentUser.firstName;
-            String lastName = currentUser.lastName;
-            
-            // Mark the user as authenticated in our database
-            User.authenticate(email);
-            
-            // Send welcome email
-            Mails.welcome(currentUser);
-            
-            // Render success page!
-            render("Confirmation/index.html", email, firstName, lastName);
+        if (currentUser != null) {
+            if (currentUser.confirmationCode.equals(confirmation)) {
+                // Variables
+                String firstName = currentUser.firstName;
+                String lastName = currentUser.lastName;
+
+                // Mark the user as authenticated in our database
+                User.authenticate(email);
+
+                // Send welcome email
+                Mails.welcome(currentUser);
+
+                // Render success page!
+                render("Confirmation/index.html", email, firstName, lastName);
+            } else {
+                // Render confirmation link expired page
+                render("Confirmation/expired.html");
+            }            
         } else {
             // Render the main web interface page
             render("Interface/index.html");
@@ -36,6 +41,7 @@ public class Confirmation extends Controller  {
         // Check if the user is in our database
         User currentUser = User.find("byEmail", email).first();
         if (currentUser != null) {
+            User.generateConfirmation(email);
             Mails.confirmation(currentUser);
             
             // Render the web page
