@@ -778,13 +778,9 @@ function displayComponent(component){
     item.addClass("selected");
     //localStorage.set(component.get("project") + "_selected_id", componentPkg + "." + componentName);
     //displayComponentInfo(component);
-    /* Commented out for now:
-     * syntaxCheck(openComponent);
-     */
+    syntaxCheck(openComponent);
     session.on("change", function() {
-      /* Commented out for now:
-       * syntaxCheck(openComponent);
-       */
+      syntaxCheck(openComponent);
       if(openComponent.get("componentModel").get("custom") === "true"){
           var saveButton = $("#control_bar .save");
           saveButton.removeAttr("disabled").addClass("active");
