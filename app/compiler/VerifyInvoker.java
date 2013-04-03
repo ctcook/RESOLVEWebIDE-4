@@ -34,7 +34,8 @@ public class VerifyInvoker {
         OutboundMessageSender outbound = new OutboundMessageSender(myOutbound);
         //Run the compiler
         try{
-            r.compile(args);
+            WsListener listener = new WsListener();
+            r.compile(args, listener);
             
         }
         catch(Exception ex){

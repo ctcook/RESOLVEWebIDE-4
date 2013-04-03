@@ -1,10 +1,7 @@
 package controllers;
 
 import com.google.gson.Gson;
-import compiler.JarBuilderInvoker;
-import compiler.JavaTranslatorInvoker;
-import compiler.VCGeneratorInvoker;
-import compiler.VerifyInvoker;
+import compiler.*;
 import edu.clemson.cs.r2jt.ResolveCompiler;
 import edu.clemson.cs.r2jt.data.MetaFile;
 import edu.clemson.cs.r2jt.data.ModuleKind;
@@ -20,7 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.persistence.Query;
+/*import javax.persistence.Query;*/
+import edu.clemson.cs.r2jt.proving2.ProverListener;
 import models.User;
 import models.UserComponent;
 import play.Play;
@@ -29,6 +27,7 @@ import play.mvc.Http.WebSocketEvent;
 import play.mvc.WebSocketController;
 import webui.utils.WebSocketWriter;
 import play.mvc.Http.WebSocketFrame;
+import play.*;
 
 /**
  *
@@ -109,9 +108,9 @@ public class CompilerSocket extends WebSocketController {
         else if(job.compareTo("verify") == 0){
             //Constructing compiler
             String[] args = {"-maindir", compilerMainDir, "-vcs", 
-                        "-listVCs", "-quickprove", "-webinterface",
+                        "-listVCs", "-newprove", "-webinterface",
                         "-timeout", "5000"};
-            r = new ResolveCompiler(args, umf, userFileMap, myWsWriter);
+            r = new ResolveCompiler(args, umf, userFileMap);
 
             VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
             vcgi.verifyResolve(job);
@@ -165,6 +164,7 @@ public class CompilerSocket extends WebSocketController {
             //outbound.send(gji.generateJava().toString());
             gji.generateJava(job);//event);
         }
+        System.out.println("done!");
         //System.out.println(decode(uc.content));
         //outbound.send(uc.name);
     }
