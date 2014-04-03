@@ -162,6 +162,7 @@ var keywordsTable = new KeywordsHashTable({
     "implies" : "" ,
     "Inductive" : "" ,
     "Inductive_case" : "" ,
+    "initialization" : "",
     "initialization ensures" : "whenever something is declared, the client is guaranteed this statement as its initial value." ,
     "instantiation" : "" ,
     "intersection" : "" ,
@@ -278,6 +279,7 @@ UserControlView = Backbone.View.extend({
         //var translate = $("<button>").html("translate").addClass("translateJava command active shadow");
         var analyze = $("<button>").html("Analyze").addClass("analyze command active shadow");
         var build = $("<button>").html("Build").addClass("buildJar command active shadow");
+        //var build = $("<button>").html("Build").addClass("buildJar command"); // inactive button
         var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
         var verify = $("<button>").html("Verify").addClass("verify command active shadow");
         var renderSpan = $("<div>").attr({id:"render-controls"}).addClass("render command");
@@ -314,7 +316,7 @@ UserControlView = Backbone.View.extend({
             else if(component.get("type") == "r"){
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
-                //verify.appendTo(commands);
+                verify.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -345,6 +347,7 @@ UserControlView = Backbone.View.extend({
                 cRenderbox.appendTo(renderSpan);
                 cRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
+                //verify.removeClass("active", "shadow");
             }
             else if(component.get("type") == "t"){
                 analyze.appendTo(commands);
@@ -1104,7 +1107,7 @@ function analyzeResults(resultJSON, component, waitGif){
     else if(resultJSON.job == TRANSLATE){
         var EditSession = require("ace/edit_session").EditSession;
         var javaCode = resultJSON.result;
-        var javaSession = new EditSession(formatCode(decode(javaCode)));
+        var javaSession = new EditSession(decode(javaCode));
         var JavaMode = require("ace/mode/java").Mode;
         component.set("java", javaSession);
         editor.setReadOnly(true);
@@ -1174,21 +1177,30 @@ function analyzeVerifyResult(resultJSON){
         //var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
         //var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
         var pRegExp = /Proved/i;
+	var tRegExp = /Timeout/i;
         var msRegExp = /[0-9]+/;
         var statusSpan = vcDiv.find(".vc_status");
         if(pRegExp.test(result)) {
             addProveSuccess(statusSpan);
             statusSpan.attr({
-                title: "Proved after " + msRegExp.exec(result) + " ms"
+                title: "Proved, " + msRegExp.exec(result) + " ms"
             });
             //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }
         else {
-            addProveFail(statusSpan);
-            statusSpan.attr({
-                title: "Skipped after " + msRegExp.exec(result) + " ms"
-            });
+	    if(tRegExp.test(result)) {
+		addProveTimeout(statusSpan);
+		statusSpan.attr({
+			title: "Timeout after " + msRegExp.exec(result) + " ms"
+		});
+	    }
+            else {
+            	addProveFail(statusSpan);
+            	statusSpan.attr({
+                	title: "Unable to prove, " + msRegExp.exec(result) + " ms"
+            	});
+	    }
             //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }

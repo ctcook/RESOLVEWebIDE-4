@@ -196,6 +196,13 @@ function addProveFail(div){
     return imageDiv;
 }
 
+function addProveTimeout(div){
+    var imageDiv = $("<div>");
+    imageDiv.addClass("proveTimeout");
+    div.html(imageDiv);
+    return imageDiv;
+}
+
 function addQtip(el, tip, type){
     var tipClass;
     if(type == "vc"){

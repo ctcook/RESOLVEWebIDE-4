@@ -27,9 +27,9 @@
     background-color: lightgray;
     background-image: url("../images/Research.png");
     background-repeat: no-repeat;
-    background-position-x: 17px;
-    background-position-y: 50px;
-    background-size: 22.5%;
+    background-position-x: 10px;
+    background-position-y: 10px;
+    background-size: 5%;
 }
 .section {
     clear:left;

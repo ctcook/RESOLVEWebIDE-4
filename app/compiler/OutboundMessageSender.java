@@ -34,14 +34,19 @@ public class OutboundMessageSender {
         myOutbound.send(msg);
     }
     
-    public void sendVcResult(Boolean result, String id){
+    public void sendVcResult(Boolean result, String id, long proofDuration, long timeout){
         String msg = "{\"job\":\"verify\",\"status\":\"processing\",";
         msg += "\"result\":{\"id\":\"" + id + "\",\"result\":\"";
         if(result) {
-            msg += "Proved in ?? ms";
+            msg += "Proved, " + proofDuration + " ms";
         }
         else {
-            msg += "failed in ?? ms";
+            if (proofDuration < timeout) {
+		msg += "Unable to prove, " + proofDuration + " ms";
+            }
+            else {
+            	msg += "Timeout after " + timeout + " ms";
+	    }
         }
         msg += "\"}";
         msg += "}";

@@ -69,7 +69,10 @@ public class PasswordRecovery extends Controller {
             
         // Mark the user as authenticated in our database
         User.authenticate(email);
-            
+
+        // Store the new password
+        User.resetPassword(email, password);
+
         // Send password reset email
         Mails.resetPassword(user);
         
