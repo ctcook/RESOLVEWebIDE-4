@@ -112,6 +112,15 @@ public class CompilerSocket extends WebSocketController {
             VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
             vcgi.verifyResolve(job);
         }
+	else if(job.compareTo("verify2") == 0){
+	    String[] args = {"-maindir", compilerMainDir, "-vcs",
+                        "-listVCs", "-ccprove", "-webinterface",
+			"-timeout", "15000"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
+            vcgi.verifyResolve(job);
+	}
         else if(job.compareTo("buildJar") == 0){
             
             // we create a temporary version of the workspace with a hierarchy
