@@ -25,7 +25,8 @@
 }
 .researchbackgroundclass{
     background-color: lightgray;
-    background-image: url("../images/Research.png");
+    /*background-image: url("../images/Research.png");*/
+    background-image: url("../images/Teaching.png");
     background-repeat: no-repeat;
     background-position-x: 10px;
     background-position-y: 10px;
