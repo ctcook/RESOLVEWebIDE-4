@@ -1913,7 +1913,7 @@ function setFinderWidth(newElement){
         newFinderWidth += $(child).outerWidth();
     });
     var zoom = DetectZoom.zoom();
-    finder.outerWidth(newFinderWidth * zoom);
+    finder.outerWidth(newFinderWidth * zoom + 15);
     if(newFinderWidth > parentWidth){
         finder.parent().animate({scrollLeft: (newFinderWidth - parentWidth)}, 'fast');
     }
