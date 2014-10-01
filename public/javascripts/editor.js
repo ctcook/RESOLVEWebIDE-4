@@ -2,7 +2,9 @@ var TRANSLATE = "translateJava";
 var VCS = "genVCs";
 var BUILD = "buildJar";
 var VERIFY = "verify";
+var VERIFY2 = "verify2";
 var VCVERIFY = "vcVerify";
+var VCVERIFY2 = "vcVerify2";
 var PRETTYJAVA = "prettyJavaTranslate"
 var PRETTYC = "prettyCTranslate";
 var ANALYZE = "analyze"
@@ -162,6 +164,7 @@ var keywordsTable = new KeywordsHashTable({
     "implies" : "" ,
     "Inductive" : "" ,
     "Inductive_case" : "" ,
+    "initialization" : "",
     "initialization ensures" : "whenever something is declared, the client is guaranteed this statement as its initial value." ,
     "instantiation" : "" ,
     "intersection" : "" ,
@@ -278,8 +281,10 @@ UserControlView = Backbone.View.extend({
         //var translate = $("<button>").html("translate").addClass("translateJava command active shadow");
         var analyze = $("<button>").html("Analyze").addClass("analyze command active shadow");
         var build = $("<button>").html("Build").addClass("buildJar command active shadow");
+        //var build = $("<button>").html("Build").addClass("buildJar command"); // inactive button
         var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
-        var verify = $("<button>").html("Verify").addClass("verify command active shadow");
+        var verify = $("<button>").html("RWVerify").addClass("verify command active shadow");
+	var verify2 = $("<button>").html("CCVerify").addClass("verify2 command active shadow");
         var renderSpan = $("<div>").attr({id:"render-controls"}).addClass("render command");
         var translateRenderbox = $("<input>").attr({type:"checkbox","id":"translateCheckbox","data-type":"translateCheckbox"});
         var translateRenderSpan = $("<label>").attr({"for":"translateCheckbox"}).html("Executable");
@@ -314,7 +319,8 @@ UserControlView = Backbone.View.extend({
             else if(component.get("type") == "r"){
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
-                //verify.appendTo(commands);
+                verify.appendTo(commands);
+		verify2.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -329,6 +335,7 @@ UserControlView = Backbone.View.extend({
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
                 verify.appendTo(commands);
+		verify2.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -338,6 +345,7 @@ UserControlView = Backbone.View.extend({
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
                 verify.appendTo(commands);
+		verify2.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 javaRenderbox.appendTo(renderSpan);
@@ -345,6 +353,7 @@ UserControlView = Backbone.View.extend({
                 cRenderbox.appendTo(renderSpan);
                 cRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
+                //verify.removeClass("active", "shadow");
             }
             else if(component.get("type") == "t"){
                 analyze.appendTo(commands);
@@ -404,6 +413,7 @@ UserControlView = Backbone.View.extend({
         "click .active.buildJar" : "compile",
         "click .active.vcs" : "compile",
         "click .active.verify" : "verify",
+	"click .active.verify2" : "verify2",
         "click #translateCheckbox" : "translateJava",
         "click #javaCheckbox" : "translatePrettyJava",
         "click #cCheckbox" : "translatePrettyC",
@@ -454,6 +464,9 @@ UserControlView = Backbone.View.extend({
         else if(targetButton.hasClass("verify")){
             targetJob = VCVERIFY;
         }
+	else if(targetButton.hassClass("verify2")){
+	    targetJob = VCVERIFY2;
+	}
         var model = this.model;
         var component = model.get("componentModel").clone();
         component.set("content", encode(editor.getSession().getValue()));
@@ -481,6 +494,39 @@ UserControlView = Backbone.View.extend({
         else if(targetButton.hasClass("verify")){
             targetJob = VCVERIFY;
         }
+	else if(targetButton.hasClass("verify2")){
+	    targetJob = VCVERIFY2;
+	}
+        var model = this.model;
+        var component = model.get("componentModel").clone();
+        component.set("content", encode(editor.getSession().getValue()));
+        var targetJSON = component.toJSON();
+        wsCompile(targetJob, targetJSON, waitGif, model);
+    },
+    verify2: function(event){
+	var openComponentTab = $("#open_menu").find(".component_tab.selected");
+        var infoBlock = openComponentTab.find(".componentInfo");
+        var waitGif = addWaitGif(infoBlock);
+        var targetJob = null;
+        var targetButton = $(event.currentTarget);
+        // these classes must match what is assigned in the render function above
+        // for the sevlet backend to understand what to do. That means the servlet
+        // must also match when it checks for the job parameter
+        if(targetButton.hasClass("translateJava")){
+            targetJob = TRANSLATE;
+        }
+        else if(targetButton.hasClass("buildJar")){
+            targetJob = BUILD;
+        }
+        else if(targetButton.hasClass("vcs")){
+            targetJob = VCS;
+        }
+        else if(targetButton.hasClass("verify")){
+            targetJob = VCVERIFY;
+        }
+	else if(targetButton.hasClass("verify2")){
+	    targetJob = VCVERIFY2;
+	}
         var model = this.model;
         var component = model.get("componentModel").clone();
         component.set("content", encode(editor.getSession().getValue()));
@@ -904,9 +950,14 @@ var ws = null;
 function wsCompile(targetJob, targetJSON, waitGif, model){
     var loc = window.location;
     var verify = false;
+    var verify2 = false;
     if(targetJob == VCVERIFY){
         verify = true;
         targetJob = VCS;
+    }
+    else if(targetJob == VCVERIFY2){
+	verify2 = true;
+	targetJob = VCS;
     }
     var url = "ws://" + getUrl(loc) + "Compiler";
     //var params = "?job=" + targetJob + "&target=" + targetJSON + "&project=" + selectedProject;
@@ -942,6 +993,16 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
                 targetJob = VERIFY;
                 wsCompile(targetJob, targetJSON, waitGif, model);
             }
+	    else if(verify2){
+		var vcSpans = $("#console-info").find(".vc_status");
+                vcSpans.each(function(){
+                    addWaitGif($(this));
+                })
+                var vcsDetails = $("#console-info").find(".vc_details");
+                vcsDetails.addClass("vc_details_hidden");
+                targetJob = VERIFY2;
+                wsCompile(targetJob, targetJSON, waitGif, model);
+	    }
             else{
                 var openComponentTab = $("#open_menu").find(".component_tab.selected");
                 var infoBlock = openComponentTab.find(".componentInfo");
@@ -1104,7 +1165,7 @@ function analyzeResults(resultJSON, component, waitGif){
     else if(resultJSON.job == TRANSLATE){
         var EditSession = require("ace/edit_session").EditSession;
         var javaCode = resultJSON.result;
-        var javaSession = new EditSession(formatCode(decode(javaCode)));
+        var javaSession = new EditSession(decode(javaCode));
         var JavaMode = require("ace/mode/java").Mode;
         component.set("java", javaSession);
         editor.setReadOnly(true);
@@ -1166,7 +1227,7 @@ function analyzeResults(resultJSON, component, waitGif){
 }
 
 function analyzeVerifyResult(resultJSON){
-    if(resultJSON.job == VERIFY){
+    if(resultJSON.job == VERIFY || resultJSON.job == VERIFY2){
         var vcResult = resultJSON.result;
         var vcID = "VC_" + vcResult.id;
         var result = vcResult.result;
@@ -1174,21 +1235,30 @@ function analyzeVerifyResult(resultJSON){
         //var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
         //var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
         var pRegExp = /Proved/i;
+	var tRegExp = /Timeout/i;
         var msRegExp = /[0-9]+/;
         var statusSpan = vcDiv.find(".vc_status");
         if(pRegExp.test(result)) {
             addProveSuccess(statusSpan);
             statusSpan.attr({
-                title: "Proved after " + msRegExp.exec(result) + " ms"
+                title: "Proved, " + msRegExp.exec(result) + " ms"
             });
             //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }
         else {
-            addProveFail(statusSpan);
-            statusSpan.attr({
-                title: "Skipped after " + msRegExp.exec(result) + " ms"
-            });
+	    if(tRegExp.test(result)) {
+		addProveTimeout(statusSpan);
+		statusSpan.attr({
+			title: "Timeout after " + msRegExp.exec(result) + " ms"
+		});
+	    }
+            else {
+            	addProveFail(statusSpan);
+            	statusSpan.attr({
+                	title: "Unable to prove, " + msRegExp.exec(result) + " ms"
+            	});
+	    }
             //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }

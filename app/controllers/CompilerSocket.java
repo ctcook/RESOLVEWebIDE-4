@@ -83,7 +83,7 @@ public class CompilerSocket extends WebSocketController {
         }
         if(job.compareTo("translateJava") == 0){
             //Constructing compiler
-            String[] args = {"-maindir", compilerMainDir, "-translate", 
+            String[] args = {"-maindir", compilerMainDir, "-javaTranslate", 
                 "-webinterface"};
             r = new ResolveCompiler(args, umf, userFileMap);
 
@@ -95,8 +95,10 @@ public class CompilerSocket extends WebSocketController {
         }
         else if(job.compareTo("genVCs") == 0){
             //Constructing compiler
-            String[] args = {"-maindir", compilerMainDir, "-vcs", 
-                        "-listVCs", "-webinterface"};
+/*            String[] args = {"-maindir", compilerMainDir, "-vcs", 
+                        "-listVCs", "-webinterface"};*/
+	    String[] args = {"-maindir", compilerMainDir, "-altVCs",
+			"-webinterface"};
             r = new ResolveCompiler(args, umf, userFileMap);
 
             VCGeneratorInvoker vcgi = new VCGeneratorInvoker(r, args, outbound);
@@ -104,14 +106,29 @@ public class CompilerSocket extends WebSocketController {
         }
         else if(job.compareTo("verify") == 0){
             //Constructing compiler
-            String[] args = {"-maindir", compilerMainDir, "-vcs", 
+/*            String[] args = {"-maindir", compilerMainDir, "-vcs", 
                         "-listVCs", "-newprove", "-webinterface",
-                        "-timeout", "2000000"};
+                        "-timeout", "15000"};*/
+	    String[] args = {"-maindir", compilerMainDir, "-altVCs",
+			"-newprove", "-webinterface",
+			"-timeout", "15000"};
             r = new ResolveCompiler(args, umf, userFileMap);
 
             VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
             vcgi.verifyResolve(job);
         }
+	else if(job.compareTo("verify2") == 0){
+/*	    String[] args = {"-maindir", compilerMainDir, "-vcs",
+                        "-listVCs", "-ccprove", "-webinterface",
+			"-timeout", "15000"};*/
+	    String[] args = {"-maindir", compilerMainDir, "-altVCs",
+			"-ccprove", "-webinterface",
+			"-timeout", "15000"};
+            r = new ResolveCompiler(args, umf, userFileMap);
+
+            VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
+            vcgi.verifyResolve(job);
+	}
         else if(job.compareTo("buildJar") == 0){
             
             // we create a temporary version of the workspace with a hierarchy
@@ -171,7 +188,7 @@ public class CompilerSocket extends WebSocketController {
             //outbound.send(gji.generateJava().toString());
             gji.generateJava(job);//event);
         }
-        System.out.println("done!");
+        //System.out.println("done!");
         //System.out.println(decode(uc.content));
         //outbound.send(uc.name);
     }

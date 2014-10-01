@@ -973,7 +973,7 @@ function initializeUserComponents(userComponents){
                 custom: "true",
                 //enhancements: null,
                 //id: newName+"."+newName,
-                id: "facilities."+uc.name,
+                id: "User."+uc.name,
                 name: uc.name,
                 pkg: uc.pkg,
                 //realizations: null,
@@ -984,7 +984,7 @@ function initializeUserComponents(userComponents){
             myFacilityList.add(newComponent);
             myUserComponentList.add(newComponent)
             //newComponent.set("id", uc.id);
-            newComponent.id = "facilities."+uc.name;
+            newComponent.id = "User."+uc.name;
         }
         else if(uc.type === "t"){
             var newComponent = new Component({
@@ -1157,7 +1157,7 @@ function importUserComponents(userComponents, d){
                     custom: "true",
                     //enhancements: null,
                     //id: newName+"."+newName,
-                    id: "facilities."+uc.name,
+                    id: "User."+uc.name,
                     name: uc.name,
                     pkg: uc.pkg,
                     //realizations: null,
@@ -1166,7 +1166,7 @@ function importUserComponents(userComponents, d){
                 });
                 myImportedUserComponentList.add(newComponent)
                 //newComponent.set("id", uc.id);
-                newComponent.id = "facilities."+uc.name;
+                newComponent.id = "User."+uc.name;
             }
         });
         jQuery.each(ucs, function(index, uc){
@@ -1790,7 +1790,7 @@ function genNewFacilityForm(parent, d){
                 enhancements: null,
                 //id: newName+"."+newName,
                 name: newName,
-                pkg: "facilities",
+                pkg: "User",
                 realizations: null,
                 standard: "false",
                 type: "f"
@@ -1798,7 +1798,7 @@ function genNewFacilityForm(parent, d){
             myComponentList.add(newComponent);
             myFacilityList.add(newComponent);
             myUserComponentList.add(newComponent);
-            var id = "facilities."+newName;
+            var id = "User."+newName;
             newComponent.save(null, {success:function(){
                     saveSuccess(newComponent, id, d);
             }});
@@ -1913,7 +1913,7 @@ function setFinderWidth(newElement){
         newFinderWidth += $(child).outerWidth();
     });
     var zoom = DetectZoom.zoom();
-    finder.outerWidth(newFinderWidth * zoom);
+    finder.outerWidth(newFinderWidth * zoom + 15);
     if(newFinderWidth > parentWidth){
         finder.parent().animate({scrollLeft: (newFinderWidth - parentWidth)}, 'fast');
     }

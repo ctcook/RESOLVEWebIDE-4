@@ -28,7 +28,7 @@ public class WsListener implements ProverListener {
     @Override
     public void vcResult(boolean b, PerVCProverModel perVCProverModel, Metrics metrics) {
         //To change body of implemented methods use File | Settings | File Templates.
-        System.out.println("############################# result: "+b);
-        myOutbound.sendVcResult(b, perVCProverModel.getTheoremName());
+        //System.out.println("############################# result: "+b);
+        myOutbound.sendVcResult(b, perVCProverModel.getTheoremName(), metrics.getProofDuration(), metrics.getTimeout());
     }
 }
