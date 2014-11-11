@@ -1534,7 +1534,7 @@ function logVCs(vcs){
     jQuery.each(vcs, function(){
         var vc = this;
         if(typeof vc.vcID !== "undefined"){
-            if(vc.line > currLine){
+            if(parseInt(vc.line) > parseInt(currLine)){
                 vcDiv.append(vcLine);
                 vcLine = $("<div>").attr({id: "vc_line_"+(vc.line)}).addClass("vcContainer selectedVC");
             }
