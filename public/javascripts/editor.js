@@ -1597,7 +1597,7 @@ function reformatVCs(vc){
         vcDetails.append("<br/>");
         vcDetails.append(step+"<br/><br/>");
         vcDetails.append("Goal:");
-        goal = goal.substr(goal.indexOf(":")+1);
+        //goal = goal.substr(goal.indexOf(":")+1);
         var goalDiv = $("<div>").addClass("vcIndent").html("<p>"+goal.replace(/&nbsp;/g, " ")+"</p>");
         vcDetails.append(goalDiv);
         vcDetails.append("Given:");
@@ -1664,8 +1664,8 @@ function getVcSteps(rawVCs){
 }
 
 function sortByIdAndLine(a, b){
-    var line1 = a.line;
-    var line2 = b.line;
+    var line1 = parseInt(a.line);
+    var line2 = parseInt(b.line);
     
     var id1 = a.vcID;
     var id2 = b.vcID;
