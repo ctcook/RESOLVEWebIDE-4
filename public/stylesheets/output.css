@@ -73,8 +73,12 @@
     border-top: 2px solid lightgray;
 }
 
+.vc ol {
+	margin-right: 10px;
+}
+
 .vcIndent{
-    margin: 10px 0px 10px 20px;
+    margin: 10px 10px 10px 20px;
     /*width: 100%;*/
     clear: left;
 }
