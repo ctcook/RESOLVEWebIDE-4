@@ -1,8 +1,8 @@
 package compiler;
 
-import edu.clemson.cs.r2jt.proving2.Metrics;
-import edu.clemson.cs.r2jt.proving2.ProverListener;
-import edu.clemson.cs.r2jt.proving2.model.PerVCProverModel;
+import edu.clemson.cs.r2jt.rewriteprover.Metrics;
+import edu.clemson.cs.r2jt.rewriteprover.ProverListener;
+import edu.clemson.cs.r2jt.rewriteprover.model.PerVCProverModel;
 
 /**
  * Created with IntelliJ IDEA.

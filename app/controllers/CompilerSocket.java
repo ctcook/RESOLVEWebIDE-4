@@ -5,7 +5,7 @@ import compiler.*;
 import edu.clemson.cs.r2jt.ResolveCompiler;
 import edu.clemson.cs.r2jt.data.MetaFile;
 import edu.clemson.cs.r2jt.data.ModuleKind;
-import edu.clemson.cs.r2jt.proving2.ProverListener;
+import edu.clemson.cs.r2jt.rewriteprover.ProverListener;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
