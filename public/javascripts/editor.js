@@ -413,7 +413,7 @@ UserControlView = Backbone.View.extend({
         "click .active.buildJar" : "compile",
         "click .active.vcs" : "compile",
         "click .active.verify" : "verify",
-	"click .active.verify2" : "verify2",
+	    "click .active.verify2" : "verify2",
         "click #translateCheckbox" : "translateJava",
         "click #javaCheckbox" : "translatePrettyJava",
         "click #cCheckbox" : "translatePrettyC",
@@ -998,8 +998,8 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
                 vcSpans.each(function(){
                     addWaitGif($(this));
                 })
-                var vcsDetails = $("#console-info").find(".vc_details");
-                vcsDetails.addClass("vc_details_hidden");
+                //var vcsDetails = $("#console-info").find(".vc_details");
+                //vcsDetails.addClass("vc_details_hidden");
                 targetJob = VERIFY2;
                 wsCompile(targetJob, targetJSON, waitGif, model);
 	    }
@@ -1136,14 +1136,8 @@ function analyzeResults(resultJSON, component, waitGif){
             window.location.href = url;
             d.dialog("destroy");
         });
-        var cancelButton = $("<button>").val("cancel").text("Cancel");
-        cancelButton.click(function(event){
-            event.preventDefault();
-            cancelJarDownload(facName, downloadDir, d);
-        });
         var content = $("<div>").html("Succesfully built jar program for: " + facName + "<br/><br/>");
         content.append(downloadButton);
-        content.append(cancelButton);
         var el = $("#dialog_new");
         var d = el.dialog({
             width:400,
@@ -1232,6 +1226,8 @@ function analyzeVerifyResult(resultJSON){
         var vcID = "VC_" + vcResult.id;
         var result = vcResult.result;
         var vcDiv = $("#" + vcID);
+        var vcTitleDiv = $("#" + vcID + "_TITLE");
+        var vcInfoDiv = $("#" + vcID + "_INFO");
         //var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
         //var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
         var pRegExp = /Proved/i;
@@ -1243,25 +1239,44 @@ function analyzeVerifyResult(resultJSON){
             statusSpan.attr({
                 title: "Proved, " + msRegExp.exec(result) + " ms"
             });
+            vcDiv.remove();
+            $("#Proved").append(vcDiv);
+            //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
+            //vcInfoDiv.attr({style:"display: block"});
+            //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false, animate: false});
             //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }
         else {
-	    if(tRegExp.test(result)) {
-		addProveTimeout(statusSpan);
-		statusSpan.attr({
-			title: "Timeout after " + msRegExp.exec(result) + " ms"
-		});
+	        if(tRegExp.test(result)) {
+		        addProveTimeout(statusSpan);
+		        statusSpan.attr({
+			        title: "Timeout after " + msRegExp.exec(result) + " ms"
+		        });
+            vcDiv.remove();
+            $("#NotProved").append(vcDiv);
+            //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
+            //vcInfoDiv.attr({style:"display: block"});
+            //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false});
 	    }
             else {
             	addProveFail(statusSpan);
             	statusSpan.attr({
                 	title: "Unable to prove, " + msRegExp.exec(result) + " ms"
             	});
+            vcDiv.remove();
+            $("#NotProved").append(vcDiv);
+            //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
+            //vcInfoDiv.attr({style:"display: block"});
+            //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false});
 	    }
             //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
             //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
         }
+
+        vcTitleDiv.attr({style: "height: 37px; border: 2px solid; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
+        vcInfoDiv.attr({style:"display: block"});
+        vcDiv.accordion({collapsible: true, active: false, icons: false, autoHeight: false, animate: false});
     }
 }
 
@@ -1516,6 +1531,30 @@ function htmlEncodeGTLT(content){
 }
 
 function logVCs(vcs){
+    clearConsole();
+    var processingDiv = $("<div>").addClass("processing").html("");
+    processingDiv.append("<h3>PROCESSING</h3>");
+    for(var i = 0; i < vcs.length; i++) {
+        var vcDiv = $("<div>").addClass("vcContainer selectedVC").html("");
+        vcDiv.attr({id:"VC_"+vcs[i].vcID});
+        vcDiv.attr({style:"padding: .5px 0px"});
+        vcDiv.append(reformatVCTitle(vcs[i]).html());
+        vcDiv.append(reformatVCInfo(vcs[i]).html());
+        processingDiv.append(vcDiv);
+    }
+    var notProvedDiv = $("<div>").addClass("not proved").html("");
+    notProvedDiv.attr("id", "NotProved");
+    notProvedDiv.append("<h3>NOT PROVED</h3>");
+    var provedDiv = $("<div>").addClass("proved").html("");
+    provedDiv.attr("id", "Proved");
+    provedDiv.append("<h3>PROVED</h3>");
+
+    $( "#console-info").append(notProvedDiv);
+    $( "#console-info").append(provedDiv);
+    $( "#console-info").append(processingDiv);
+}
+
+/*function logVCs(vcs){
     vcs.sort(sortByIdAndLine);
     //$( "#output_tabs" ).tabs("select", 2);
     var vcDiv = $("#console-info");
@@ -1556,7 +1595,7 @@ function logVCs(vcs){
     //consoleDiv.innerHTML += msg+"<br/>";
     //consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
-
+*/
 function selectVC(lineNum){
     //$( "#output_tabs" ).tabs("select", 2);
     var vcsDiv = $("#console-info");
@@ -1579,7 +1618,76 @@ function selectVC(lineNum){
     //consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
 
-function reformatVCs(vc){
+function reformatVCTitle(vc){
+    var vcsDiv = $("<div>").addClass("vcContainer selectedVCTitle").html("");
+    var vcTitleDiv = $("<div>");
+    var vcID = vc.vcID;
+    if(typeof vcID !== "undefined"){
+        vcTitleDiv.addClass("vcTitle");
+        var step = decode(vc.step);
+        vcTitleDiv.attr({id:"VC_"+vcID+"_TITLE"});
+        var infoSpan = $("<span>").addClass("componentInfo vc_status");
+        vcTitleDiv.append(infoSpan);
+        vcTitleDiv.append("VC "+vcID + "&nbsp;&nbsp;&nbsp;(" + vc.line + ")");
+        vcTitleDiv.attr({style: "height: 35px; font-weight: bold; border:"});
+
+        vcsDiv.append(vcTitleDiv);
+    }
+    else{
+        vcTitleDiv.addClass("freeVarsTitle");
+        vcTitleDiv.append(decode(vc.freeVars));
+    }
+
+    return vcsDiv;
+}
+
+function reformatVCInfo(vc){
+
+    var vcsDiv = $("<div>").addClass("vcContainer selectedVCInfo").html("");
+    //vcsDiv.append("Hello!\n");
+    var vcInfoDiv = $("<div>");
+    var vcID = vc.vcID;
+    if(typeof vcID !== "undefined"){
+        vcInfoDiv.addClass("vcInfo");
+        var step = decode(vc.step);
+        var goal = vc.goal;
+        var given = vc.given;
+        vcInfoDiv.attr({id:"VC_"+vcID+"_INFO"});
+        vcInfoDiv.attr({style:"display: none"});
+        //var infoSpan = $("<span>").addClass("componentInfo vc_status");
+        //vcInfoDiv.append(infoSpan);
+        var vcDetails = $("<div>").addClass("vc_info_details");
+        vcDetails.append("<br/>");
+        vcDetails.append(step+"<br/><br/>");
+        vcDetails.append("Goal:");
+        //goal = goal.substr(goal.indexOf(":")+1);
+        var goalDiv = $("<div>").addClass("vcIndention").html("<p>"+goal.replace(/&nbsp;/g, " ")+"</p>");
+        vcDetails.append(goalDiv);
+        vcDetails.append("Given:");
+        var givensList = $("<ol>");
+        var givenRegExp = /[\d]+:/g;
+        var givens = given.split(givenRegExp);
+        $.each(givens, function(index, given){
+            if(index != 0){
+                var givenItem = $("<li>").html(given.replace(/&nbsp;/g, " "));
+                givensList.append(givenItem);
+            }
+        });
+        vcDetails.append(givensList);
+        vcDetails.appendTo(vcInfoDiv);
+        vcsDiv.append(vcInfoDiv);
+    }
+    else{
+        vcDiv.addClass("freeVars");
+        vcDiv.append(decode(vc.freeVars));
+    }
+    //$.each(vcArray, function(){
+
+    //});
+    return vcsDiv;
+}
+
+/*function reformatVCs(vc){
     var vcsDiv = $("<div>").addClass("vcContainer selectedVC").html("");
     var vcDiv = $("<div>");
     var vcID = vc.vcID;
@@ -1626,11 +1734,11 @@ function reformatVCs(vc){
         vcDiv.append(decode(vc.freeVars));
     }
     //$.each(vcArray, function(){
-        
+
     //});
     return vcsDiv;
 }
-
+*/
 function encodeVcContent(content){
     var regExp = /\<[^\>]\>/g;
     var lsRegExpLT = /\</g;

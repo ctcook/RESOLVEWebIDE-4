@@ -63,7 +63,10 @@
 .vcContainer{
     /*margin: 25px 1px 1px 5px;*/
     background-color: #E8E8E8;
+    border: 2px solid;
+    border-radius: 5px;
     overflow-y: auto;
+    margin-bottom: 2px;
 }
 
 .vc{
@@ -81,12 +84,6 @@
     margin: 10px 10px 10px 20px;
     /*width: 100%;*/
     clear: left;
-}
-
-.selectedVC {
-    margin-left: 5px;
-    padding-left: 5px;
-    background-color: white;
 }
 
 .vc_details_hidden {
