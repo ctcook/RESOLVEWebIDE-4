@@ -1537,7 +1537,7 @@ function logVCs(vcs){
     for(var i = 0; i < vcs.length; i++) {
         var vcDiv = $("<div>").addClass("vcContainer selectedVC").html("");
         vcDiv.attr({id:"VC_"+vcs[i].vcID});
-        vcDiv.attr({style:"padding: .5px 0px"});
+        vcDiv.attr({style:"padding-bottom: 1px"});
         vcDiv.append(reformatVCTitle(vcs[i]).html());
         vcDiv.append(reformatVCInfo(vcs[i]).html());
         processingDiv.append(vcDiv);
