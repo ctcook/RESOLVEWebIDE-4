@@ -1022,7 +1022,10 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     };
     
     ws.onclose = function (event) {
-        //console.log(event);
+        if ( (targetJob === "verify" && !verify) ||
+            (targetJob === "verify2" && !verify2)) {
+            $("#Processing").remove();
+        }
     };
     
     var userEvent = new UserEvent({
@@ -1241,11 +1244,7 @@ function analyzeVerifyResult(resultJSON){
             });
             vcDiv.remove();
             $("#Proved").append(vcDiv);
-            //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
-            //vcInfoDiv.attr({style:"display: block"});
-            //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false, animate: false});
-            //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
-            //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
+            $("#Proved").attr({style:"display: block"});
         }
         else {
 	        if(tRegExp.test(result)) {
@@ -1253,8 +1252,9 @@ function analyzeVerifyResult(resultJSON){
 		        statusSpan.attr({
 			        title: "Timeout after " + msRegExp.exec(result) + " ms"
 		        });
-            vcDiv.remove();
-            $("#NotProved").append(vcDiv);
+                vcDiv.remove();
+                $("#NotProved").append(vcDiv);
+                $("#NotProved").attr({style:"display: block"});
             //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
             //vcInfoDiv.attr({style:"display: block"});
             //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false});
@@ -1533,6 +1533,7 @@ function htmlEncodeGTLT(content){
 function logVCs(vcs){
     clearConsole();
     var processingDiv = $("<div>").addClass("processing").html("");
+    processingDiv.attr("id", "Processing");
     processingDiv.append("<h3>PROCESSING</h3>");
     for(var i = 0; i < vcs.length; i++) {
         var vcDiv = $("<div>").addClass("vcContainer selectedVC").html("");
@@ -1544,9 +1545,11 @@ function logVCs(vcs){
     }
     var notProvedDiv = $("<div>").addClass("not proved").html("");
     notProvedDiv.attr("id", "NotProved");
+    notProvedDiv.attr({style:"display: none"});
     notProvedDiv.append("<h3>NOT PROVED</h3>");
     var provedDiv = $("<div>").addClass("proved").html("");
     provedDiv.attr("id", "Proved");
+    provedDiv.attr({style:"display: none"});
     provedDiv.append("<h3>PROVED</h3>");
 
     $( "#console-info").append(notProvedDiv);
