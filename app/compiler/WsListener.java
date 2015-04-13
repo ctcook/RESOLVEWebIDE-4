@@ -18,14 +18,12 @@ public class WsListener implements ProverListener {
     public WsListener(OutboundMessageSender outbound) {
         myOutbound = outbound;
     }
-    
-    @Override
+
     public void progressUpdate(double v) {
         //To change body of implemented methods use File | Settings | File Templates.
         //System.out.println("########################### update: "+v);
     }
 
-    @Override
     public void vcResult(boolean b, PerVCProverModel perVCProverModel, Metrics metrics) {
         //To change body of implemented methods use File | Settings | File Templates.
         //System.out.println("############################# result: "+b);
