@@ -1263,6 +1263,7 @@ function analyzeVerifyResult(resultJSON){
             	});
                 vcDiv.remove();
                 $("#NotProved").append(vcDiv);
+                $("#NotProved").attr({style:"display: block"});
 	        }
         }
 
