@@ -1255,23 +1255,15 @@ function analyzeVerifyResult(resultJSON){
                 vcDiv.remove();
                 $("#NotProved").append(vcDiv);
                 $("#NotProved").attr({style:"display: block"});
-            //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
-            //vcInfoDiv.attr({style:"display: block"});
-            //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false});
 	    }
             else {
             	addProveFail(statusSpan);
             	statusSpan.attr({
                 	title: "Unable to prove, " + msRegExp.exec(result) + " ms"
             	});
-            vcDiv.remove();
-            $("#NotProved").append(vcDiv);
-            //vcTitleDiv.attr({style: "height: 37px; font: Times New Roman; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
-            //vcInfoDiv.attr({style:"display: block"});
-            //vcDiv.accordion({collapsible: true, autoHeight: false, active: false, icons: false});
-	    }
-            //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
-            //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
+                vcDiv.remove();
+                $("#NotProved").append(vcDiv);
+	        }
         }
 
         vcTitleDiv.attr({style: "height: 37px; border: 2px solid; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
@@ -1426,7 +1418,7 @@ function triggerConsole(){
 }
 
 function clearConsole(){
-    dismissConsole();
+    //dismissConsole();
     $("#console-info").html("");
 }
 

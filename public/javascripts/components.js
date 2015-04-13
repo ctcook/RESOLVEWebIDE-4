@@ -796,6 +796,7 @@ function displayComponent(component){
      //$("#open_component_dropdown").removeClass("visible").addClass("hidden");
      scanToSelected(item);
      clearConsole();
+     dismissConsole();
      
     var userEvent = new UserEvent({
         eventType: "displayComponent",
