@@ -284,7 +284,7 @@ UserControlView = Backbone.View.extend({
         //var build = $("<button>").html("Build").addClass("buildJar command"); // inactive button
         var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
         var verify = $("<button>").html("RWVerify").addClass("verify command active shadow");
-	var verify2 = $("<button>").html("CCVerify").addClass("verify2 command active shadow");
+        var verify2 = $("<button>").html("CCVerify").addClass("verify2 command active shadow");
         var renderSpan = $("<div>").attr({id:"render-controls"}).addClass("render command");
         var translateRenderbox = $("<input>").attr({type:"checkbox","id":"translateCheckbox","data-type":"translateCheckbox"});
         var translateRenderSpan = $("<label>").attr({"for":"translateCheckbox"}).html("Executable");
@@ -320,7 +320,7 @@ UserControlView = Backbone.View.extend({
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
                 verify.appendTo(commands);
-		verify2.appendTo(commands);
+		        verify2.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -335,7 +335,7 @@ UserControlView = Backbone.View.extend({
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
                 verify.appendTo(commands);
-		verify2.appendTo(commands);
+		        verify2.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -345,13 +345,13 @@ UserControlView = Backbone.View.extend({
                 //translate.appendTo(commands);
                 vcs.appendTo(commands);
                 verify.appendTo(commands);
-		verify2.appendTo(commands);
+		        verify2.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
-                javaRenderbox.appendTo(renderSpan);
-                javaRenderSpan.appendTo(renderSpan);
-                cRenderbox.appendTo(renderSpan);
-                cRenderSpan.appendTo(renderSpan);
+                //javaRenderbox.appendTo(renderSpan);
+                //javaRenderSpan.appendTo(renderSpan);
+                //cRenderbox.appendTo(renderSpan);
+                //cRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
                 //verify.removeClass("active", "shadow");
             }
@@ -415,8 +415,8 @@ UserControlView = Backbone.View.extend({
         "click .active.verify" : "verify",
 	    "click .active.verify2" : "verify2",
         "click #translateCheckbox" : "translateJava",
-        "click #javaCheckbox" : "translatePrettyJava",
-        "click #cCheckbox" : "translatePrettyC",
+        //"click #javaCheckbox" : "translatePrettyJava",
+        //"click #cCheckbox" : "translatePrettyC",
         //"click .active.commit" : "commit",
         "click .active.rename" : "rename",
         "click .active.save" : "save",
@@ -1025,6 +1025,9 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         if ( (targetJob === "verify" && !verify) ||
             (targetJob === "verify2" && !verify2)) {
             $("#Processing").remove();
+            var commandButtons = $(".controls_commands").find("button");
+            commandButtons.removeAttr("disabled").addClass("active");
+            editor.setReadOnly(false);
         }
     };
     
@@ -1525,6 +1528,10 @@ function htmlEncodeGTLT(content){
 
 function logVCs(vcs){
     clearConsole();
+    var commandButtons = $(".controls_commands").find("button");
+    commandButtons.attr({disabled: true});
+    commandButtons.removeClass("active");
+    editor.setReadOnly(true);
     var processingDiv = $("<div>").addClass("processing").html("");
     processingDiv.attr("id", "Processing");
     processingDiv.append("<h3>PROCESSING</h3>");
