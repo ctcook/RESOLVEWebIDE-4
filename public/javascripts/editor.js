@@ -1028,6 +1028,7 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
             var commandButtons = $(".controls_commands").find("button");
             commandButtons.removeAttr("disabled").addClass("active");
             editor.setReadOnly(false);
+            $("#translateCheckbox").removeAttr("disabled").addClass("active");
         }
     };
     
@@ -1532,6 +1533,8 @@ function logVCs(vcs){
     commandButtons.attr({disabled: true});
     commandButtons.removeClass("active");
     editor.setReadOnly(true);
+    $("#translateCheckbox").attr({disabled: true});
+    $("#translateCheckbox").removeClass("active");
     var processingDiv = $("<div>").addClass("processing").html("");
     processingDiv.attr("id", "Processing");
     processingDiv.append("<h3>PROCESSING</h3>");
