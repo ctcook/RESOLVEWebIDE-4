@@ -5,7 +5,7 @@ var VERIFY = "verify";
 var VERIFY2 = "verify2";
 var VCVERIFY = "vcVerify";
 var VCVERIFY2 = "vcVerify2";
-var PRETTYJAVA = "prettyJavaTranslate"
+var PRETTYJAVA = "prettyJavaTranslate";
 var PRETTYC = "prettyCTranslate";
 var ANALYZE = "analyze"
 /* 
@@ -282,9 +282,10 @@ UserControlView = Backbone.View.extend({
         var analyze = $("<button>").html("Analyze").addClass("analyze command active shadow");
         var build = $("<button>").html("Build").addClass("buildJar command active shadow");
         //var build = $("<button>").html("Build").addClass("buildJar command"); // inactive button
-        var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
-        var verify = $("<button>").html("RWVerify").addClass("verify command active shadow");
-        var verify2 = $("<button>").html("CCVerify").addClass("verify2 command active shadow");
+        //var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
+        var verify = $("<button>").html("2013-Prove").addClass("verify command active shadow");
+        var verify2 = $("<button>").html("MP-Prove").addClass("verify2 command active shadow");
+        var verify3 = $("<button>").html("Z3-UF-Prove").addClass("verify3 command active shadow");
         var renderSpan = $("<div>").attr({id:"render-controls"}).addClass("render command");
         var translateRenderbox = $("<input>").attr({type:"checkbox","id":"translateCheckbox","data-type":"translateCheckbox"});
         var translateRenderSpan = $("<label>").attr({"for":"translateCheckbox"}).html("Executable");
@@ -318,9 +319,10 @@ UserControlView = Backbone.View.extend({
             }
             else if(component.get("type") == "r"){
                 //translate.appendTo(commands);
-                vcs.appendTo(commands);
-                verify.appendTo(commands);
-		        verify2.appendTo(commands);
+                //vcs.appendTo(commands);
+                //verify.appendTo(commands);
+                verify2.appendTo(commands);
+                //verify3.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -333,9 +335,10 @@ UserControlView = Backbone.View.extend({
             }
             else if(component.get("type") == "er"){
                 //translate.appendTo(commands);
-                vcs.appendTo(commands);
-                verify.appendTo(commands);
+                //vcs.appendTo(commands);
+                //verify.appendTo(commands);
 		        verify2.appendTo(commands);
+                //verify3.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -343,9 +346,10 @@ UserControlView = Backbone.View.extend({
             else if(component.get("type") == "f"){
                 build.appendTo(commands);
                 //translate.appendTo(commands);
-                vcs.appendTo(commands);
-                verify.appendTo(commands);
+                //vcs.appendTo(commands);
+                //verify.appendTo(commands);
 		        verify2.appendTo(commands);
+                //verify3.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //javaRenderbox.appendTo(renderSpan);
