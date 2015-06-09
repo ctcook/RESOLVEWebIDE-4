@@ -23,9 +23,16 @@
     height: 50px;
     background-color: white;
 }
-.researchbackgroundclass{
+.researchbackgroundclass {
     background-color: lightgray;
-    /*background-image: url("../images/Research.png");*/
+    background-image: url("../images/Research.png");
+    background-repeat: no-repeat;
+    background-position-x: 10px;
+    background-position-y: 10px;
+    background-size: 5%;
+}
+.teachingbackgroundclass {
+    background-color: lightgray;
     background-image: url("../images/Teaching.png");
     background-repeat: no-repeat;
     background-position-x: 10px;
