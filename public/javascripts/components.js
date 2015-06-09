@@ -697,7 +697,7 @@ var OpenComponentView = Backbone.View.extend({
             myOpenComponentList.remove(openModel);
         }
         clearConsole();
-		dismissConsole();
+        dismissConsole();
     }
 });
 
