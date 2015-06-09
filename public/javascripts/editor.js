@@ -5,7 +5,7 @@ var VERIFY = "verify";
 var VERIFY2 = "verify2";
 var VCVERIFY = "vcVerify";
 var VCVERIFY2 = "vcVerify2";
-var PRETTYJAVA = "prettyJavaTranslate"
+var PRETTYJAVA = "prettyJavaTranslate";
 var PRETTYC = "prettyCTranslate";
 var ANALYZE = "analyze"
 /* 
@@ -282,9 +282,10 @@ UserControlView = Backbone.View.extend({
         var analyze = $("<button>").html("Analyze").addClass("analyze command active shadow");
         var build = $("<button>").html("Build").addClass("buildJar command active shadow");
         //var build = $("<button>").html("Build").addClass("buildJar command"); // inactive button
-        var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
-        var verify = $("<button>").html("RWVerify").addClass("verify command active shadow");
-	var verify2 = $("<button>").html("CCVerify").addClass("verify2 command active shadow");
+        //var vcs = $("<button>").html("VCs").addClass("vcs command active shadow");
+        var verify = $("<button>").html("2013-Prove").addClass("verify command active shadow");
+        var verify2 = $("<button>").html("MP-Prove").addClass("verify2 command active shadow");
+        var verify3 = $("<button>").html("Z3-UF-Prove").addClass("verify3 command active shadow");
         var renderSpan = $("<div>").attr({id:"render-controls"}).addClass("render command");
         var translateRenderbox = $("<input>").attr({type:"checkbox","id":"translateCheckbox","data-type":"translateCheckbox"});
         var translateRenderSpan = $("<label>").attr({"for":"translateCheckbox"}).html("Executable");
@@ -318,9 +319,10 @@ UserControlView = Backbone.View.extend({
             }
             else if(component.get("type") == "r"){
                 //translate.appendTo(commands);
-                vcs.appendTo(commands);
-                verify.appendTo(commands);
-		verify2.appendTo(commands);
+                //vcs.appendTo(commands);
+                //verify.appendTo(commands);
+                verify2.appendTo(commands);
+                //verify3.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -333,9 +335,10 @@ UserControlView = Backbone.View.extend({
             }
             else if(component.get("type") == "er"){
                 //translate.appendTo(commands);
-                vcs.appendTo(commands);
-                verify.appendTo(commands);
-		verify2.appendTo(commands);
+                //vcs.appendTo(commands);
+                //verify.appendTo(commands);
+		        verify2.appendTo(commands);
+                //verify3.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
@@ -343,15 +346,16 @@ UserControlView = Backbone.View.extend({
             else if(component.get("type") == "f"){
                 build.appendTo(commands);
                 //translate.appendTo(commands);
-                vcs.appendTo(commands);
-                verify.appendTo(commands);
-		verify2.appendTo(commands);
+                //vcs.appendTo(commands);
+                //verify.appendTo(commands);
+		        verify2.appendTo(commands);
+                //verify3.appendTo(commands);
                 translateRenderbox.appendTo(renderSpan);
                 translateRenderSpan.appendTo(renderSpan);
-                javaRenderbox.appendTo(renderSpan);
-                javaRenderSpan.appendTo(renderSpan);
-                cRenderbox.appendTo(renderSpan);
-                cRenderSpan.appendTo(renderSpan);
+                //javaRenderbox.appendTo(renderSpan);
+                //javaRenderSpan.appendTo(renderSpan);
+                //cRenderbox.appendTo(renderSpan);
+                //cRenderSpan.appendTo(renderSpan);
                 //renderSpan.appendTo(commands);
                 //verify.removeClass("active", "shadow");
             }
@@ -413,10 +417,10 @@ UserControlView = Backbone.View.extend({
         "click .active.buildJar" : "compile",
         "click .active.vcs" : "compile",
         "click .active.verify" : "verify",
-	"click .active.verify2" : "verify2",
+	    "click .active.verify2" : "verify2",
         "click #translateCheckbox" : "translateJava",
-        "click #javaCheckbox" : "translatePrettyJava",
-        "click #cCheckbox" : "translatePrettyC",
+        //"click #javaCheckbox" : "translatePrettyJava",
+        //"click #cCheckbox" : "translatePrettyC",
         //"click .active.commit" : "commit",
         "click .active.rename" : "rename",
         "click .active.save" : "save",
@@ -998,8 +1002,8 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
                 vcSpans.each(function(){
                     addWaitGif($(this));
                 })
-                var vcsDetails = $("#console-info").find(".vc_details");
-                vcsDetails.addClass("vc_details_hidden");
+                //var vcsDetails = $("#console-info").find(".vc_details");
+                //vcsDetails.addClass("vc_details_hidden");
                 targetJob = VERIFY2;
                 wsCompile(targetJob, targetJSON, waitGif, model);
 	    }
@@ -1022,7 +1026,14 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
     };
     
     ws.onclose = function (event) {
-        //console.log(event);
+        if ( (targetJob === "verify" && !verify) ||
+            (targetJob === "verify2" && !verify2)) {
+            $("#Processing").remove();
+            var commandButtons = $(".controls_commands").find("button");
+            commandButtons.removeAttr("disabled").addClass("active");
+            editor.setReadOnly(false);
+            $("#translateCheckbox").removeAttr("disabled").addClass("active");
+        }
     };
     
     var userEvent = new UserEvent({
@@ -1136,14 +1147,8 @@ function analyzeResults(resultJSON, component, waitGif){
             window.location.href = url;
             d.dialog("destroy");
         });
-        var cancelButton = $("<button>").val("cancel").text("Cancel");
-        cancelButton.click(function(event){
-            event.preventDefault();
-            cancelJarDownload(facName, downloadDir, d);
-        });
         var content = $("<div>").html("Succesfully built jar program for: " + facName + "<br/><br/>");
         content.append(downloadButton);
-        content.append(cancelButton);
         var el = $("#dialog_new");
         var d = el.dialog({
             width:400,
@@ -1232,6 +1237,8 @@ function analyzeVerifyResult(resultJSON){
         var vcID = "VC_" + vcResult.id;
         var result = vcResult.result;
         var vcDiv = $("#" + vcID);
+        var vcTitleDiv = $("#" + vcID + "_TITLE");
+        var vcInfoDiv = $("#" + vcID + "_INFO");
         //var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
         //var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
         var pRegExp = /Proved/i;
@@ -1243,25 +1250,34 @@ function analyzeVerifyResult(resultJSON){
             statusSpan.attr({
                 title: "Proved, " + msRegExp.exec(result) + " ms"
             });
-            //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
-            //result_string = check_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
+            vcDiv.remove();
+            $("#Proved").append(vcDiv);
+            $("#Proved").attr({style:"display: block"});
         }
         else {
-	    if(tRegExp.test(result)) {
-		addProveTimeout(statusSpan);
-		statusSpan.attr({
-			title: "Timeout after " + msRegExp.exec(result) + " ms"
-		});
+	        if(tRegExp.test(result)) {
+		        addProveTimeout(statusSpan);
+		        statusSpan.attr({
+			        title: "Timeout after " + msRegExp.exec(result) + " ms"
+		        });
+                vcDiv.remove();
+                $("#NotProved").append(vcDiv);
+                $("#NotProved").attr({style:"display: block"});
 	    }
             else {
             	addProveFail(statusSpan);
             	statusSpan.attr({
                 	title: "Unable to prove, " + msRegExp.exec(result) + " ms"
             	});
-	    }
-            //statusSpan.append("&nbsp;(" + msRegExp.exec(result) + " ms).");
-            //result_string = x_img + "&nbsp;(" + msRegExp.exec(result) + " ms).";
+                vcDiv.remove();
+                $("#NotProved").append(vcDiv);
+                $("#NotProved").attr({style:"display: block"});
+	        }
         }
+
+        vcTitleDiv.attr({style: "height: 37px; border: 2px solid; font-weight: bolder; font-size: 150%; font-family: \"Times New Roman\", Times, serif;"});
+        vcInfoDiv.attr({style:"display: block"});
+        vcDiv.accordion({collapsible: true, active: false, icons: false, autoHeight: false, animate: false});
     }
 }
 
@@ -1411,7 +1427,7 @@ function triggerConsole(){
 }
 
 function clearConsole(){
-    dismissConsole();
+    //dismissConsole();
     $("#console-info").html("");
 }
 
@@ -1516,6 +1532,39 @@ function htmlEncodeGTLT(content){
 }
 
 function logVCs(vcs){
+    clearConsole();
+    var commandButtons = $(".controls_commands").find("button");
+    commandButtons.attr({disabled: true});
+    commandButtons.removeClass("active");
+    editor.setReadOnly(true);
+    $("#translateCheckbox").attr({disabled: true});
+    $("#translateCheckbox").removeClass("active");
+    var processingDiv = $("<div>").addClass("processing").html("");
+    processingDiv.attr("id", "Processing");
+    processingDiv.append("<h3>PROCESSING</h3>");
+    for(var i = 0; i < vcs.length; i++) {
+        var vcDiv = $("<div>").addClass("vcContainer selectedVC").html("");
+        vcDiv.attr({id:"VC_"+vcs[i].vcID});
+        vcDiv.attr({style:"padding-bottom: 1px"});
+        vcDiv.append(reformatVCTitle(vcs[i]).html());
+        vcDiv.append(reformatVCInfo(vcs[i]).html());
+        processingDiv.append(vcDiv);
+    }
+    var notProvedDiv = $("<div>").addClass("not proved").html("");
+    notProvedDiv.attr("id", "NotProved");
+    notProvedDiv.attr({style:"display: none"});
+    notProvedDiv.append("<h3>NOT PROVED</h3>");
+    var provedDiv = $("<div>").addClass("proved").html("");
+    provedDiv.attr("id", "Proved");
+    provedDiv.attr({style:"display: none"});
+    provedDiv.append("<h3>PROVED</h3>");
+
+    $( "#console-info").append(notProvedDiv);
+    $( "#console-info").append(provedDiv);
+    $( "#console-info").append(processingDiv);
+}
+
+/*function logVCs(vcs){
     vcs.sort(sortByIdAndLine);
     //$( "#output_tabs" ).tabs("select", 2);
     var vcDiv = $("#console-info");
@@ -1556,10 +1605,10 @@ function logVCs(vcs){
     //consoleDiv.innerHTML += msg+"<br/>";
     //consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
-
+*/
 function selectVC(lineNum){
     //$( "#output_tabs" ).tabs("select", 2);
-    var vcsDiv = $("#console-info");
+    /*var vcsDiv = $("#console-info");
     var vcDiv = $("#vc_line_"+lineNum);
     var hiddenVcDetails = vcDiv.find(".vc_details_hidden");
     if(hiddenVcDetails.length > 0){
@@ -1571,7 +1620,7 @@ function selectVC(lineNum){
     //vcDiv.append(vc);
     var firstVcPosition = vcsDiv.find(":first").position();
     var selectedVcPosition = vcDiv.position();
-    vcsDiv.animate({scrollTop: selectedVcPosition.top - firstVcPosition.top}, 'fast');
+    vcsDiv.animate({scrollTop: selectedVcPosition.top - firstVcPosition.top}, 'fast');*/
     //vcsDiv.attr({scrollTop: vcDiv.position().top});
     //vcDiv[0].scrollTop = vcDiv[0].scrollHeight;
     //var consoleDiv = document.getElementById("console");
@@ -1579,7 +1628,76 @@ function selectVC(lineNum){
     //consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
 
-function reformatVCs(vc){
+function reformatVCTitle(vc){
+    var vcsDiv = $("<div>").addClass("vcContainer selectedVCTitle").html("");
+    var vcTitleDiv = $("<div>");
+    var vcID = vc.vcID;
+    if(typeof vcID !== "undefined"){
+        vcTitleDiv.addClass("vcTitle");
+        var step = decode(vc.step);
+        vcTitleDiv.attr({id:"VC_"+vcID+"_TITLE"});
+        var infoSpan = $("<span>").addClass("componentInfo vc_status");
+        vcTitleDiv.append(infoSpan);
+        vcTitleDiv.append("VC "+vcID + "&nbsp;&nbsp;&nbsp;(" + vc.line + ")");
+        vcTitleDiv.attr({style: "height: 35px; font-weight: bold; border:"});
+
+        vcsDiv.append(vcTitleDiv);
+    }
+    else{
+        vcTitleDiv.addClass("freeVarsTitle");
+        vcTitleDiv.append(decode(vc.freeVars));
+    }
+
+    return vcsDiv;
+}
+
+function reformatVCInfo(vc){
+
+    var vcsDiv = $("<div>").addClass("vcContainer selectedVCInfo").html("");
+    //vcsDiv.append("Hello!\n");
+    var vcInfoDiv = $("<div>");
+    var vcID = vc.vcID;
+    if(typeof vcID !== "undefined"){
+        vcInfoDiv.addClass("vcInfo");
+        var step = decode(vc.step);
+        var goal = vc.goal;
+        var given = vc.given;
+        vcInfoDiv.attr({id:"VC_"+vcID+"_INFO"});
+        vcInfoDiv.attr({style:"display: none"});
+        //var infoSpan = $("<span>").addClass("componentInfo vc_status");
+        //vcInfoDiv.append(infoSpan);
+        var vcDetails = $("<div>").addClass("vc_info_details");
+        vcDetails.append("<br/>");
+        vcDetails.append(step+"<br/><br/>");
+        vcDetails.append("Goal:");
+        //goal = goal.substr(goal.indexOf(":")+1);
+        var goalDiv = $("<div>").addClass("vcIndention").html("<p>"+goal.replace(/&nbsp;/g, " ")+"</p>");
+        vcDetails.append(goalDiv);
+        vcDetails.append("Given:");
+        var givensList = $("<ol>");
+        var givenRegExp = /[\d]+:/g;
+        var givens = given.split(givenRegExp);
+        $.each(givens, function(index, given){
+            if(index != 0){
+                var givenItem = $("<li>").html(given.replace(/&nbsp;/g, " "));
+                givensList.append(givenItem);
+            }
+        });
+        vcDetails.append(givensList);
+        vcDetails.appendTo(vcInfoDiv);
+        vcsDiv.append(vcInfoDiv);
+    }
+    else{
+        vcDiv.addClass("freeVars");
+        vcDiv.append(decode(vc.freeVars));
+    }
+    //$.each(vcArray, function(){
+
+    //});
+    return vcsDiv;
+}
+
+/*function reformatVCs(vc){
     var vcsDiv = $("<div>").addClass("vcContainer selectedVC").html("");
     var vcDiv = $("<div>");
     var vcID = vc.vcID;
@@ -1626,11 +1744,11 @@ function reformatVCs(vc){
         vcDiv.append(decode(vc.freeVars));
     }
     //$.each(vcArray, function(){
-        
+
     //});
     return vcsDiv;
 }
-
+*/
 function encodeVcContent(content){
     var regExp = /\<[^\>]\>/g;
     var lsRegExpLT = /\</g;
