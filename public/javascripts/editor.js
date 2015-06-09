@@ -1608,7 +1608,7 @@ function logVCs(vcs){
 */
 function selectVC(lineNum){
     //$( "#output_tabs" ).tabs("select", 2);
-    var vcsDiv = $("#console-info");
+    /*var vcsDiv = $("#console-info");
     var vcDiv = $("#vc_line_"+lineNum);
     var hiddenVcDetails = vcDiv.find(".vc_details_hidden");
     if(hiddenVcDetails.length > 0){
@@ -1620,7 +1620,7 @@ function selectVC(lineNum){
     //vcDiv.append(vc);
     var firstVcPosition = vcsDiv.find(":first").position();
     var selectedVcPosition = vcDiv.position();
-    vcsDiv.animate({scrollTop: selectedVcPosition.top - firstVcPosition.top}, 'fast');
+    vcsDiv.animate({scrollTop: selectedVcPosition.top - firstVcPosition.top}, 'fast');*/
     //vcsDiv.attr({scrollTop: vcDiv.position().top});
     //vcDiv[0].scrollTop = vcDiv[0].scrollHeight;
     //var consoleDiv = document.getElementById("console");
