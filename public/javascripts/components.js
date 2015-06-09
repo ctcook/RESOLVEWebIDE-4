@@ -696,7 +696,8 @@ var OpenComponentView = Backbone.View.extend({
             openModel.unset("editorSession");
             myOpenComponentList.remove(openModel);
         }
-        clearConsole();    
+        clearConsole();
+		hideConsole();
     }
 });
 
