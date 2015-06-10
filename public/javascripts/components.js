@@ -687,17 +687,17 @@ var OpenComponentView = Backbone.View.extend({
         }
         if(res){
             var openModel = this.model;
-            //var model = getModelByCid(myComponentList, openModel.get("cid"));
             var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
-            //if(prevIndex >= 0){
-                //var prevComponent = myOpenComponentList.at(prevIndex);;
-                //myOpenComponent_view._selectedComponent = prevComponent.get("pkg") + "." + prevComponent.get("name");
-            //}
+
+			// We need to clear and close the console if are the last one.
+            if(prevIndex < 0){
+                clearConsole();
+                dismissConsole();
+            }
+
             openModel.unset("editorSession");
             myOpenComponentList.remove(openModel);
         }
-        clearConsole();
-        dismissConsole();
     }
 });
 
