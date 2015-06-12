@@ -687,16 +687,14 @@ var OpenComponentView = Backbone.View.extend({
         }
         if(res){
             var openModel = this.model;
-            var prevIndex = _.indexOf(myOpenComponentList.models, openModel) - 1;
+            openModel.unset("editorSession");
+            myOpenComponentList.remove(openModel);
 
 			// We need to clear and close the console if are the last one.
-            if(prevIndex < 0){
+            if(myOpenComponentList.length == 0){
                 clearConsole();
                 dismissConsole();
             }
-
-            openModel.unset("editorSession");
-            myOpenComponentList.remove(openModel);
         }
     }
 });
