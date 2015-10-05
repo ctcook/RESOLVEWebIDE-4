@@ -960,14 +960,14 @@ function wsCompile(targetJob, targetJSON, waitGif, model){
         targetJob = VCS;
     }
     else if(targetJob == VCVERIFY2){
-	verify2 = true;
-	targetJob = VCS;
+        verify2 = true;
+        targetJob = VCS;
     }
     var protocol;
     if (window.location.protocol == "http:") {
-	protocol = "ws://";
+        protocol = "ws://";
     } else {
-	protocol = "wss://";
+        protocol = "wss://";
     }
 
     var url = protocol + getUrl(loc) + "Compiler";

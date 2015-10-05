@@ -75,7 +75,7 @@ var Component = Backbone.RelationalModel.extend({
         //var pathname = loc.pathname;
         //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
         //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-        var url = "http://" + getUrl(loc) + "Components";
+        var url = window.location.protocol + "//" + getUrl(loc) + "Components";
         return url;
         //return this.collection.url() + '/Components';
     }
@@ -1083,7 +1083,7 @@ function initializeUserComponents(userComponents){
         //var pathname = loc.pathname;
         //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
         //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-        var url = "http://" + getUrl(loc) + "export?project=" + selectedProject;
+        var url = window.location.protocol + "//" + getUrl(loc) + "export?project=" + selectedProject;
         window.location.href = url;
     });
     
@@ -1337,7 +1337,7 @@ function importUserFiles(json, d){
     //var pathname = loc.pathname;
     //pathname = pathname.substring(0,pathname.lastIndexOf("/"));
     //var url = "http://" + loc.host + (loc.pathname.length>1?loc.pathname+"/":loc.pathname) + "Components";
-    var url = "http://" + getUrl(loc) + "import";
+    var url = window.location.protocol + "//" + getUrl(loc) + "import";
     $.ajax({
         type: "POST",
         url: url,
