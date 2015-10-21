@@ -6,6 +6,7 @@ package compiler;
 
 import edu.clemson.cs.r2jt.ResolveCompiler;
 import edu.clemson.cs.r2jt.compilereport.CompileReport;
+import models.CompilerResult;
 import play.mvc.Http;
 
 /**
@@ -26,7 +27,7 @@ public class VCGeneratorInvoker {
     }
     
     
-    public void generateVcs(String job)
+    public void generateVcs(String job, CompilerResult result)
     {
         OutboundMessageSender outbound = new OutboundMessageSender(myOutbound);
         //Run the compiler
@@ -41,15 +42,23 @@ public class VCGeneratorInvoker {
         boolean errors = false;
         if(cr.hasErrors()){
             errors = true;
+            result.error = 1;
+            result.results = cr.getErrors();
             outbound.sendErrors(job, cr.getErrors());
         }
         if(cr.hasBugReports()){
             errors = true;
+            result.error = 2;
+            result.results = cr.getBugReports();
             outbound.sendBugs(job, cr.getBugReports());
         }
         if(!errors){
+            result.error = 0;
+            result.results = cr.getOutput();
             outbound.sendComplete(job, cr.getOutput());
         }
+
+        result.save();
         
         /*StringBuffer opBuffer = new StringBuffer();
         String syntaxError = "false";

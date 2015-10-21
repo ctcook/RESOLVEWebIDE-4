@@ -25,6 +25,7 @@ import play.mvc.Http.WebSocketEvent;
 import play.mvc.WebSocketController;
 import webui.utils.WebSocketWriter;
 import play.mvc.Http.WebSocketFrame;
+import models.CompilerResult;
 
 /**
  *
@@ -63,9 +64,10 @@ public class CompilerSocket extends WebSocketController {
         }
         key += umf.getMyFileName();
         userFileMap.put(key, umf);
+        User user = null;
         if(Security.isConnected()) {
             String email = Security.connected();
-            User user = User.find("byEmail", email).first();
+            user = User.find("byEmail", email).first();
             JPAQuery query = UserComponent.find("byAuthor_idAndProject", user.id, project);
             List<UserComponent> ucs = query.fetch();
             for(UserComponent c : ucs){
@@ -81,6 +83,9 @@ public class CompilerSocket extends WebSocketController {
                     
             }
         }
+
+        CompilerResult cr = new CompilerResult(uc.name, uc.pkg, project, uc.type, job, uc.content, null, 0, user, uc.parent);
+
         if(job.compareTo("translateJava") == 0){
             //Constructing compiler
             String[] args = {"-maindir", compilerMainDir, "-javaTranslate", 
@@ -91,7 +96,7 @@ public class CompilerSocket extends WebSocketController {
             //translating
             JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
             //outbound.send(gji.generateJava().toString());
-            gji.generateJava(job);//event);
+            gji.generateJava(job, cr);//event);
         }
         else if(job.compareTo("genVCs") == 0){
             //Constructing compiler
@@ -102,7 +107,7 @@ public class CompilerSocket extends WebSocketController {
             r = new ResolveCompiler(args, umf, userFileMap);
 
             VCGeneratorInvoker vcgi = new VCGeneratorInvoker(r, args, outbound);
-            vcgi.generateVcs(job);
+            vcgi.generateVcs(job, cr);
         }
         else if(job.compareTo("verify") == 0){
             //Constructing compiler
@@ -115,7 +120,7 @@ public class CompilerSocket extends WebSocketController {
             r = new ResolveCompiler(args, umf, userFileMap);
 
             VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
-            vcgi.verifyResolve(job);
+            vcgi.verifyResolve(job, cr);
         }
 	else if(job.compareTo("verify2") == 0){
 /*	    String[] args = {"-maindir", compilerMainDir, "-vcs",
@@ -127,7 +132,7 @@ public class CompilerSocket extends WebSocketController {
             r = new ResolveCompiler(args, umf, userFileMap);
 
             VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
-            vcgi.verifyResolve(job);
+            vcgi.verifyResolve(job, cr);
 	}
         else if(job.compareTo("buildJar") == 0){
             
@@ -154,7 +159,7 @@ public class CompilerSocket extends WebSocketController {
             r = new ResolveCompiler(args, umf, userFileMap);
 
             JarBuilderInvoker jbi = new JarBuilderInvoker(r, args, tempDir, outbound);
-            jbi.generateFacilityJar(job, umf);
+            jbi.generateFacilityJar(job, umf, cr);
         }
         else if(job.compareTo("prettyJavaTranslate") == 0){
             String[] args = {"-maindir", compilerMainDir, "-prettyJavaTranslate", 
@@ -165,7 +170,7 @@ public class CompilerSocket extends WebSocketController {
             //translating
             JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
             //outbound.send(gji.generateJava().toString());
-            gji.generateJava(job);//event);
+            gji.generateJava(job, cr);//event);
         }
         else if(job.compareTo("prettyCTranslate") == 0){
             String[] args = {"-maindir", compilerMainDir, "-prettyCTranslate", 
@@ -176,7 +181,7 @@ public class CompilerSocket extends WebSocketController {
             //translating
             JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
             //outbound.send(gji.generateJava().toString());
-            gji.generateJava(job);//event);
+            gji.generateJava(job, cr);//event);
         }
         else if(job.compareTo("analyze") == 0){
             String[] args = {"-maindir", compilerMainDir, "-webinterface"};
@@ -186,7 +191,7 @@ public class CompilerSocket extends WebSocketController {
             //translating
             JavaTranslatorInvoker gji = new JavaTranslatorInvoker(r, args, outbound);
             //outbound.send(gji.generateJava().toString());
-            gji.generateJava(job);//event);
+            gji.generateJava(job, cr);//event);
         }
         //System.out.println("done!");
         //System.out.println(decode(uc.content));
