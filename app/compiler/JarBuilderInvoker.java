@@ -17,6 +17,8 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpSession;
+
+import models.CompilerResult;
 import play.mvc.Http;
 //import webui.core.UserEvent;
 
@@ -41,7 +43,7 @@ public class JarBuilderInvoker {
         myOutbound = outbound;
     }
     
-    public void generateFacilityJar(String job, MetaFile umf)
+    public void generateFacilityJar(String job, MetaFile umf, CompilerResult result)
     {
         OutboundMessageSender outbound = new OutboundMessageSender(myOutbound);
         //Run the compiler
@@ -56,10 +58,14 @@ public class JarBuilderInvoker {
         boolean errors = false;
         if(cr.hasErrors()){
             errors = true;
+            result.error = 1;
+            result.results = cr.getErrors();
             outbound.sendErrors(job, cr.getErrors());
         }
         if(cr.hasBugReports()){
             errors = true;
+            result.error = 2;
+            result.results = cr.getBugReports();
             outbound.sendBugs(job, cr.getBugReports());
         }
         if(!errors){
@@ -69,8 +75,13 @@ public class JarBuilderInvoker {
             resultMsg.append("\",\"downloadDir\":\"");
             resultMsg.append(tempWsDir);
             resultMsg.append("\"}");
+
+            result.error = 0;
+            result.results = resultMsg.toString();
             outbound.sendComplete(job, resultMsg.toString());
         }
+
+        result.save();
         
         /*
         String realName = name;
