@@ -3,6 +3,7 @@ package models;
 import play.db.jpa.Model;
 
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Date;
@@ -15,9 +16,12 @@ public class CompilerResult extends Model {
     public String project;
     public String fileType;
     public String eventType;
-    //@Lob
+    
+    @Lob
     public String content;
+    @Lob
     public String results;
+    
     public int error;
     public Date eventDate;
     @ManyToOne

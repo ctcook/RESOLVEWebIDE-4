@@ -14,7 +14,7 @@ public class UserEvent extends Model {
     public String pkg;
     public String project;
     public String eventType;
-    //@Lob
+    @Lob
     public String content;
     public Date eventDate;
     @ManyToOne
