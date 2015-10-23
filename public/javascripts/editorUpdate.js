@@ -196,6 +196,13 @@ function addProveFail(div){
     return imageDiv;
 }
 
+function addProveSkipped(div){
+    var imageDiv = $("<div>");
+    imageDiv.addClass("proveSkipped");
+    div.html(imageDiv);
+    return imageDiv;
+}
+
 function addProveTimeout(div){
     var imageDiv = $("<div>");
     imageDiv.addClass("proveTimeout");

@@ -41,12 +41,16 @@ public class OutboundMessageSender {
             msg += "Proved, " + proofDuration + " ms";
         }
         else {
-            if (proofDuration < timeout) {
-		msg += "Unable to prove, " + proofDuration + " ms";
+            if (timeout != 0) {
+                if (proofDuration < timeout) {
+                    msg += "Unable to prove, " + proofDuration + " ms";
+                } else {
+                    msg += "Timeout after " + timeout + " ms";
+                }
             }
             else {
-            	msg += "Timeout after " + timeout + " ms";
-	    }
+                msg += "Skipped";
+            }
         }
         msg += "\"}";
         msg += "}";
