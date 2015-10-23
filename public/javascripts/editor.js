@@ -1249,7 +1249,8 @@ function analyzeVerifyResult(resultJSON){
         //var check_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/check.png\" alt=\"Proved in\" />";
         //var x_img = "&nbsp;&nbsp;&nbsp;<img class=\"verify_imgs\" src=\"images/x.png\" alt=\"Skipped after\" />";
         var pRegExp = /Proved/i;
-	var tRegExp = /Timeout/i;
+        var sRegExp = /Skipped/i;
+        var tRegExp = /Timeout/i;
         var msRegExp = /[0-9]+/;
         var statusSpan = vcDiv.find(".vc_status");
         if(pRegExp.test(result)) {
@@ -1262,23 +1263,34 @@ function analyzeVerifyResult(resultJSON){
             $("#Proved").attr({style:"display: block"});
         }
         else {
-	        if(tRegExp.test(result)) {
-		        addProveTimeout(statusSpan);
-		        statusSpan.attr({
-			        title: "Timeout after " + msRegExp.exec(result) + " ms"
-		        });
+            if (sRegExp.test(result)) {
+                addProveSkipped(statusSpan);
+                statusSpan.attr({
+                    title: "Skipped"
+                })
                 vcDiv.remove();
-                $("#NotProved").append(vcDiv);
-                $("#NotProved").attr({style:"display: block"});
-	    }
+                $("#Skipped").append(vcDiv);
+                $("#Skipped").attr({style: "display: block"});
+            }
             else {
-            	addProveFail(statusSpan);
-            	statusSpan.attr({
-                	title: "Unable to prove, " + msRegExp.exec(result) + " ms"
-            	});
-                vcDiv.remove();
-                $("#NotProved").append(vcDiv);
-                $("#NotProved").attr({style:"display: block"});
+                if(tRegExp.test(result)) {
+		            addProveTimeout(statusSpan);
+		            statusSpan.attr({
+			            title: "Timeout after " + msRegExp.exec(result) + " ms"
+		            });
+                    vcDiv.remove();
+                    $("#NotProved").append(vcDiv);
+                    $("#NotProved").attr({style:"display: block"});
+                }
+                else {
+                    addProveFail(statusSpan);
+                    statusSpan.attr({
+                        title: "Unable to prove, " + msRegExp.exec(result) + " ms"
+                    });
+                    vcDiv.remove();
+                    $("#NotProved").append(vcDiv);
+                    $("#NotProved").attr({style: "display: block"});
+                }
 	        }
         }
 
@@ -1565,9 +1577,14 @@ function logVCs(vcs){
     provedDiv.attr("id", "Proved");
     provedDiv.attr({style:"display: none"});
     provedDiv.append("<h3>PROVED</h3>");
+    var skippedDiv = $("<div>").addClass("skipped").html("");
+    skippedDiv.attr("id", "Skipped");
+    skippedDiv.attr({style:"display: none"});
+    skippedDiv.append("<h3>SKIPPED</h3>");
 
     $( "#console-info").append(notProvedDiv);
     $( "#console-info").append(provedDiv);
+    $( "#console-info").append(skippedDiv);
     $( "#console-info").append(processingDiv);
 }
 
