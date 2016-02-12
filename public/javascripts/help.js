@@ -1,7 +1,7 @@
 function genHelp() {
     var el = $("#dialog_new");    
     var loc = window.location;
-    var url = "http://" + getUrl(loc) + "public/help/help.txt";
+    var url = window.location.protocol + "//" + getUrl(loc) + "public/help/help.txt";
     $.ajax({
         type: "get",
         url: url,
