@@ -1,5 +1,6 @@
 package models;
 
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -18,6 +19,7 @@ public class ByDesignEvent extends Model {
     public String code;
 	public boolean correct;
 	public long points;
+	public Date eventDate;
     
     public ByDesignEvent(long author, String module, String lesson, long time,
                         String code, boolean correct, long points){
