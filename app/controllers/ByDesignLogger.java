@@ -11,6 +11,7 @@ public class ByDesignLogger extends Controller {
         body = StringEscapeUtils.unescapeJava(body);
         String target = body.substring(1, body.length() - 1);
         ByDesignEvent event = new Gson().fromJson(target, ByDesignEvent.class);
+		event.eventDate = new Date();
         event.save();
     }
 }

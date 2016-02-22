@@ -18,6 +18,7 @@ public class ByDesignEvent extends Model {
     public String code;
 	public boolean correct;
 	public long points;
+	public Date eventDate;
     
     public ByDesignEvent(long author, String module, String lesson, long time,
                         String code, boolean correct, long points){
