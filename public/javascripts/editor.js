@@ -203,6 +203,7 @@ var keywordsTable = new KeywordsHashTable({
     "powerset" : "" ,
     "preserves" : "The value passed in will always be the same ending value,  and we are guaranteed that the value will not be changed throughout the operation." ,
     "pres" : "The value passed in will always be the same ending value,  and we are guaranteed that the value will not be changed throughout the operation." ,
+    "Presume" : "" ,
     "Proc" : "This contains implementation statements within a facility." ,
     "Procedure" : "This contains implementation statements within a facility." ,
     "Proof" : "" ,
