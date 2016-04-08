@@ -62,7 +62,7 @@ public class Theory {
         
     private String getComponentKey(){
         StringBuilder sb = new StringBuilder();
-        sb.append("theories");
+        sb.append(dirName);
         sb.append(".");
         sb.append(name);
         return sb.toString();
