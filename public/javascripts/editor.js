@@ -10,7 +10,7 @@ var PRETTYC = "prettyCTranslate";
 var ANALYZE = "analyze"
 
 // Initial welcome message to display in the ACE editor.
-var welcomeMessage = "-- Please click on Components button.\n-- Select a program or a (reusable) concept.\n-- For additional information, please click on Help at top right.";
+var welcomeMessage = "-- Please click on Components button.\n-- Select a program or a (reusable) concept.\n-- For additional information, please click on Help at top right.\n-- Please Register and Sign In (top right) in order to create new components. To create a new component, use the right mouse click in the finder.";
 
 /* 
  * This file contains code for creating and using the ACE editor
