@@ -8,6 +8,10 @@ var VCVERIFY2 = "vcVerify2";
 var PRETTYJAVA = "prettyJavaTranslate";
 var PRETTYC = "prettyCTranslate";
 var ANALYZE = "analyze"
+
+// Initial welcome message to display in the ACE editor.
+var welcomeMessage = "-- Please click on Components button.\n-- Select a program or a (reusable) concept.\n-- For additional information, please click on Help at top right.";
+
 /* 
  * This file contains code for creating and using the ACE editor
  */
@@ -387,7 +391,10 @@ UserControlView = Backbone.View.extend({
             }
         }
         else{
-            commands.append("Please select a component");
+            var editorDiv = "code_editor";
+            editor = ace.edit(editorDiv);
+            editor.getSession().setMode();
+            editor.getSession().setValue(welcomeMessage);
         }
         plus.appendTo(zoomControls);
         minus.appendTo(zoomControls);
@@ -1376,9 +1383,10 @@ function initializeEditor(){
     setConsolePosition();
     editor = ace.edit(editorDiv);
     editor.setTheme("ace/theme/textmate");
-    var ResolveMode = require("ace/mode/resolve").Mode;
-    editor.getSession().setMode(new ResolveMode());
-    editor.getSession().setValue("");
+    //var ResolveMode = require("ace/mode/resolve").Mode;
+    //ResolveMode = require("ace/mode/resolve").Mode;
+    //editor.getSession().setMode(new ResolveMode());
+    editor.getSession().setValue(welcomeMessage);
     editor.renderer.setHScrollBarAlwaysVisible(false);
     document.getElementById(editorDiv).style.fontSize=FONTSIZE+"px";
     
