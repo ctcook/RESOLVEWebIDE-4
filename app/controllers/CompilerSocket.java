@@ -128,7 +128,7 @@ public class CompilerSocket extends WebSocketController {
 			"-timeout", "15000"};*/
 	    String[] args = {"-maindir", compilerMainDir, "-altVCs",
 			"-ccprove", "-webinterface",
-			"-timeout", "8500", "-num_tries", "3"};
+			"-timeout", "3000", "-num_tries", "3"};
             r = new ResolveCompiler(args, umf, userFileMap);
 
             VerifyInvoker vcgi = new VerifyInvoker(r, args, outbound);
