@@ -149,7 +149,7 @@ var keywordsTable = new KeywordsHashTable({
     "existantial" : "" ,
     "exists" : "" ,
     "exit" : "" ,    
-    "Facility" : "" ,
+    "Facility" : "Facility is an instance. It may be either an instantiation of a reusable component with suitable parameters or a special-purpose single component instance." ,
     "Facility_Finalization" : "" ,
     "Facility_Initialization" : "" ,
     "false" : "" ,
