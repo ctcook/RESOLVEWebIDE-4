@@ -1,7 +1,7 @@
 RESOLVE WebIDE (Version 4)
 ==============
 
-##What is RESOLVE?
+## What is RESOLVE?
 
 RESOLVE (REusable SOftware Language with VErification) is a programming and
 specification language designed for verifying correctness of object oriented
@@ -19,20 +19,18 @@ All phases of the verification process spanning verification condition (VC)
 generation to proving are performed in-house, while RESOLVE programs are
 translated to Java and run on the JVM.
 
-##Authors and major contributors
+## Authors and major contributors
 
 The creation and continual evolution of the RESOLVE language is owed to an
 ongoing joint effort between Clemson University, The Ohio State University, and
-countless educators and researchers from a variety of [other]
-(https://www.cs.clemson.edu/resolve/about.html) institutions.
+countless educators and researchers from a variety of [other](https://www.cs.clemson.edu/resolve/about.html) institutions.
 
 Developers of this particular test/working-iteration of the RESOLVE compiler
 include:
 
-* [The Resuable Software Research Group (RSRG)]
-(https://www.cs.clemson.edu/resolve/) - School of Computing, Clemson University
+* [The Resuable Software Research Group (RSRG)](https://www.cs.clemson.edu/resolve/) - School of Computing, Clemson University
 
-##Copyright and license
+## Copyright and license
 
 Copyright (c) Clemson University, 2017. All rights reserved. The use and
 distribution terms for this software are covered by the BSD 3-clause license
