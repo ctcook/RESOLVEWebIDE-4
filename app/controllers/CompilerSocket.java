@@ -34,7 +34,8 @@ import models.CompilerResult;
 public class CompilerSocket extends WebSocketController {
     public static void compile(String job, String project/*, String target, String project*/) {
         String target = "";
-        while(inbound.isOpen()){
+        boolean recvCloseEvent = false;
+        while(inbound.isOpen() && !recvCloseEvent){
             WebSocketEvent e = await(inbound.nextEvent());
 
             // YS: Check to see if we actually got some frame data
@@ -44,7 +45,18 @@ public class CompilerSocket extends WebSocketController {
                     break;
                 }
             }
+            // YS: Don't execute the logic for compile if the client 
+            // closed the socket.
+            else if (e instanceof WebSocketClose) {
+                recvCloseEvent = true;
+            }
         }
+
+        // YS: Don't need to execute any of the logic if the socket is closed.
+        if (recvCloseEvent) {
+            return;
+        }
+
         UserComponent uc = new Gson().fromJson(target, UserComponent.class);
         WebSocketWriter myWsWriter = new WebSocketWriter(outbound);
         String slash = System.getProperty("file.separator");
