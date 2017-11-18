@@ -36,14 +36,14 @@ public class CompilerSocket extends WebSocketController {
         String target = "";
         while(inbound.isOpen()){
             WebSocketEvent e = await(inbound.nextEvent());
-            target = ((WebSocketFrame)e).textData;
-            if(!target.equals("")){
-                break;
+
+            // YS: Check to see if we actually got some frame data
+            if (e instanceof WebSocketFrame) {
+                target = ((WebSocketFrame)e).textData;
+                if(!target.equals("")){
+                    break;
+                }
             }
-            //for(String quit: TextFrame.and(Equals("complete")).match(e)) {
-                //outbound.send("Bye!");
-                //disconnect();
-            //}
         }
         UserComponent uc = new Gson().fromJson(target, UserComponent.class);
         WebSocketWriter myWsWriter = new WebSocketWriter(outbound);
