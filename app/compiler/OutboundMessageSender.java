@@ -15,7 +15,7 @@ public class OutboundMessageSender {
         msg += "\"status\":\"error\",\"type\":\"error\",\"errors\":[{";
         msg += errors;
         msg += "}]}";
-        myOutbound.send(msg);
+        safeSend(msg);
     }
     
     public void sendBugs(String job, String bugs){
@@ -23,7 +23,7 @@ public class OutboundMessageSender {
         msg += "\"status\":\"error\",\"type\":\"bug\",\"bugs\":[{";
         msg += bugs;
         msg += "}]}";
-        myOutbound.send(msg);
+        safeSend(msg);
     }
     
     public void sendComplete(String job, String data){
@@ -31,7 +31,7 @@ public class OutboundMessageSender {
         msg += "\"status\":\"complete\",\"result\":\"";
         msg += CompilerSocket.encode(data);
         msg += "\"}";
-        myOutbound.send(msg);
+        safeSend(msg);
     }
     
     public void sendVcResult(Boolean result, String id, long proofDuration, long timeout){
@@ -54,6 +54,13 @@ public class OutboundMessageSender {
         }
         msg += "\"}";
         msg += "}";
-        myOutbound.send(msg);
+        safeSend(msg);
+    }
+
+    private void safeSend(String msg) {
+        // YS: An helper method that only sends a message if the outbounds is still open
+        if (myOutbound.isOpen()) {
+            myOutbound.send(msg);
+        }
     }
 }
