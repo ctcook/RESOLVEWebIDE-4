@@ -53,7 +53,7 @@ public class CompilerSocket extends WebSocketController {
         }
 
         // YS: Don't need to execute any of the logic if the socket is closed.
-        if (recvCloseEvent) {
+        if (recvCloseEvent || !inbound.isOpen()) {
             return;
         }
 
